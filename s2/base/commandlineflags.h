@@ -21,6 +21,34 @@
 #include "s2/base/integral_types.h"
 #include "absl/strings/string_view.h"
 
+#include <gflags/gflags.h>
+
+// If the GFlags library is available, map the local macro names to
+// GFlags macros.
+#define S2_DEFINE_bool  DEFINE_bool
+#define S2_DECLARE_bool  DECLARE_bool
+
+#define S2_DEFINE_double  DEFINE_double
+#define S2_DECLARE_double  DECLARE_double
+
+#define S2_DEFINE_int32  DEFINE_int32
+#define S2_DECLARE_int32  DECLARE_int32
+
+#define S2_DEFINE_int64  DEFINE_int64
+#define S2_DECLARE_int64  DECLARE_int64
+
+#define S2_DEFINE_string  DEFINE_string
+#define S2_DECLARE_string  DECLARE_string
+
+// gflags has its own int32 definitions.
+namespace absl {
+inline int32 GetFlag(google::int32 flag) { return flag; }
+inline int64 GetFlag(google::int64 flag) { return flag; }
+inline void SetFlag(google::int32* f, google::int32 v) { *f = v; }
+inline void SetFlag(google::int64* f, google::int64 v) { *f = v; }
+}  // namespace absl
+
+#if 0
 #ifdef S2_USE_GFLAGS
 
 #include <gflags/gflags.h>
@@ -90,6 +118,7 @@ inline void SetFlag(int64* f, int64 v) { *f = v; }
 }  // namespace absl
 
 #endif  // !defined(S2_USE_GFLAGS)
+#endif
 
 // Flags are declared with v1 flags, but accessed via absl::GetFlag/SetFlag.
 // TODO(user,b/205817426): Convert everything to absl flags and remove gflags.
