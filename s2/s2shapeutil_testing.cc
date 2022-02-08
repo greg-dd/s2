@@ -15,11 +15,10 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2shapeutil_testing.h"
+#include "s2/s2shapeutil_testing.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
-namespace s2 {
 namespace s2testing {
 
 void ExpectEqual(const S2Shape& a, const S2Shape& b) {
@@ -103,4 +102,3 @@ void ExpectEqual(const S2ShapeIndex& a, const S2ShapeIndex& b) {
 }
 
 }  // namespace s2testing
-}  // namespace s2

@@ -18,17 +18,16 @@
 // This file contains some basic tests of the templating support.  Testing of
 // the actual algorithms is in s2closest_cell_query_test.cc.
 
-#include "s2//s2closest_cell_query_base.h"
+#include "s2/s2closest_cell_query_base.h"
 
-#include "gtest/gtest.h"
-#include "s2//mutable_s2shape_index.h"
-#include "s2//s2max_distance_targets.h"
-#include "s2//s2text_format.h"
+#include <gtest/gtest.h>
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2max_distance_targets.h"
+#include "s2/s2text_format.h"
 
-using s2::s2textformat::MakeCellIdOrDie;
-using s2::s2textformat::MakeCellUnionOrDie;
+using s2textformat::MakeCellIdOrDie;
+using s2textformat::MakeCellUnionOrDie;
 
-namespace s2 {
 namespace {
 
 // This is a proof-of-concept prototype of a possible S2FurthestCellQuery
@@ -62,4 +61,3 @@ TEST(S2ClosestCellQueryBase, MaxDistance) {
 }
 
 }  // namespace
-}  // namespace s2

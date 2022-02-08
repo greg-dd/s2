@@ -15,20 +15,20 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2point_region.h"
+#include "s2/s2point_region.h"
 
 #include <memory>
 
-#include "gtest/gtest.h"
-#include "s2//util/coding/coder.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell.h"
-#include "s2//s2latlng.h"
-#include "s2//s2latlng_rect.h"
+#include <gtest/gtest.h>
+#include "s2/util/coding/coder.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
 
 using std::unique_ptr;
 
-namespace s2 {
+namespace {
 
 TEST(S2PointRegionTest, Basic) {
   S2Point p(1, 0, 0);
@@ -97,4 +97,4 @@ TEST(S2PointRegionTest, DecodeNonUnitLength) {
   ASSERT_FALSE(r.Decode(&decoder));
 }
 
-}  // namespace s2
+}  // namespace

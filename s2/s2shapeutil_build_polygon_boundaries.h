@@ -20,9 +20,8 @@
 
 #include <vector>
 
-#include "s2//s2shape_index.h"
+#include "s2/s2shape_index.h"
 
-namespace s2 {
 namespace s2shapeutil {
 
 // The purpose of this function is to construct polygons consisting of
@@ -63,6 +62,5 @@ void BuildPolygonBoundaries(
     std::vector<std::vector<S2Shape*>>* polygons);
 
 }  // namespace s2shapeutil
-}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_BUILD_POLYGON_BOUNDARIES_H_

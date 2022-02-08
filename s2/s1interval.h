@@ -22,11 +22,9 @@
 #include <iosfwd>
 #include <iostream>
 
-#include "s2//base/logging.h"
-#include "s2//_fp_contract_off.h"
-#include "s2//util/math/vector.h"  // IWYU pragma: export
-
-namespace s2 {
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/util/math/vector.h"  // IWYU pragma: export
 
 // An S1Interval represents a closed interval on a unit circle (also known
 // as a 1-dimensional sphere).  It is capable of representing the empty
@@ -182,6 +180,9 @@ class S1Interval {
   // Return true if two intervals contains the same set of points.
   bool operator==(const S1Interval& y) const;
 
+  // Return true if two intervals do not contain the same set of points.
+  bool operator!=(const S1Interval& y) const;
+
   // Return true if this interval can be transformed into the given interval by
   // moving each endpoint by at most "max_error" (and without the endpoints
   // crossing, which would invert the interval).  Empty and full intervals are
@@ -251,6 +252,10 @@ inline bool S1Interval::operator==(const S1Interval& y) const {
   return lo() == y.lo() && hi() == y.hi();
 }
 
+inline bool S1Interval::operator!=(const S1Interval& y) const {
+  return !operator==(y);
+}
+
 inline void S1Interval::set_lo(double p) {
   bounds_[0] = p;
   S2_DCHECK(is_valid());
@@ -264,7 +269,5 @@ inline void S1Interval::set_hi(double p) {
 inline std::ostream& operator<<(std::ostream& os, const S1Interval& x) {
   return os << "[" << x.lo() << ", " << x.hi() << "]";
 }
-
-}  // namespace s2
 
 #endif  // S2_S1INTERVAL_H_

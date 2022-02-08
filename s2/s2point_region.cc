@@ -15,17 +15,15 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2point_region.h"
+#include "s2/s2point_region.h"
 
-#include "s2//base/logging.h"
-#include "s2//util/coding/coder.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell.h"
-#include "s2//s2latlng.h"
-#include "s2//s2latlng_rect.h"
-#include "s2//s2pointutil.h"
-
-namespace s2 {
+#include "s2/base/logging.h"
+#include "s2/util/coding/coder.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2pointutil.h"
 
 static const unsigned char kCurrentLosslessEncodingVersionNumber = 1;
 
@@ -68,9 +66,7 @@ bool S2PointRegion::Decode(Decoder* decoder) {
   for (int i = 0; i < 3; ++i) {
     point_[i] = decoder->getdouble();
   }
-  if (!s2::IsUnitLength(point_)) return false;
+  if (!S2::IsUnitLength(point_)) return false;
 
   return true;
 }
-
-}  // namespace s2

@@ -20,9 +20,8 @@
 
 #include <vector>
 
-#include "s2//s2builder_graph.h"
+#include "s2/s2builder_graph.h"
 
-namespace s2 {
 namespace s2builderutil {
 
 // An S2Shape representing the edges in an S2Builder::Graph.
@@ -54,6 +53,5 @@ class GraphShape final : public S2Shape {
 };
 
 }  // namespace s2builderutil
-}  // namespace s2
 
 #endif  // S2_S2BUILDERUTIL_GRAPH_SHAPE_H_

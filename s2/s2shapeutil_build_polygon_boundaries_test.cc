@@ -15,22 +15,23 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2shapeutil_build_polygon_boundaries.h"
+#include "s2/s2shapeutil_build_polygon_boundaries.h"
 
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "s2//s2lax_loop_shape.h"
-#include "s2//s2text_format.h"
+#include <gtest/gtest.h>
+#include "absl/strings/string_view.h"
+#include "s2/s2lax_loop_shape.h"
+#include "s2/s2text_format.h"
 
+using std::string;
 using std::vector;
 
-namespace s2 {
 namespace s2shapeutil {
 
 class TestLaxLoop : public S2LaxLoopShape {
  public:
-  explicit TestLaxLoop(const std::string& vertex_str) {
+  explicit TestLaxLoop(absl::string_view vertex_str) {
     vector<S2Point> vertices = s2textformat::ParsePoints(vertex_str);
     Init(vertices);
   }
@@ -169,4 +170,3 @@ TEST(BuildPolygonBoundaries, ComplexTest1) {
 }
 
 }  // namespace s2shapeutil
-}  // namespace s2

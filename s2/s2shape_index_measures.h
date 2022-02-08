@@ -22,11 +22,11 @@
 #ifndef S2_S2SHAPE_INDEX_MEASURES_H_
 #define S2_S2SHAPE_INDEX_MEASURES_H_
 
-#include "s2//s1angle.h"
-#include "s2//s2point.h"
-#include "s2//s2shape_index.h"
+#include "s2/s1angle.h"
+#include "s2/s2point.h"
+#include "s2/s2shape_index.h"
 
-namespace s2 {
+namespace S2 {
 
 // Returns the maximum dimension of any shape in the index.  Returns -1 if the
 // index does not contain any shapes.
@@ -95,6 +95,6 @@ double GetApproxArea(const S2ShapeIndex& index);
 // centroids can simply be summed).
 S2Point GetCentroid(const S2ShapeIndex& index);
 
-}  // namespace s2
+}  // namespace S2
 
 #endif  // S2_S2SHAPE_INDEX_MEASURES_H_

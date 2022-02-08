@@ -15,14 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2projections.h"
+#include "s2/s2projections.h"
 
 #include <cmath>
-#include "s2//s2latlng.h"
+#include "s2/s2latlng.h"
 
 using std::fabs;
 
-namespace s2 {
+namespace S2 {
 
 R2Point Projection::WrapDestination(const R2Point& a, const R2Point& b) const {
   R2Point wrap = wrap_distance();
@@ -106,4 +106,4 @@ R2Point MercatorProjection::wrap_distance() const {
   return R2Point(x_wrap_, 0);
 }
 
-}  // namespace s2
+}  // namespace S2

@@ -15,23 +15,21 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2crossing_edge_query.h"
+#include "s2/s2crossing_edge_query.h"
 
 #include <algorithm>
 #include <vector>
 
-#include "s2//base/logging.h"
-#include "s2//r1interval.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2edge_clipping.h"
-#include "s2//s2edge_crosser.h"
-#include "s2//s2shapeutil_count_edges.h"
+#include "s2/base/logging.h"
+#include "s2/r1interval.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2edge_clipping.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2shapeutil_count_edges.h"
 
-using s2::s2shapeutil::ShapeEdge;
-using s2::s2shapeutil::ShapeEdgeId;
+using s2shapeutil::ShapeEdge;
+using s2shapeutil::ShapeEdgeId;
 using std::vector;
-
-namespace s2 {
 
 // For small loops it is faster to use brute force.  The threshold below was
 // determined using the benchmarks in the unit test.
@@ -201,8 +199,8 @@ bool S2CrossingEdgeQuery::VisitRawCandidates(
 bool S2CrossingEdgeQuery::VisitCells(const S2Point& a0, const S2Point& a1,
                                      const CellVisitor& visitor) {
   visitor_ = &visitor;
-  s2::FaceSegmentVector segments;
-  s2::GetFaceSegments(a0, a1, &segments);
+  S2::FaceSegmentVector segments;
+  S2::GetFaceSegments(a0, a1, &segments);
   for (const auto& segment : segments) {
     a0_ = segment.a;
     a1_ = segment.b;
@@ -246,8 +244,8 @@ bool S2CrossingEdgeQuery::VisitCells(
   visitor_ = &visitor;
   // We use padding when clipping to ensure that the result is non-empty
   // whenever the edge (a0, a1) intersects the given root cell.
-  if (s2::ClipToPaddedFace(a0, a1, root.id().face(),
-                           s2::kFaceClipErrorUVCoord, &a0_, &a1_)) {
+  if (S2::ClipToPaddedFace(a0, a1, root.id().face(),
+                           S2::kFaceClipErrorUVCoord, &a0_, &a1_)) {
     R2Rect edge_bound = R2Rect::FromPointPair(a0_, a1_);
     if (root.bound().Intersects(edge_bound)) {
       return VisitCells(root, edge_bound);
@@ -334,7 +332,7 @@ void S2CrossingEdgeQuery::SplitUBound(const R2Rect& edge_bound, double u,
                                       R2Rect child_bounds[2]) const {
   // See comments in MutableS2ShapeIndex::ClipUBound.
   double v = edge_bound[1].Project(
-      s2::InterpolateDouble(u, a0_[0], a1_[0], a0_[1], a1_[1]));
+      S2::InterpolateDouble(u, a0_[0], a1_[0], a0_[1], a1_[1]));
 
   // "diag_" indicates which diagonal of the bounding box is spanned by a0a1:
   // it is 0 if a0a1 has positive slope, and 1 if a0a1 has negative slope.
@@ -347,7 +345,7 @@ void S2CrossingEdgeQuery::SplitUBound(const R2Rect& edge_bound, double u,
 void S2CrossingEdgeQuery::SplitVBound(const R2Rect& edge_bound, double v,
                                       R2Rect child_bounds[2]) const {
   double u = edge_bound[0].Project(
-      s2::InterpolateDouble(v, a0_[1], a1_[1], a0_[0], a1_[0]));
+      S2::InterpolateDouble(v, a0_[1], a1_[1], a0_[0], a1_[0]));
   int diag = (a0_[0] > a1_[0]) != (a0_[1] > a1_[1]);
   SplitBound(edge_bound, diag, u, 0, v, child_bounds);
 }
@@ -380,5 +378,3 @@ void S2CrossingEdgeQuery::GetCells(const S2Point& a0, const S2Point& a1,
       return true;
     });
 }
-
-}  // namespace s2

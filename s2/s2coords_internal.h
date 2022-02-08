@@ -13,11 +13,12 @@
 // limitations under the License.
 //
 
-#ifndef S2_S2COORDS_INTERNAL_H_
-#define S2_S2COORDS_INTERNAL_H_
 // Author: ericv@google.com (Eric Veach)
 
-namespace s2 {
+#ifndef S2_S2COORDS_INTERNAL_H_
+#define S2_S2COORDS_INTERNAL_H_
+
+namespace S2 {
 namespace internal {
 
 // The canonical Hilbert traversal order looks like an inverted 'U':
@@ -66,6 +67,6 @@ extern const double kFaceUVWAxes[6][3][3];
 extern const int kFaceUVWFaces[6][3][2];
 
 }  // namespace internal
-}  // namespace s2
+}  // namespace S2
 
 #endif  // S2_S2COORDS_INTERNAL_H_

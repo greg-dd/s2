@@ -18,14 +18,13 @@
 #ifndef S2_S2POINT_REGION_H_
 #define S2_S2POINT_REGION_H_
 
-#include "s2//base/logging.h"
-#include "s2//_fp_contract_off.h"
-#include "s2//s1angle.h"
-#include "s2//s2pointutil.h"
-#include "s2//s2region.h"
 #include "absl/base/macros.h"
 
-namespace s2 {
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s1angle.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2region.h"
 
 class Decoder;
 class Encoder;
@@ -72,9 +71,7 @@ class S2PointRegion final : public S2Region {
 };
 
 inline S2PointRegion::S2PointRegion(const S2Point& point) : point_(point) {
-  S2_DCHECK(s2::IsUnitLength(point));
+  S2_DCHECK(S2::IsUnitLength(point));
 }
-
-}  // namespace s2
 
 #endif  // S2_S2POINT_REGION_H_

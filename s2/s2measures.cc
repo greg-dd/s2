@@ -15,13 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2measures.h"
+#include "s2/s2measures.h"
 
 #include <algorithm>
 #include <cmath>
 
-#include "s2//s2pointutil.h"
-#include "s2//s2predicates.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
 
 // TODO(ericv): Convert to using s2pred::Sign().
 //#include "util/geometry/s2predicates.h"
@@ -31,7 +32,7 @@ using std::max;
 using std::sqrt;
 using std::tan;
 
-namespace s2 {
+namespace S2 {
 
 double Angle(const S2Point& a, const S2Point& b, const S2Point& c) {
   // RobustCrossProd() is necessary to get good accuracy when two of the input
@@ -105,8 +106,8 @@ double Area(const S2Point& a, const S2Point& b, const S2Point& c) {
     }
   }
   // Use l'Huilier's formula.
-  return 4 * std::atan(sqrt(max(0.0, std::tan(0.5 * s) * std::tan(0.5 * (s - sa)) *
-                           std::tan(0.5 * (s - sb)) * std::tan(0.5 * (s - sc)))));
+  return 4 * atan(sqrt(max(0.0, tan(0.5 * s) * tan(0.5 * (s - sa)) *
+                           tan(0.5 * (s - sb)) * tan(0.5 * (s - sc)))));
 }
 
 double GirardArea(const S2Point& a, const S2Point& b, const S2Point& c) {
@@ -125,4 +126,4 @@ double SignedArea(const S2Point& a, const S2Point& b, const S2Point& c) {
   return s2pred::Sign(a, b, c) * Area(a, b, c);
 }
 
-}  // namespace s2
+}  // namespace S2

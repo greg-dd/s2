@@ -47,9 +47,9 @@
 #ifndef S2_S2CENTROIDS_H_
 #define S2_S2CENTROIDS_H_
 
-#include "s2//s2point.h"
+#include "s2/s2point.h"
 
-namespace s2 {
+namespace S2 {
 
 // Returns the centroid of the planar triangle ABC.  This can be normalized to
 // unit length to obtain the "surface centroid" of the corresponding spherical
@@ -82,6 +82,6 @@ S2Point TrueCentroid(const S2Point& a, const S2Point& b, const S2Point& c);
 // if the edge is degenerate (and that this is intended behavior).
 S2Point TrueCentroid(const S2Point& a, const S2Point& b);
 
-}  // namespace s2
+}  // namespace S2
 
 #endif  // S2_S2CENTROIDS_H_

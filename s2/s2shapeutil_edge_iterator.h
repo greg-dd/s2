@@ -16,10 +16,9 @@
 #ifndef S2_S2SHAPEUTIL_EDGE_ITERATOR_H_
 #define S2_S2SHAPEUTIL_EDGE_ITERATOR_H_
 
-#include "s2//s2shape_index.h"
-#include "s2//s2shapeutil_shape_edge_id.h"
+#include "s2/s2shape_index.h"
+#include "s2/s2shapeutil_shape_edge_id.h"
 
-namespace s2 {
 namespace s2shapeutil {
 
 // An iterator that advances through all edges in an S2ShapeIndex.
@@ -69,6 +68,5 @@ class EdgeIterator {
 };
 
 }  // namespace s2shapeutil
-}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_EDGE_ITERATOR_H_

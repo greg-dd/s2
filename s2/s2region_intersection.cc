@@ -14,14 +14,12 @@
 //
 
 
-#include "s2//s2region_intersection.h"
+#include "s2/s2region_intersection.h"
 
-#include "s2//s2cap.h"
-#include "s2//s2latlng_rect.h"
+#include "s2/s2cap.h"
+#include "s2/s2latlng_rect.h"
 
 using std::vector;
-
-namespace s2 {
 
 S2RegionIntersection::S2RegionIntersection(
     vector<std::unique_ptr<S2Region>> regions) {
@@ -84,5 +82,3 @@ bool S2RegionIntersection::MayIntersect(const S2Cell& cell) const {
   }
   return true;
 }
-
-}  // namespace s2

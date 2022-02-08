@@ -13,22 +13,24 @@
 // limitations under the License.
 //
 
-#include "s2//s2polyline_alignment.h"
-#include "s2//s2polyline_alignment_internal.h"
+#include "s2/s2polyline_alignment.h"
 
 #include <vector>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
-#include "s2//base/stringprintf.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
-#include "s2//s2cap.h"
-#include "s2//s2loop.h"
-#include "s2//s2testing.h"
-#include "s2//s2text_format.h"
+#include "absl/strings/str_format.h"
 
-namespace s2 {
+#include "s2/s2cap.h"
+#include "s2/s2loop.h"
+#include "s2/s2polyline_alignment_internal.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
+
+using std::string;
+
 namespace s2polyline_alignment {
 
 // PRIVATE API TESTS
@@ -74,7 +76,7 @@ TEST(S2PolylineAlignmentTest, CreatesWindowFromWarpPath) {
 TEST(S2PolylineAlignmentTest, GeneratesWindowDebugString) {
   const std::vector<ColumnStride> strides = {{0, 4}, {0, 4}, {0, 4}, {0, 4}};
   const Window w(strides);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * *
  * * * *
  * * * *
@@ -94,7 +96,7 @@ TEST(S2PolylineAlignmentTest, UpsamplesWindowByFactorOfTwo) {
       {0, 3}, {1, 4}, {2, 4}, {3, 6}, {4, 6}};
   const Window w(strides);
   const Window w_upscaled = w.Upsample(10, 12);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * * * * . . . . . .
  * * * * * * . . . . . .
  . . * * * * * * . . . .
@@ -119,7 +121,7 @@ TEST(S2PolylineAlignmentTest, UpsamplesWindowXAxisByFactorOfThree) {
       {0, 3}, {1, 4}, {2, 4}, {3, 6}, {4, 6}};
   const Window w(strides);
   const Window w_upscaled = w.Upsample(5, 18);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * * * * * * * . . . . . . . . .
  . . . * * * * * * * * * . . . . . .
  . . . . . . * * * * * * . . . . . .
@@ -140,7 +142,7 @@ TEST(S2PolylineAlignmentTest, UpsamplesWindowYAxisByFactorOfThree) {
       {0, 3}, {1, 4}, {2, 4}, {3, 6}, {4, 6}};
   const Window w(strides);
   const Window w_upscaled = w.Upsample(15, 6);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * . . .
  * * * . . .
  * * * . . .
@@ -172,7 +174,7 @@ TEST(S2PolylineAlignmentTest, UpsamplesWindowByNonInteger) {
   const Window w(strides);
 
   const Window w_upscaled = w.Upsample(19, 23);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * * * * * * * * * * . . . . . . . . . . .
  * * * * * * * * * * * * . . . . . . . . . . .
  * * * * * * * * * * * * . . . . . . . . . . .
@@ -207,7 +209,7 @@ TEST(S2PolylineAlignmentTest, DilatesWindowByRadiusZero) {
       {0, 3}, {2, 3}, {2, 3}, {2, 4}, {3, 6}};
   const Window w(strides);
   const Window w_d = w.Dilate(0);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * . . .
  . . * . . .
  . . * . . .
@@ -228,7 +230,7 @@ TEST(S2PolylineAlignmentTest, DilatesWindowByRadiusOne) {
       {0, 3}, {2, 3}, {2, 3}, {2, 4}, {3, 6}};
   const Window w(strides);
   const Window w_d = w.Dilate(1);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * * . .
  * * * * . .
  . * * * * .
@@ -249,7 +251,7 @@ TEST(S2PolylineAlignmentTest, DilatesWindowByRadiusTwo) {
       {0, 3}, {2, 3}, {2, 3}, {2, 4}, {3, 6}};
   const Window w(strides);
   const Window w_d = w.Dilate(2);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * * * .
  * * * * * *
  * * * * * *
@@ -263,7 +265,7 @@ TEST(S2PolylineAlignmentTest, DilatesWindowByVeryLargeRadius) {
       {0, 3}, {2, 3}, {2, 3}, {2, 4}, {3, 6}};
   const Window w(strides);
   const Window w_d = w.Dilate(100);
-  const std::string expected_output = R"(
+  const string expected_output = R"(
  * * * * * *
  * * * * * *
  * * * * * *
@@ -609,4 +611,3 @@ TEST(S2PolylineAlignmentTest, ConsensusPolylineOverlappingPolylines) {
 }
 
 }  // namespace s2polyline_alignment
-}  // namespace s2

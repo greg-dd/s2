@@ -14,33 +14,38 @@
 //
 
 
-#include "s2//s2region.h"
+#include "s2/s2region.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include "absl/container/fixed_array.h"
 #include "absl/memory/memory.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2cell_union.h"
-#include "s2//s2latlng.h"
-#include "s2//s2latlng_rect.h"
-#include "s2//s2loop.h"
-#include "s2//s2point_compression.h"
-#include "s2//s2point_region.h"
-#include "s2//s2pointutil.h"
-#include "s2//s2polygon.h"
-#include "s2//s2polyline.h"
-#include "s2//s2r2rect.h"
-#include "s2//s2region_intersection.h"
-#include "s2//s2region_union.h"
-#include "s2//s2testing.h"
-#include "s2//s2text_format.h"
+#include "absl/strings/string_view.h"
 
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2loop.h"
+#include "s2/s2point_compression.h"
+#include "s2/s2point_region.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2polygon.h"
+#include "s2/s2polyline.h"
+#include "s2/s2r2rect.h"
+#include "s2/s2region_intersection.h"
+#include "s2/s2region_union.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
+
+using std::string;
 using std::unique_ptr;
+using std::string;
 using std::vector;
 
-namespace s2 {
+namespace {
 
 //////////////  These values are in version 1 encoding format.  ////////////////
 
@@ -134,7 +139,7 @@ const char kEncodedLoopCompressed[] =
 // presence of the encoding version number as the first 8 bits. (i.e. when
 // S2Loop and others encode a stream of S2Points, they are writing triples of
 // doubles instead of encoding the points with the version byte.)
-// S2PointRegion(Origin())
+// S2PointRegion(S2::Origin())
 const char kEncodedPointOrigin[] =
     "013BED86AA997A84BF88EC8B48C53C653FACD2721A90FFEF3F";
 // S2PointRegion(S2Point(12.34, 56.78, 9.1011).Normalize())
@@ -198,10 +203,10 @@ const char kEncodedPolyline3Segments[] =
 //////////////////////////////////////////////////////////////
 
 // HexEncodeStr returns the data in str in hex encoded form.
-const std::string HexEncodeStr(const std::string& str) {
+const string HexEncodeStr(absl::string_view str) {
   static const char* const lut = "0123456789ABCDEF";
 
-  std::string result;
+  string result;
   result.reserve(2 * str.size());
   for (size_t i = 0; i < str.length(); ++i) {
     const unsigned char c = str[i];
@@ -216,11 +221,12 @@ class S2RegionEncodeDecodeTest : public testing::Test {
   // TestEncodeDecode tests that the input encodes to match the expected
   // golden data, and then returns the decode of the data into dst.
   template <class Region>
-  void TestEncodeDecode(const std::string& golden, const Region& src, Region* dst) {
+  void TestEncodeDecode(absl::string_view golden, const Region& src,
+                        Region* dst) {
     Encoder encoder;
     src.Encode(&encoder);
 
-    EXPECT_EQ(golden, HexEncodeStr(std::string(encoder.base(), encoder.length())));
+    EXPECT_EQ(golden, HexEncodeStr(string(encoder.base(), encoder.length())));
 
     Decoder decoder(encoder.base(), encoder.length());
     dst->Decode(&decoder);
@@ -297,13 +303,13 @@ TEST_F(S2RegionEncodeDecodeTest, S2LatLngRect) {
 }
 
 TEST_F(S2RegionEncodeDecodeTest, S2Loop) {
-  const std::string kCross1 = "-2:1, -1:1, 1:1, 2:1, 2:-1, 1:-1, -1:-1, -2:-1";
-  const std::string kCrossCenterHole = "-0.5:0.5, 0.5:0.5, 0.5:-0.5, -0.5:-0.5;";
+  const string kCross1 = "-2:1, -1:1, 1:1, 2:1, 2:-1, 1:-1, -1:-1, -2:-1";
+  const string kCrossCenterHole = "-0.5:0.5, 0.5:0.5, 0.5:-0.5, -0.5:-0.5;";
 
   S2Loop loop;
   S2Loop loop_empty(S2Loop::kEmpty());
   S2Loop loop_full(S2Loop::kFull());
-  unique_ptr<S2Loop> loop_cross = s2textformat::MakeLoop(kCross1);
+  unique_ptr<S2Loop> loop_cross = s2textformat::MakeLoopOrDie(kCross1);
 
   TestEncodeDecode(kEncodedLoopEmpty, loop_empty, &loop);
   EXPECT_TRUE(loop_empty.Equals(&loop));
@@ -315,15 +321,17 @@ TEST_F(S2RegionEncodeDecodeTest, S2Loop) {
 
 
 TEST_F(S2RegionEncodeDecodeTest, S2PointRegion) {
-  S2PointRegion point(Origin());
-  S2PointRegion point_origin(Origin());
+  S2PointRegion point(S2::Origin());
+  S2PointRegion point_origin(S2::Origin());
   S2PointRegion point_testing(S2Point(12.34, 56.78, 9.1011).Normalize());
+
+  TestEncodeDecode(kEncodedPointOrigin, point_origin, &point);
   TestEncodeDecode(kEncodedPointTesting, point_testing, &point);
 }
 
 TEST_F(S2RegionEncodeDecodeTest, S2Polygon) {
-  const std::string kCross1 = "-2:1, -1:1, 1:1, 2:1, 2:-1, 1:-1, -1:-1, -2:-1";
-  const std::string kCrossCenterHole = "-0.5:0.5, 0.5:0.5, 0.5:-0.5, -0.5:-0.5;";
+  const string kCross1 = "-2:1, -1:1, 1:1, 2:1, 2:-1, 1:-1, -1:-1, -2:-1";
+  const string kCrossCenterHole = "-0.5:0.5, 0.5:0.5, 0.5:-0.5, -0.5:-0.5;";
 
   S2Polygon polygon;
   unique_ptr<S2Polygon> polygon_empty = s2textformat::MakePolygon("");
@@ -352,7 +360,7 @@ TEST_F(S2RegionEncodeDecodeTest, S2Polyline) {
                               S2LatLng::FromDegrees(0, 180)};
   S2Polyline polyline_semi(latlngs);
   unique_ptr<S2Polyline> polyline_3segments =
-      s2textformat::MakePolyline("0:0, 0:10, 10:20, 20:30");
+      s2textformat::MakePolylineOrDie("0:0, 0:10, 10:20, 20:30");
 
   TestEncodeDecode(kEncodedPolylineEmpty, polyline_empty, &polyline);
   EXPECT_TRUE(polyline_empty.Equals(&polyline));
@@ -365,4 +373,4 @@ TEST_F(S2RegionEncodeDecodeTest, S2Polyline) {
 // TODO(user): When the remaining types implement Encode/Decode, add their
 // test cases here. i.e. S2R2Rect, S2RegionIntersection, S2RegionUnion, etc.
 
-}  // namespace s2
+}  // namespace

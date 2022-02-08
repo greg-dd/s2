@@ -52,14 +52,12 @@
 #ifndef S2_S2DEBUG_H_
 #define S2_S2DEBUG_H_
 
-#include "s2//base/commandlineflags.h"
-#include "s2//base/integral_types.h"
-
-namespace s2 {
+#include "s2/base/commandlineflags.h"
+#include "s2/base/integral_types.h"
 
 // Command line flag that enables extra validity checking throughout the S2
 // code.  It is turned on by default in debug-mode builds.
-DECLARE_bool(s2debug);
+S2_DECLARE_bool(s2debug);
 
 // Class that allows the --s2debug validity checks to be enabled or disabled
 // for specific objects (e.g., see S2Polygon).
@@ -67,7 +65,5 @@ enum class S2Debug : uint8 {
   ALLOW,    // Validity checks are controlled by --s2debug
   DISABLE   // No validity checks even when --s2debug is true
 };
-
-}  // namespace s2
 
 #endif  // S2_S2DEBUG_H_

@@ -19,12 +19,14 @@
 #define S2_S2CELL_INDEX_H_
 
 #include <vector>
-#include "s2//base/integral_types.h"
-#include "s2//base/logging.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2cell_union.h"
 
-namespace s2 {
+#include "absl/container/flat_hash_set.h"
+
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/base/log_severity.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
 
 // S2CellIndex stores a collection of (cell_id, label) pairs.  The S2CellIds
 // may be overlapping or contain duplicate values.  For example, an
@@ -35,14 +37,14 @@ namespace s2 {
 // results of queries back to client data structures.  Labels other than
 // integers can be supported by using a ValueLexicon, which maintains a set of
 // distinct labels and maps them to sequentially numbered integers.  For
-// example, the following code uses std::strings as labels:
+// example, the following code uses strings as labels:
 //
-//   ValueLexicon<std::string> my_label_lexicon;
-//   std::string label_str = ...;
+//   ValueLexicon<string> my_label_lexicon;
+//   string label_str = ...;
 //   cell_index.Add(cell_id, my_label_lexicon.Add(label_str));
 //   ...
 //   int32 label = ...;
-//   std::string label_str = my_label_lexicon.value(label);
+//   string label_str = my_label_lexicon.value(label);
 //
 // To build an S2CellIndex, call Add() for each (cell_id, label) pair, and
 // then call the Build() method.  For example:
@@ -64,7 +66,7 @@ namespace s2 {
 // is to use a built-in method such as GetIntersectingLabels (which returns
 // the labels of all cells that intersect a given target S2CellUnion):
 //
-//   vector<Label> labels = index.GetIntersectingLabels(target_union);
+//   flat_hash_set<Label> labels = index.GetIntersectingLabels(target_union);
 //
 // Alternatively, you can use an external class such as S2ClosestCellQuery,
 // which computes the cell(s) that are closest to a given target geometry.
@@ -169,14 +171,14 @@ class S2CellIndex {
                               const CellVisitor& visitor) const;
 
   // Convenience function that returns the labels of all indexed cells that
-  // intersect the given S2CellUnion "target".  The output contains each label
-  // at most once, but is not sorted.
-  std::vector<Label> GetIntersectingLabels(const S2CellUnion& target) const;
+  // intersect the given S2CellUnion "target".
+  absl::flat_hash_set<Label> GetIntersectingLabels(const S2CellUnion& target)
+      const;
 
   // This version can be more efficient when it is called many times, since it
-  // does not require allocating a new vector on each call.
+  // does not require allocating a new set on each call.
   void GetIntersectingLabels(const S2CellUnion& target,
-                             std::vector<Label>* labels) const;
+                             absl::flat_hash_set<Label>* labels) const;
 
  private:
   // Represents a node in the set of non-overlapping leaf cell ranges.
@@ -271,9 +273,8 @@ class S2CellIndex {
     // Otherwise positions the iterator at the previous entry and returns true.
     bool Prev();
 
-    // Positions the iterator at the first range with start_id() >= target.
-    // (Such an entry always exists as long as "target" is a valid leaf cell.
-    // Note that it is valid to access start_id() even when done() is true.)
+    // Positions the iterator at the range containing "target". (Such a range
+    // always exists as long as the target is a valid leaf cell.)
     //
     // REQUIRES: target.is_leaf()
     void Seek(S2CellId target);
@@ -318,11 +319,13 @@ class S2CellIndex {
     void Next();
 
     // If the iterator is already positioned at the beginning, returns false.
-    // Otherwise positions the iterator at the previous entry and returns true.
+    // Otherwise positions the iterator at the previous non-empty entry and
+    // returns true.
     bool Prev();
 
-    // Positions the iterator at the first non-empty range with
-    // start_id() >= target.
+    // Positions the iterator at the range that contains or follows "target", or
+    // at the end if no such range exists. (Note that start_id() may still be
+    // called in the latter case.)
     //
     // REQUIRES: target.is_leaf()
     void Seek(S2CellId target);
@@ -345,7 +348,7 @@ class S2CellIndex {
     // Convenience constructor that calls Init().
     explicit ContentsIterator(const S2CellIndex* index);
 
-    // Initializes the iterator.  Should be followed by a call to UnionWith()
+    // Initializes the iterator.  Should be followed by a call to StartUnion()
     // to visit the contents of each desired leaf cell range.
     void Init(const S2CellIndex* index);
 
@@ -562,7 +565,7 @@ inline S2CellIndex::ContentsIterator::ContentsIterator()
 
 inline S2CellIndex::ContentsIterator::ContentsIterator(
     const S2CellIndex* index) {
-    Init(index);
+  Init(index);
 }
 
 inline void S2CellIndex::ContentsIterator::Init(const S2CellIndex* index) {
@@ -658,7 +661,5 @@ inline std::ostream& operator<<(std::ostream& os,
                                 S2CellIndex::LabelledCell x) {
   return os << "(" << x.cell_id << ", " << x.label << ")";
 }
-
-}  // namespace s2
 
 #endif  // S2_S2CELL_INDEX_H_

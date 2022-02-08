@@ -25,15 +25,16 @@
 #define S2_UTIL_ENDIAN_ENDIAN_H_
 
 #include <cassert>
+
+#include <cstdint>
 #include <type_traits>
 
-#include "s2//base/integral_types.h"
-#include "s2//base/logging.h"
-#include "s2//base/port.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/base/port.h"
 #include "absl/base/casts.h"
 #include "absl/base/port.h"
 #include "absl/numeric/int128.h"
-
 
 // Use compiler byte-swapping intrinsics if they are available.  32-bit
 // and 64-bit versions are available in Clang and GCC as of GCC 4.3.0.
@@ -42,8 +43,6 @@
 #if defined(__clang__) || \
     (defined(__GNUC__) && ((__GNUC__ == 4 && __GNUC_MINOR__ >= 8) || \
                            __GNUC__ >= 5))
-
-namespace s2 {
 
 inline uint64 gbswap_64(uint64 host_int) {
   return __builtin_bswap64(host_int);
@@ -226,12 +225,12 @@ class LittleEndian {
   }
 
   // Functions to do unaligned loads and stores in little-endian order.
-  static uint16 Load16(const void *p) {
-    return ToHost16(S2_UNALIGNED_LOAD16(p));
+  static uint16 Load16(const void* p) {
+    return ToHost16(UNALIGNED_LOAD16(p));
   }
 
-  static void Store16(void *p, uint16 v) {
-    S2_UNALIGNED_STORE16(p, FromHost16(v));
+  static void Store16(void* p, uint16 v) {
+    UNALIGNED_STORE16(p, FromHost16(v));
   }
 
   static uint32 Load24(const void* p) {
@@ -256,16 +255,16 @@ class LittleEndian {
 #endif
   }
 
-  static uint32 Load32(const void *p) {
-    return ToHost32(S2_UNALIGNED_LOAD32(p));
+  static uint32 Load32(const void* p) {
+    return ToHost32(UNALIGNED_LOAD32(p));
   }
 
-  static void Store32(void *p, uint32 v) {
-    S2_UNALIGNED_STORE32(p, FromHost32(v));
+  static void Store32(void* p, uint32 v) {
+    UNALIGNED_STORE32(p, FromHost32(v));
   }
 
-  static uint64 Load64(const void *p) {
-    return ToHost64(S2_UNALIGNED_LOAD64(p));
+  static uint64 Load64(const void* p) {
+    return ToHost64(UNALIGNED_LOAD64(p));
   }
 
   // Build a uint64 from 1-8 bytes.
@@ -279,38 +278,45 @@ class LittleEndian {
   // uint64 val = 0;
   // memcpy(&val, p, len);
   // return ToHost64(val);
-  // TODO(jyrki): write a small benchmark and benchmark the speed
-  // of a memcpy based approach.
   //
-  // For speed reasons this function does not work for len == 0.
-  // The caller needs to guarantee that 1 <= len <= 8.
-  static uint64 Load64VariableLength(const void * const p, int len) {
-    assert(len >= 1 && len <= 8);
-    const char * const buf = static_cast<const char * const>(p);
+  // The caller needs to guarantee that 0 <= len <= 8.
+  static uint64 Load64VariableLength(const void* const p, int len) {
+    assert(len >= 0 && len <= 8);
     uint64 val = 0;
-    --len;
-    do {
-      val = (val << 8) | buf[len];
-      // (--len >= 0) is about 10 % faster than (len--) in some benchmarks.
-    } while (--len >= 0);
-    // No ToHost64(...) needed. The bytes are accessed in little-endian manner
-    // on every architecture.
+    const uint8* const src = static_cast<const uint8*>(p);
+    for (int i = 0; i < 8; ++i) {
+      if (i < len) {
+        val |= static_cast<uint64>(src[i]) << (8 * i);
+      }
+    }
     return val;
   }
 
-  static void Store64(void *p, uint64 v) {
-    S2_UNALIGNED_STORE64(p, FromHost64(v));
+  // Store the least significant 1-8 bytes of a uint64.
+  // 8 * len least significant bits are loaded from the given uint64 and written
+  // to the provided buffer in LittleEndian order. The 64 - 8 * len most
+  // significant bits are ignored.
+  //
+  // The caller needs to guarantee that 0 <= len <= 8.
+  static void Store64VariableLength(void* const p, uint64 v, int len) {
+    assert(len >= 0 && len <= 8);
+    v = FromHost64(v);
+    memcpy(p, &v, len);
+  }
+
+  static void Store64(void* p, uint64 v) {
+    UNALIGNED_STORE64(p, FromHost64(v));
   }
 
   static absl::uint128 Load128(const void* p) {
     return absl::MakeUint128(
-        ToHost64(S2_UNALIGNED_LOAD64(reinterpret_cast<const uint64*>(p) + 1)),
-        ToHost64(S2_UNALIGNED_LOAD64(p)));
+        ToHost64(UNALIGNED_LOAD64(reinterpret_cast<const uint64*>(p) + 1)),
+        ToHost64(UNALIGNED_LOAD64(p)));
   }
 
   static void Store128(void* p, const absl::uint128 v) {
-    S2_UNALIGNED_STORE64(p, FromHost64(absl::Uint128Low64(v)));
-    S2_UNALIGNED_STORE64(reinterpret_cast<uint64*>(p) + 1,
+    UNALIGNED_STORE64(p, FromHost64(absl::Uint128Low64(v)));
+    UNALIGNED_STORE64(reinterpret_cast<uint64*>(p) + 1,
                       FromHost64(absl::Uint128High64(v)));
   }
 
@@ -421,12 +427,12 @@ class BigEndian {
   }
 
   // Functions to do unaligned loads and stores in big-endian order.
-  static uint16 Load16(const void *p) {
-    return ToHost16(S2_UNALIGNED_LOAD16(p));
+  static uint16 Load16(const void* p) {
+    return ToHost16(UNALIGNED_LOAD16(p));
   }
 
-  static void Store16(void *p, uint16 v) {
-    S2_UNALIGNED_STORE16(p, FromHost16(v));
+  static void Store16(void* p, uint16 v) {
+    UNALIGNED_STORE16(p, FromHost16(v));
   }
 
   static uint32 Load24(const void* p) {
@@ -440,16 +446,16 @@ class BigEndian {
     *data = static_cast<uint8>(v >> 16);
   }
 
-  static uint32 Load32(const void *p) {
-    return ToHost32(S2_UNALIGNED_LOAD32(p));
+  static uint32 Load32(const void* p) {
+    return ToHost32(UNALIGNED_LOAD32(p));
   }
 
-  static void Store32(void *p, uint32 v) {
-    S2_UNALIGNED_STORE32(p, FromHost32(v));
+  static void Store32(void* p, uint32 v) {
+    UNALIGNED_STORE32(p, FromHost32(v));
   }
 
-  static uint64 Load64(const void *p) {
-    return ToHost64(S2_UNALIGNED_LOAD64(p));
+  static uint64 Load64(const void* p) {
+    return ToHost64(UNALIGNED_LOAD64(p));
   }
 
   // Semantically build a uint64 from 1-8 bytes.
@@ -463,38 +469,45 @@ class BigEndian {
   // uint64 val = 0;
   // memcpy(&val, p, len);
   // return ToHost64(val);
-  // TODO(jyrki): write a small benchmark and benchmark the speed
-  // of a memcpy based approach.
   //
-  // For speed reasons this function does not work for len == 0.
-  // The caller needs to guarantee that 1 <= len <= 8.
-
-  static uint64 Load64VariableLength(const void * const p, int len) {
-    //    uint64 val = LittleEndian::Load64VariableLength(p, len);
-    //    return Load64(&val) >> (8*(8-len));
-    assert(len >= 1 && len <= 8);
-    const char* buf = static_cast<const char * const>(p);
+  // The caller needs to guarantee that 0 <= len <= 8.
+  static uint64 Load64VariableLength(const void* const p, int len) {
+    assert(len >= 0 && len <= 8);
     uint64 val = 0;
-    do {
-      val = (val << 8) | *buf;
-      ++buf;
-    } while (--len > 0);
+    const uint8* const src = static_cast<const uint8*>(p);
+    for (int i = 0; i < 8; ++i) {
+      if (i < len) {
+        val = (val << 8) | src[i];
+      }
+    }
     return val;
   }
 
-  static void Store64(void *p, uint64 v) {
-    S2_UNALIGNED_STORE64(p, FromHost64(v));
+  // Store the least significant 1-8 bytes of a uint64.
+  // 8 * len least significant bits are loaded from the given uint64 and written
+  // to the provided buffer in BigEndian order. The 64 - 8 * len most
+  // significant bits are ignored.
+  //
+  // The caller needs to guarantee that 0 <= len <= 8.
+  static void Store64VariableLength(void* const p, uint64 v, int len) {
+    assert(len >= 0 && len <= 8);
+    v = FromHost64(v);
+    memcpy(p, reinterpret_cast<uint8*>(&v) + sizeof(uint64) - len, len);
+  }
+
+  static void Store64(void* p, uint64 v) {
+    UNALIGNED_STORE64(p, FromHost64(v));
   }
 
   static absl::uint128 Load128(const void* p) {
     return absl::MakeUint128(
-        ToHost64(S2_UNALIGNED_LOAD64(p)),
-        ToHost64(S2_UNALIGNED_LOAD64(reinterpret_cast<const uint64*>(p) + 1)));
+        ToHost64(UNALIGNED_LOAD64(p)),
+        ToHost64(UNALIGNED_LOAD64(reinterpret_cast<const uint64*>(p) + 1)));
   }
 
   static void Store128(void* p, const absl::uint128 v) {
-    S2_UNALIGNED_STORE64(p, FromHost64(absl::Uint128High64(v)));
-    S2_UNALIGNED_STORE64(reinterpret_cast<uint64*>(p) + 1,
+    UNALIGNED_STORE64(p, FromHost64(absl::Uint128High64(v)));
+    UNALIGNED_STORE64(reinterpret_cast<uint64*>(p) + 1,
                       FromHost64(absl::Uint128Low64(v)));
   }
 
@@ -570,7 +583,7 @@ typedef BigEndian NetworkByteOrder;
   struct tofromhost_value_type_traits<VTYPE> { \
     typedef VTYPE value_type;                  \
     typedef ITYPE int_type;                    \
-  };
+  }
 
 FROMHOST_TYPE_MAP(uint8, uint8);
 FROMHOST_TYPE_MAP(uint8, int8);
@@ -694,9 +707,9 @@ inline T LoadInteger(const char* p) {
                 "T needs to be an integral type with size <= 8.");
   switch (sizeof(T)) {
     case 1: return *reinterpret_cast<const T*>(p);
-    case 2: return EndianClass::ToHost16(S2_UNALIGNED_LOAD16(p));
-    case 4: return EndianClass::ToHost32(S2_UNALIGNED_LOAD32(p));
-    case 8: return EndianClass::ToHost64(S2_UNALIGNED_LOAD64(p));
+    case 2: return EndianClass::ToHost16(UNALIGNED_LOAD16(p));
+    case 4: return EndianClass::ToHost32(UNALIGNED_LOAD32(p));
+    case 8: return EndianClass::ToHost64(UNALIGNED_LOAD64(p));
     default: {
       S2_LOG(FATAL) << "Not reached!";
       return 0;
@@ -712,9 +725,9 @@ inline void StoreInteger(T value, char* p) {
                 "T needs to be an integral type with size <= 8.");
   switch (sizeof(T)) {
     case 1: *reinterpret_cast<T*>(p) = value; break;
-    case 2: S2_UNALIGNED_STORE16(p, EndianClass::FromHost16(value)); break;
-    case 4: S2_UNALIGNED_STORE32(p, EndianClass::FromHost32(value)); break;
-    case 8: S2_UNALIGNED_STORE64(p, EndianClass::FromHost64(value)); break;
+    case 2: UNALIGNED_STORE16(p, EndianClass::FromHost16(value)); break;
+    case 4: UNALIGNED_STORE32(p, EndianClass::FromHost32(value)); break;
+    case 8: UNALIGNED_STORE64(p, EndianClass::FromHost64(value)); break;
     default: {
       S2_LOG(FATAL) << "Not reached!";
     }
@@ -725,22 +738,24 @@ inline void StoreInteger(T value, char* p) {
 
 template<typename EndianClass>
 inline float LoadFloat(const char* p) {
-  return absl::bit_cast<float>(EndianClass::ToHost32(S2_UNALIGNED_LOAD32(p)));
+  return absl::bit_cast<float>(EndianClass::ToHost32(UNALIGNED_LOAD32(p)));
 }
 
 template<typename EndianClass>
 inline void StoreFloat(float value, char* p) {
-  S2_UNALIGNED_STORE32(p, EndianClass::FromHost32(absl::bit_cast<uint32>(value)));
+  UNALIGNED_STORE32(p,
+                    EndianClass::FromHost32(absl::bit_cast<uint32>(value)));
 }
 
 template<typename EndianClass>
 inline double LoadDouble(const char* p) {
-  return absl::bit_cast<double>(EndianClass::ToHost64(S2_UNALIGNED_LOAD64(p)));
+  return absl::bit_cast<double>(EndianClass::ToHost64(UNALIGNED_LOAD64(p)));
 }
 
 template<typename EndianClass>
 inline void StoreDouble(double value, char* p) {
-  S2_UNALIGNED_STORE64(p, EndianClass::FromHost64(absl::bit_cast<uint64>(value)));
+  UNALIGNED_STORE64(p,
+                    EndianClass::FromHost64(absl::bit_cast<uint64>(value)));
 }
 
 }  // namespace endian_internal
@@ -858,7 +873,5 @@ template <>
 inline void BigEndian::Store<absl::uint128>(absl::uint128 value, char* p) {
   BigEndian::Store128(p, value);
 }
-
-}  // namespace s2
 
 #endif  // S2_UTIL_ENDIAN_ENDIAN_H_

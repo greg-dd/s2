@@ -15,20 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2builderutil_s2polygon_layer.h"
+#include "s2/s2builderutil_s2polygon_layer.h"
 
 #include <algorithm>
 #include <memory>
 #include "absl/memory/memory.h"
-#include "s2//s2debug.h"
+#include "s2/s2debug.h"
 
 using absl::make_unique;
 using std::make_pair;
 using std::pair;
 using std::unique_ptr;
 using std::vector;
-
-namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
@@ -140,7 +138,7 @@ void S2PolygonLayer::Build(const Graph& g, S2Error* error) {
   // It's tricky to compute the edge labels for S2Polygons because the
   // S2Polygon::Init methods can reorder and/or invert the loops.  We handle
   // this by remembering the original vector index of each loop and whether or
-  // not the loop contained s2::Origin().  By comparing this with the final
+  // not the loop contained S2::Origin().  By comparing this with the final
   // S2Polygon loops we can fix up the edge labels appropriately.
   LoopMap loop_map;
   if (g.num_edges() == 0) {
@@ -191,4 +189,3 @@ void S2PolygonLayer::Build(const Graph& g, S2Error* error) {
 }
 
 }  // namespace s2builderutil
-}  // namespace s2

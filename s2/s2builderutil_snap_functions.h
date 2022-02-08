@@ -19,11 +19,10 @@
 #define S2_S2BUILDERUTIL_SNAP_FUNCTIONS_H_
 
 #include <memory>
-#include "s2//s1angle.h"
-#include "s2//s2builder.h"
-#include "s2//s2cell_id.h"
+#include "s2/s1angle.h"
+#include "s2/s2builder.h"
+#include "s2/s2cell_id.h"
 
-namespace s2 {
 namespace s2builderutil {
 
 // A SnapFunction that snaps every vertex to itself.  It should be used when
@@ -185,10 +184,10 @@ class IntLatLngSnapFunction : public S2Builder::SnapFunction {
   int exponent() const;
 
   // The minum exponent supported for snapping.
-  static const int kMinExponent = 0;
+  static constexpr int kMinExponent = 0;
 
   // The maximum exponent supported for snapping.
-  static const int kMaxExponent = 10;
+  static constexpr int kMaxExponent = 10;
 
   // Defines the snap radius to be used (see s2builder.h).  The snap radius
   // must be at least the minimum value for the current exponent(), but larger
@@ -236,6 +235,5 @@ class IntLatLngSnapFunction : public S2Builder::SnapFunction {
 };
 
 }  // namespace s2builderutil
-}  // namespace s2
 
 #endif  // S2_S2BUILDERUTIL_SNAP_FUNCTIONS_H_

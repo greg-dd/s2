@@ -15,28 +15,29 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2closest_point_query.h"
+#include "s2/s2closest_point_query.h"
 
 #include <memory>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
+#include "absl/flags/flag.h"
 #include "absl/memory/memory.h"
-#include "s2//s1angle.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2closest_edge_query_testing.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2loop.h"
-#include "s2//s2pointutil.h"
-#include "s2//s2testing.h"
+
+#include "s2/s1angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2closest_edge_query_testing.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2loop.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
 
 using absl::make_unique;
 using std::pair;
 using std::unique_ptr;
 using std::vector;
-
-namespace s2 {
 
 using TestIndex = S2PointIndex<int>;
 using TestQuery = S2ClosestPointQuery<int>;
@@ -129,9 +130,9 @@ struct GridPointIndexFactory : public PointIndexFactory {
     double spacing = 2 * radius / sqrt_num_points;
     for (int i = 0; i < sqrt_num_points; ++i) {
       for (int j = 0; j < sqrt_num_points; ++j) {
-        S2Point point(std::tan((i + 0.5) * spacing - radius),
-                      std::tan((j + 0.5) * spacing - radius), 1.0);
-        index->Add(FromFrame(frame, point.Normalize()),
+        S2Point point(tan((i + 0.5) * spacing - radius),
+                      tan((j + 0.5) * spacing - radius), 1.0);
+        index->Add(S2::FromFrame(frame, point.Normalize()),
                    i * sqrt_num_points + j);
       }
     }
@@ -207,13 +208,13 @@ static void TestWithIndexFactory(const PointIndexFactory& factory,
   vector<S2Cap> index_caps;
   vector<unique_ptr<TestIndex>> indexes;
   for (int i = 0; i < num_indexes; ++i) {
-    S2Testing::rnd.Reset(kS2RandomSeed + i);
+    S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed) + i);
     index_caps.push_back(S2Cap(S2Testing::RandomPoint(), kTestCapRadius));
     indexes.push_back(make_unique<TestIndex>());
     factory.AddPoints(index_caps.back(), num_points, indexes.back().get());
   }
   for (int i = 0; i < num_queries; ++i) {
-    S2Testing::rnd.Reset(kS2RandomSeed + i);
+    S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed) + i);
     int i_index = S2Testing::rnd.Uniform(num_indexes);
     const S2Cap& index_cap = index_caps[i_index];
 
@@ -261,7 +262,7 @@ static void TestWithIndexFactory(const PointIndexFactory& factory,
       TestFindClosestPoints(&target, &query);
     } else if (target_type == 2) {
       // Find the points closest to a given cell.
-      int min_level = kMaxDiag.GetLevelForMaxValue(query_radius.radians());
+      int min_level = S2::kMaxDiag.GetLevelForMaxValue(query_radius.radians());
       int level = min_level + S2Testing::rnd.Uniform(
           S2CellId::kMaxLevel - min_level + 1);
       S2Point a = S2Testing::SamplePoint(query_cap);
@@ -300,16 +301,15 @@ TEST(S2ClosestPointQueryTest, GridPoints) {
 }
 
 TEST(S2ClosestPointQueryTest, ConservativeCellDistanceIsUsed) {
-  const int saved_seed = kS2RandomSeed;
+  const int saved_seed = absl::GetFlag(FLAGS_s2_random_seed);
   // These specific test cases happen to fail if max_error() is not properly
   // taken into account when measuring distances to S2PointIndex cells.  They
   // all involve S2ShapeIndexTarget, which takes advantage of max_error() to
   // optimize its distance calculation.
   for (int seed : {16, 586, 589, 822, 1959, 2298, 3155, 3490, 3723, 4953}) {
-    kS2RandomSeed = seed;
+    absl::SetFlag(&FLAGS_s2_random_seed, seed);
     TestWithIndexFactory(FractalPointIndexFactory(), 5, 100, 10);
   }
-  kS2RandomSeed = saved_seed;
+  absl::SetFlag(&FLAGS_s2_random_seed, saved_seed);
 }
 
-}  // namespace s2

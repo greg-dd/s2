@@ -18,11 +18,9 @@
 #ifndef S2_S2POINT_SPAN_H_
 #define S2_S2POINT_SPAN_H_
 
-#include "s2//base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/types/span.h"
-#include "s2//s2point.h"
-
-namespace s2 {
+#include "s2/s2point.h"
 
 // S2PointSpan represents a view of an S2Point array.  It is used to pass
 // vertex arrays to functions that don't care about the actual array type
@@ -55,7 +53,5 @@ class S2PointLoopSpan : public S2PointSpan {
     return S2PointSpan::operator[](j < 0 ? i : j);
   }
 };
-
-}  // namespace s2
 
 #endif  // S2_S2POINT_SPAN_H_

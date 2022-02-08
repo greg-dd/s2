@@ -24,12 +24,11 @@
 #include <limits>
 
 #include "absl/base/casts.h"
-#include "s2//s1chord_angle.h"
-#include "s2//s2predicates.h"
-#include "s2//util/math/exactfloat/exactfloat.h"
-#include "s2//util/math/vector.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2predicates.h"
+#include "s2/util/math/exactfloat/exactfloat.h"
+#include "s2/util/math/vector.h"
 
-namespace s2 {
 namespace s2pred {
 
 // Returns 2 ** (-digits).  This could be implemented using "ldexp" except
@@ -48,6 +47,15 @@ template <typename T> constexpr T rounding_epsilon() {
   return epsilon_for_digits(std::numeric_limits<T>::digits);
 }
 
+constexpr double DBL_ERR = rounding_epsilon<double>();
+constexpr long double LD_ERR = rounding_epsilon<long double>();
+constexpr bool kHasLongDouble = (LD_ERR < DBL_ERR);
+
+// Define sqrt(3) as a constant so that we can use it with constexpr.
+// Unfortunately we can't use M_SQRT3 because some client libraries define
+// this symbol without first checking whether it already exists.
+constexpr double kSqrt3 = 1.7320508075688772935274463415058;
+
 using Vector3_ld = Vector3<long double>;
 using Vector3_xf = Vector3<ExactFloat>;
 
@@ -61,6 +69,11 @@ inline static long double ToLD(double x) {
 
 inline static Vector3_xf ToExact(const S2Point& x) {
   return Vector3_xf::Cast(x);
+}
+
+// Efficiently tests whether an ExactFloat vector is (0, 0, 0).
+inline static bool IsZero(const Vector3_xf& a) {
+  return a[0].sgn() == 0 && a[1].sgn() == 0 && a[2].sgn() == 0;
 }
 
 int StableSign(const S2Point& a, const S2Point& b, const S2Point& c);
@@ -132,6 +145,5 @@ Excluded ExactVoronoiSiteExclusion(const Vector3_xf& a, const Vector3_xf& b,
                                    const Vector3_xf& x0, const Vector3_xf& x1,
                                    const ExactFloat& r2);
 }  // namespace s2pred
-}  // namespace s2
 
 #endif  // S2_S2PREDICATES_INTERNAL_H_

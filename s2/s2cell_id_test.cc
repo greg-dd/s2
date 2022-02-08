@@ -15,35 +15,36 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2cell_id.h"
+#include "s2/s2cell_id.h"
 
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <iosfwd>
 #include <iostream>
-#include <unordered_map>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
-#include "s2//base/logging.h"
-#include "s2//r2.h"
-#include "s2//r2rect.h"
-#include "s2//s2cap.h"
-#include "s2//s2coords.h"
-#include "s2//s2latlng.h"
-#include "s2//s2metrics.h"
-#include "s2//s2testing.h"
+#include "absl/base/macros.h"
+#include "absl/container/flat_hash_map.h"
+
+#include "s2/base/logging.h"
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s2cap.h"
+#include "s2/s2coords.h"
+#include "s2/s2latlng.h"
+#include "s2/s2metrics.h"
+#include "s2/s2testing.h"
 #include "absl/base/macros.h"
 
-using s2::internal::kPosToOrientation;
+using absl::flat_hash_map;
+using S2::internal::kPosToOrientation;
 using std::fabs;
 using std::min;
-using std::unordered_map;
+using std::string;
 using std::vector;
-
-namespace s2 {
 
 static S2CellId GetCellId(double lat_degrees, double lng_degrees) {
   S2CellId id(S2LatLng::FromDegrees(lat_degrees, lng_degrees));
@@ -181,7 +182,7 @@ TEST(S2CellId, Advance) {
             id.child_begin(S2CellId::kMaxLevel).advance(256));
   EXPECT_EQ(S2CellId::FromFacePosLevel(5, 0, S2CellId::kMaxLevel),
             S2CellId::FromFacePosLevel(1, 0, S2CellId::kMaxLevel)
-            .advance(4ULL << (2 * S2CellId::kMaxLevel)));
+                .advance(uint64{4} << (2 * S2CellId::kMaxLevel)));
 
   // Check basic properties of advance_wrap().
   EXPECT_EQ(S2CellId::FromFace(1), S2CellId::Begin(0).advance_wrap(7));
@@ -194,12 +195,12 @@ TEST(S2CellId, Advance) {
             id.child_begin(S2CellId::kMaxLevel).advance_wrap(256));
   EXPECT_EQ(S2CellId::FromFacePosLevel(1, 0, S2CellId::kMaxLevel),
             S2CellId::FromFacePosLevel(5, 0, S2CellId::kMaxLevel)
-            .advance_wrap(2ULL << (2 * S2CellId::kMaxLevel)));
+                .advance_wrap(uint64{2} << (2 * S2CellId::kMaxLevel)));
 }
 
 TEST(S2CellId, DistanceFromBegin) {
   EXPECT_EQ(6, S2CellId::End(0).distance_from_begin());
-  EXPECT_EQ(6 * (1LL << (2 * S2CellId::kMaxLevel)),
+  EXPECT_EQ(6 * (int64{1} << (2 * S2CellId::kMaxLevel)),
             S2CellId::End(S2CellId::kMaxLevel).distance_from_begin());
 
   EXPECT_EQ(0, S2CellId::Begin(0).distance_from_begin());
@@ -288,28 +289,22 @@ TEST(S2CellId, Tokens) {
   // Test random cell ids at all levels.
   for (int i = 0; i < 10000; ++i) {
     S2CellId id = S2Testing::GetRandomCellId();
-    std::string token = id.ToToken();
+    string token = id.ToToken();
     EXPECT_LE(token.size(), 16);
     EXPECT_EQ(id, S2CellId::FromToken(token));
-    EXPECT_EQ(id, S2CellId::FromToken(token.data(), token.size()));
   }
   // Check that invalid cell ids can be encoded, and round-trip is
   // the identity operation.
-  std::string token = S2CellId::None().ToToken();
+  string token = S2CellId::None().ToToken();
   EXPECT_EQ(S2CellId::None(), S2CellId::FromToken(token));
-  EXPECT_EQ(S2CellId::None(), S2CellId::FromToken(token.data(), token.size()));
 
   // Sentinel is invalid.
   token = S2CellId::Sentinel().ToToken();
   EXPECT_EQ(S2CellId::FromToken(token), S2CellId::Sentinel());
-  EXPECT_EQ(S2CellId::FromToken(token.data(), token.size()),
-            S2CellId::Sentinel());
 
   // Check an invalid face.
   token = S2CellId::FromFace(7).ToToken();
   EXPECT_EQ(S2CellId::FromToken(token), S2CellId::FromFace(7));
-  EXPECT_EQ(S2CellId::FromToken(token.data(), token.size()),
-            S2CellId::FromFace(7));
 
   // Check that supplying tokens with non-alphanumeric characters
   // returns S2CellId::None().
@@ -355,7 +350,7 @@ static const int kMaxExpandLevel = 3;
 
 static void ExpandCell(
     S2CellId parent, vector<S2CellId>* cells,
-    unordered_map<S2CellId, S2CellId, S2CellIdHash>* parent_map) {
+    flat_hash_map<S2CellId, S2CellId, S2CellIdHash>* parent_map) {
   cells->push_back(parent);
   if (parent.level() == kMaxExpandLevel) return;
   int i, j, orientation;
@@ -386,7 +381,7 @@ static void ExpandCell(
 
 TEST(S2CellId, Containment) {
   // Test contains() and intersects().
-  unordered_map<S2CellId, S2CellId, S2CellIdHash> parent_map;
+  flat_hash_map<S2CellId, S2CellId, S2CellIdHash> parent_map;
   vector<S2CellId> cells;
   for (int face = 0; face < 6; ++face) {
     ExpandCell(S2CellId::FromFace(face), &cells, &parent_map);
@@ -417,7 +412,7 @@ TEST(S2CellId, Continuity) {
   // path over the surface of the sphere, i.e. there are no
   // discontinuous jumps from one region to another.
 
-  double max_dist = kMaxEdge.GetValue(kMaxWalkLevel);
+  double max_dist = S2::kMaxEdge.GetValue(kMaxWalkLevel);
   S2CellId end = S2CellId::End(kMaxWalkLevel);
   S2CellId id = S2CellId::Begin(kMaxWalkLevel);
   for (; id != end; id = id.next()) {
@@ -428,10 +423,10 @@ TEST(S2CellId, Continuity) {
     // Check that the ToPointRaw() returns the center of each cell
     // in (s,t) coordinates.
     double u, v;
-    XYZtoFaceUV(id.ToPointRaw(), &u, &v);
+    S2::XYZtoFaceUV(id.ToPointRaw(), &u, &v);
     static const double kCellSize = 1.0 / (1 << kMaxWalkLevel);
-    EXPECT_NEAR(remainder(UVtoST(u), 0.5 * kCellSize), 0.0, 1e-15);
-    EXPECT_NEAR(remainder(UVtoST(v), 0.5 * kCellSize), 0.0, 1e-15);
+    EXPECT_NEAR(remainder(S2::UVtoST(u), 0.5 * kCellSize), 0.0, 1e-15);
+    EXPECT_NEAR(remainder(S2::UVtoST(v), 0.5 * kCellSize), 0.0, 1e-15);
   }
 }
 
@@ -443,7 +438,7 @@ TEST(S2CellId, Coverage) {
   // the cells at the corners of each face are stretched -- they have 60 and
   // 120 degree angles.)
 
-  double max_dist = 0.5 * kMaxDiag.GetValue(S2CellId::kMaxLevel);
+  double max_dist = 0.5 * S2::kMaxDiag.GetValue(S2CellId::kMaxLevel);
   for (int i = 0; i < 1000000; ++i) {
     S2Point p = S2Testing::RandomPoint();
     S2Point q = S2CellId(p).ToPointRaw();
@@ -565,16 +560,16 @@ void TestExpandedByDistanceUV(S2CellId id, S1Angle distance) {
     // Choose a point on the boundary of the rectangle.
     int face = S2Testing::rnd.Uniform(6);
     R2Point center_uv = SampleBoundary(bound);
-    S2Point center = FaceUVtoXYZ(face, center_uv).Normalize();
+    S2Point center = S2::FaceUVtoXYZ(face, center_uv).Normalize();
 
     // Now sample a point from a disc of radius (2 * distance).
     S2Point p = S2Testing::SamplePoint(S2Cap(center, 2 * distance.abs()));
 
     // Find the closest point on the boundary to the sampled point.
     R2Point uv;
-    if (!FaceXYZtoUV(face, p, &uv)) continue;
+    if (!S2::FaceXYZtoUV(face, p, &uv)) continue;
     R2Point closest_uv = ProjectToBoundary(uv, bound);
-    S2Point closest = FaceUVtoXYZ(face, closest_uv).Normalize();
+    S2Point closest = S2::FaceUVtoXYZ(face, closest_uv).Normalize();
     S1Angle actual_dist = S1Angle(p, closest);
 
     if (distance >= S1Angle::Zero()) {
@@ -633,4 +628,3 @@ TEST(S2CellId, OutputOperator) {
   EXPECT_EQ("5/31200", s.str());
 }
 
-}  // namespace s2

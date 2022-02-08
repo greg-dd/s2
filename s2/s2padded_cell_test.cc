@@ -15,20 +15,20 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2padded_cell.h"
+#include "s2/s2padded_cell.h"
 
 #include <algorithm>
 #include <cmath>
 
-#include "gtest/gtest.h"
-#include "s2//r1interval.h"
-#include "s2//r2.h"
-#include "s2//s2cell.h"
-#include "s2//s2testing.h"
+#include <gtest/gtest.h>
+#include "s2/r1interval.h"
+#include "s2/r2.h"
+#include "s2/s2cell.h"
+#include "s2/s2testing.h"
 
 using std::min;
 
-namespace s2 {
+namespace {
 
 void CompareS2CellToPadded(const S2Cell& cell, const S2PaddedCell& pcell,
                            double padding) {
@@ -135,4 +135,4 @@ TEST(S2PaddedCell, ShrinkToFit) {
   }
 }
 
-}  // namespace s2
+}  // namespace

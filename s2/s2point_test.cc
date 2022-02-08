@@ -15,23 +15,19 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2point.h"
+#include "s2/s2point.h"
 
 #include <cstddef>
-#include <unordered_set>
 
-#include "gtest/gtest.h"
-#include "s2//s2cell.h"
-#include "s2//s2testing.h"
-
-using std::unordered_set;
-
-namespace s2 {
+#include <gtest/gtest.h>
+#include "absl/container/flat_hash_set.h"
+#include "s2/s2cell.h"
+#include "s2/s2testing.h"
 
 TEST(S2, S2PointHashSpreads) {
   int kTestPoints = 1 << 16;
-  unordered_set<size_t> set;
-  unordered_set<S2Point, S2PointHash> points;
+  absl::flat_hash_set<size_t> set;
+  absl::flat_hash_set<S2Point, S2PointHash> points;
   S2PointHash hasher;
   S2Point base = S2Point(1, 1, 1);
   for (int i = 0; i < kTestPoints; ++i) {
@@ -47,5 +43,3 @@ TEST(S2, S2PointHashSpreads) {
   // Allow a few for the hash.
   EXPECT_GE(10, kTestPoints - set.size());
 }
-
-}  // namespace s2

@@ -19,24 +19,27 @@
 #define S2_S2CELL_ID_H_
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "s2//base/integral_types.h"
-#include "s2//base/logging.h"
-#include "s2//base/port.h"
-#include "s2//_fp_contract_off.h"
-#include "s2//r2.h"
-#include "s2//r2rect.h"
-#include "s2//s1angle.h"
-#include "s2//s2coords.h"
+#include "absl/hash/hash.h"
 #include "absl/strings/string_view.h"
-#include "s2//util/bits/bits.h"
-#include "s2//util/coding/coder.h"
 
-namespace s2 {
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/base/port.h"
+#include "s2/util/bits/bits.h"
+#include "s2/util/coding/coder.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s1angle.h"
+#include "s2/s2coords.h"
+#include "s2/util/bits/bits.h"
+#include "s2/util/coding/coder.h"
 
 class S2LatLng;
 
@@ -79,19 +82,24 @@ class S2LatLng;
 // the default copy constructor and assignment operator.
 class S2CellId {
  public:
-  // The extra position bit (61 rather than 60) let us encode each cell as its
-  // Hilbert curve position at the cell center (which is halfway along the
-  // portion of the Hilbert curve that fills that cell).
-  static const int kFaceBits = 3;
-  static const int kNumFaces = 6;
-  static const int kMaxLevel = s2::kMaxCellLevel;  // Valid levels: 0..kMaxLevel
-  static const int kPosBits = 2 * kMaxLevel + 1;
-  static const int kMaxSize = 1 << kMaxLevel;
+  // Although only 60 bits are needed to represent the index of a leaf cell, the
+  // extra position bit lets us encode each cell as its Hilbert curve position
+  // at the cell center, which is halfway along the portion of the Hilbert curve
+  // that fills that cell.
+  static constexpr int kFaceBits = 3;
+  static constexpr int kNumFaces = 6;
+  static constexpr int kMaxLevel =
+      S2::kMaxCellLevel;  // Valid levels: 0..kMaxLevel
+  static constexpr int kPosBits = 2 * kMaxLevel + 1;
+  static constexpr int kMaxSize = 1 << kMaxLevel;
 
+  // This arg is uint64 rather than to help the uint64 -> uint64
+  // transition.  TODO(user): Remove inconsistency and update
+  // the rest of util/geometry when these are the same types, ~2020-09-01.
   explicit IFNDEF_SWIG(constexpr) S2CellId(uint64 id) : id_(id) {}
 
   // Construct a leaf cell containing the given point "p".  Usually there is
-  // is exactly one such cell, but for points along the edge of a cell, any
+  // exactly one such cell, but for points along the edge of a cell, any
   // adjacent cell may be (deterministically) chosen.  This is because
   // S2CellIds are considered to be closed sets.  The returned cell will
   // always contain the given point, i.e.
@@ -110,6 +118,7 @@ class S2CellId {
 
   // The default constructor returns an invalid cell id.
   IFNDEF_SWIG(constexpr) S2CellId() : id_(0) {}
+  // Returns an invalid cell id.
   static constexpr S2CellId None() { return S2CellId(); }
 
   // Returns an invalid cell id guaranteed to be larger than any
@@ -170,7 +179,7 @@ class S2CellId {
   // test whether a point lies within the expanded bounds like this:
   //
   //   R2Point uv;
-  //   if (s2::FaceXYZtoUV(face, point, &uv) && bound.Contains(uv)) { ... }
+  //   if (S2::FaceXYZtoUV(face, point, &uv) && bound.Contains(uv)) { ... }
   //
   // Limitations:
   //
@@ -254,8 +263,8 @@ class S2CellId {
   // range queries), do not attempt to define "limit" as range_max.next().
   // The problem is that leaf S2CellIds are 2 units apart, so the semi-open
   // interval [min, limit) includes an additional value (range_max.id() + 1)
-  // which is happens to be a valid S2CellId about one-third of the time and
-  // is *never* contained by this cell.  (It always correpsonds to a cell that
+  // which happens to be a valid S2CellId about one-third of the time and
+  // is *never* contained by this cell.  (It always corresponds to a cell that
   // is larger than this one.)  You can define "limit" as (range_max.id() + 1)
   // if necessary (which is not always a valid S2CellId but can still be used
   // with FromToken/ToToken), or you can convert range_max() to the key space
@@ -340,7 +349,11 @@ class S2CellId {
   S2CellId maximum_tile(S2CellId limit) const;
 
   // Returns the level of the lowest common ancestor of this cell and "other",
-  // that is, the maximum level such that parent(level) == other.parent(level).
+  // i.e. the maximum level where this->parent(level) == other.parent(level).
+  // Note that this definition also covers the situation where this cell is a
+  // descendant of "other" or vice versa, or the two cells are the same,
+  // since this->parent(this->level()) == *this.
+  //
   // Returns -1 if the two cells do not have any common ancestor (i.e., they
   // are from different faces).
   int GetCommonAncestorLevel(S2CellId other) const;
@@ -352,21 +365,20 @@ class S2CellId {
   static S2CellId Begin(int level);
   static S2CellId End(int level);
 
-  // Methods to encode and decode cell ids to compact text std::strings suitable
+  // Methods to encode and decode cell ids to compact text strings suitable
   // for display or indexing.  Cells at lower levels (i.e. larger cells) are
   // encoded into fewer characters.  The maximum token length is 16.
   //
   // Tokens preserve ordering, i.e. ToToken(x) < ToToken(y) iff x < y.
   //
-  // ToToken() returns a std::string by value for convenience; the compiler
+  // ToToken() returns a string by value for convenience; the compiler
   // does this without intermediate copying in most cases.
   //
   // These methods guarantee that FromToken(ToToken(x)) == x even when
-  // "x" is an invalid cell id.  All tokens are alphanumeric std::strings.
+  // "x" is an invalid cell id.  All tokens are alphanumeric strings.
   // FromToken() returns S2CellId::None() for malformed inputs.
   std::string ToToken() const;
-  static S2CellId FromToken(const char* token, size_t length);
-  static S2CellId FromToken(const std::string& token);
+  static S2CellId FromToken(absl::string_view token);
 
   // Use encoder to generate a serialized representation of this cell id.
   // Can also encode an invalid cell.
@@ -375,18 +387,18 @@ class S2CellId {
   // Decodes an S2CellId encoded by Encode(). Returns true on success.
   bool Decode(Decoder* const decoder);
 
-  // Creates a human readable debug std::string.  Used for << and available for
+  // Creates a human readable debug string.  Used for << and available for
   // direct usage as well.  The format is "f/dd..d" where "f" is a digit in
-  // the range [0-5] representing the S2CellId face, and "dd..d" is a std::string
+  // the range [0-5] representing the S2CellId face, and "dd..d" is a string
   // of digits in the range [0-3] representing each child's position with
-  // respect to its parent.  (Note that the latter std::string may be empty.)
+  // respect to its parent.  (Note that the latter string may be empty.)
   //
   // For example "4/" represents S2CellId::FromFace(4), and "3/02" represents
   // S2CellId::FromFace(3).child(0).child(2).
   std::string ToString() const;
 
-  // Converts a std::string in the format returned by ToString() to an S2CellId.
-  // Returns S2CellId::None() if the std::string could not be parsed.
+  // Converts a string in the format returned by ToString() to an S2CellId.
+  // Returns S2CellId::None() if the string could not be parsed.
   //
   // The method name includes "Debug" in order to avoid possible confusion
   // with FromToken() above.
@@ -447,13 +459,14 @@ class S2CellId {
   // When S2CellId is used as a key in one of the btree container types
   // (util/btree), indicate that linear rather than binary search should be
   // used.  This is much faster when the comparison function is cheap.
-  typedef std::true_type goog_btree_prefer_linear_node_search;
+  typedef std::true_type absl_btree_prefer_linear_node_search;
 
  private:
   // This is the offset required to wrap around from the beginning of the
   // Hilbert curve to the end or vice versa; see next_wrap() and prev_wrap().
   // SWIG doesn't understand uint64{}, so use static_cast.
-  static const uint64 kWrapOffset = static_cast<uint64>(kNumFaces) << kPosBits;
+  static constexpr uint64 kWrapOffset = static_cast<uint64>(kNumFaces)
+                                        << kPosBits;
 
   // Given a face and a point (i,j) where either i or j is outside the valid
   // range [0..kMaxSize-1], this function first determines which neighboring
@@ -546,7 +559,7 @@ inline int S2CellId::level() const {
   // We can't just S2_DCHECK(is_valid()) because we want level() to be
   // defined for end-iterators, i.e. S2CellId::End(kLevel).  However there is
   // no good way to define S2CellId::None().level(), so we do prohibit that.
-  S2_DCHECK(id_ != 0);
+  S2_DCHECK_NE(id_, uint64{0});
 
   // A special case for leaf cells is not worthwhile.
   return kMaxLevel - (Bits::FindLSBSetNonZero64(id_) >> 1);
@@ -565,12 +578,10 @@ inline int S2CellId::GetSizeIJ(int level) {
 }
 
 inline double S2CellId::GetSizeST(int level) {
-  return s2::IJtoSTMin(GetSizeIJ(level));
+  return S2::IJtoSTMin(GetSizeIJ(level));
 }
 
-inline bool S2CellId::is_leaf() const {
-  return int(id_) & 1;
-}
+inline bool S2CellId::is_leaf() const { return id_ & 1; }
 
 inline bool S2CellId::is_face() const {
   return (id_ & (lsb_for_level(0) - 1)) == 0;
@@ -695,15 +706,22 @@ inline S2CellId S2CellId::End(int level) {
 std::ostream& operator<<(std::ostream& os, S2CellId id);
 
 // Hasher for S2CellId.
-// Example use: std::unordered_map<S2CellId, int, S2CellIdHash>.
+// Does *not* need to be specified explicitly; this will be used by default for
+// absl::flat_hash_map/set.
+template <typename H>
+H AbslHashValue(H h, S2CellId id) {
+  return H::combine(std::move(h), id.id());
+}
+
+// Legacy hash functor for S2CellId. This only exists for backwards
+// compatibility with old hash types like std::unordered_map that don't use
+// absl::Hash natively.
 struct S2CellIdHash {
   size_t operator()(S2CellId id) const {
-    return std::hash<uint64>()(id.id());
+    return absl::Hash<S2CellId>()(id);
   }
 };
 
 #undef IFNDEF_SWIG
-
-}  // namespace s2
 
 #endif  // S2_S2CELL_ID_H_

@@ -15,28 +15,32 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2edge_tessellator.h"
+#include "s2/s2edge_tessellator.h"
 
 #include <iostream>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include "absl/strings/str_cat.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2loop.h"
-#include "s2//s2pointutil.h"
-#include "s2//s2projections.h"
-#include "s2//s2testing.h"
-#include "s2//s2text_format.h"
+
+#include "s2/base/log_severity.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2loop.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2projections.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
 using absl::StrCat;
-using s2::s2textformat::ParsePointsOrDie;
+using s2textformat::ParsePointsOrDie;
 using std::cout;
 using std::endl;
 using std::fabs;
 using std::min;
 using std::max;
+using std::string;
 using std::vector;
 
-namespace s2 {
+namespace {
 
 class Stats {
  public:
@@ -54,7 +58,7 @@ class Stats {
   double max() const { return max_; }
   double avg() const { return sum_ / count_; }
 
-  std::string ToString() const {
+  string ToString() const {
     return StrCat("avg = ", sum_ / count_, ", max = ", max_);
   }
 
@@ -67,7 +71,7 @@ class Stats {
 // geometrically or parameterically (see algorithm description in .cc file).
 enum class DistType { GEOMETRIC, PARAMETRIC };
 
-S1Angle GetMaxDistance(const Projection& proj,
+S1Angle GetMaxDistance(const S2::Projection& proj,
                        const R2Point& px, const S2Point& x,
                        const R2Point& py, const S2Point& y,
                        DistType dist_type = DistType::GEOMETRIC) {
@@ -79,10 +83,10 @@ S1Angle GetMaxDistance(const Projection& proj,
     S1ChordAngle dist = S1ChordAngle::Infinity();
     S2Point p = proj.Unproject(proj.Interpolate(f, px, py));
     if (dist_type == DistType::GEOMETRIC) {
-      UpdateMinDistance(p, x, y, &dist);
+      S2::UpdateMinDistance(p, x, y, &dist);
     } else {
       S2_DCHECK(dist_type == DistType::PARAMETRIC);
-      dist = S1ChordAngle(p, Interpolate(f, x, y));
+      dist = S1ChordAngle(p, S2::Interpolate(f, x, y));
     }
     if (dist > max_dist) max_dist = dist;
   }
@@ -90,17 +94,17 @@ S1Angle GetMaxDistance(const Projection& proj,
   // bound, since we only want to record a failure of the distance estimation
   // algorithm if the number it returns is definitely too small.
   return S1Angle(
-      max_dist.PlusError(-GetUpdateMinDistanceMaxError(max_dist)));
+      max_dist.PlusError(-S2::GetUpdateMinDistanceMaxError(max_dist)));
 }
 
 // When there are longitudes greater than 180 degrees due to wrapping, the
 // combination of projecting and unprojecting an S2Point can have slightly more
-// error than is allowed by ApproxEquals.
+// error than is allowed by S2::ApproxEquals.
 const S1Angle kMaxProjError(S1Angle::Radians(2e-15));
 
 // Converts a projected edge to a sequence of geodesic edges and verifies that
 // the result satisfies the given tolerance.
-Stats TestUnprojected(const Projection& proj, S1Angle tolerance,
+Stats TestUnprojected(const S2::Projection& proj, S1Angle tolerance,
                       const R2Point& pa, const R2Point& pb_in, bool log_stats) {
   S2EdgeTessellator tess(&proj, tolerance);
   vector<S2Point> vertices;
@@ -135,7 +139,7 @@ Stats TestUnprojected(const Projection& proj, S1Angle tolerance,
 
 // Converts a geodesic edge to a sequence of projected edges and verifies that
 // the result satisfies the given tolerance.
-Stats TestProjected(const Projection& proj, S1Angle tolerance,
+Stats TestProjected(const S2::Projection& proj, S1Angle tolerance,
                     const S2Point& a, const S2Point& b, bool log_stats) {
   S2EdgeTessellator tess(&proj, tolerance);
   vector<R2Point> vertices;
@@ -154,7 +158,7 @@ Stats TestProjected(const Projection& proj, S1Angle tolerance,
     S2Point y = proj.Unproject(py);
     // Check that every vertex is on the geodesic edge.
     static S1ChordAngle kMaxInterpolationError(S1Angle::Radians(1e-14));
-    EXPECT_TRUE(IsDistanceLess(y, a, b, kMaxInterpolationError));
+    EXPECT_TRUE(S2::IsDistanceLess(y, a, b, kMaxInterpolationError));
     stats.Tally(GetMaxDistance(proj, px, x, py, y) / tolerance);
     x = y;
     px = py;
@@ -167,7 +171,7 @@ Stats TestProjected(const Projection& proj, S1Angle tolerance,
 }
 
 TEST(S2EdgeTessellator, ProjectedNoTessellation) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S2EdgeTessellator tess(&proj, S1Angle::Degrees(0.01));
   vector<R2Point> vertices;
   tess.AppendProjected(S2Point(1, 0, 0), S2Point(0, 1, 0), &vertices);
@@ -175,7 +179,7 @@ TEST(S2EdgeTessellator, ProjectedNoTessellation) {
 }
 
 TEST(S2EdgeTessellator, UnprojectedNoTessellation) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S2EdgeTessellator tess(&proj, S1Angle::Degrees(0.01));
   vector<S2Point> vertices;
   tess.AppendUnprojected(R2Point(0, 30), R2Point(0, 50), &vertices);
@@ -186,7 +190,7 @@ TEST(S2EdgeTessellator, UnprojectedWrapping) {
   // This tests that a projected edge that crosses the 180 degree meridian
   // goes the "short way" around the sphere.
 
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S2EdgeTessellator tess(&proj, S1Angle::Degrees(0.01));
   vector<S2Point> vertices;
   tess.AppendUnprojected(R2Point(-170, 0), R2Point(170, 80), &vertices);
@@ -200,7 +204,7 @@ TEST(S2EdgeTessellator, ProjectedWrapping) {
   // meridian.  This results in a set of vertices that may be non-canonical
   // (i.e., absolute longitudes greater than 180 degrees) but that don't have
   // any sudden jumps in value, which is convenient for interpolating them.
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S2EdgeTessellator tess(&proj, S1Angle::Degrees(0.01));
   vector<R2Point> vertices;
   tess.AppendProjected(S2LatLng::FromDegrees(0, -170).ToPoint(),
@@ -214,7 +218,7 @@ TEST(S2EdgeTessellator, UnprojectedWrappingMultipleCrossings) {
   // Tests an edge chain that crosses the 180 degree meridian multiple times.
   // Note that due to coordinate wrapping, the last vertex of one edge may not
   // exactly match the first edge of the next edge after unprojection.
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S2EdgeTessellator tess(&proj, S1Angle::Degrees(0.01));
   vector<S2Point> vertices;
   for (double lat = 1; lat <= 60; ++lat) {
@@ -233,7 +237,7 @@ TEST(S2EdgeTessellator, ProjectedWrappingMultipleCrossings) {
   // each direction).
   auto loop = ParsePointsOrDie("0:160, 0:-40, 0:120, 0:-80, 10:120, "
                                "10:-40, 0:160");
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance(S1Angle::E7(1));
   S2EdgeTessellator tess(&proj, tolerance);
   vector<R2Point> vertices;
@@ -254,7 +258,7 @@ TEST(S2EdgeTessellator, ProjectedWrappingMultipleCrossings) {
 }
 
 TEST(S2EdgeTessellator, InfiniteRecursionBug) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle kOneMicron = S1Angle::Radians(1e-6 / 6371.0);
   S2EdgeTessellator tess(&proj, kOneMicron);
   vector<R2Point> vertices;
@@ -264,15 +268,16 @@ TEST(S2EdgeTessellator, InfiniteRecursionBug) {
 }
 
 TEST(S2EdgeTessellator, UnprojectedAccuracy) {
-  MercatorProjection proj(180);
+  S2::MercatorProjection proj(180);
   S1Angle tolerance(S1Angle::Degrees(1e-5));
   R2Point pa(0, 0), pb(89.999999, 179);
   Stats stats = TestUnprojected(proj, tolerance, pa, pb, true);
   EXPECT_LE(stats.max(), 1.0);
 }
 
+// Repro case for b/110719057.
 TEST(S2EdgeTessellator, UnprojectedAccuracyCrossEquator) {
-  MercatorProjection proj(180);
+  S2::MercatorProjection proj(180);
   S1Angle tolerance(S1Angle::Degrees(1e-5));
   R2Point pa(-10, -10), pb(10, 10);
   Stats stats = TestUnprojected(proj, tolerance, pa, pb, true);
@@ -280,7 +285,7 @@ TEST(S2EdgeTessellator, UnprojectedAccuracyCrossEquator) {
 }
 
 TEST(S2EdgeTessellator, ProjectedAccuracy) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance(S1Angle::E7(1));
   S2Point a = S2LatLng::FromDegrees(-89.999, -170).ToPoint();
   S2Point b = S2LatLng::FromDegrees(50, 100).ToPoint();
@@ -289,7 +294,7 @@ TEST(S2EdgeTessellator, ProjectedAccuracy) {
 }
 
 TEST(S2EdgeTessellator, UnprojectedAccuracyMidpointEquator) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance = S2Testing::MetersToAngle(1);
   R2Point a(80, 50), b(-80, -50);
   Stats stats = TestUnprojected(proj, tolerance, a, b, true);
@@ -297,7 +302,7 @@ TEST(S2EdgeTessellator, UnprojectedAccuracyMidpointEquator) {
 }
 
 TEST(S2EdgeTessellator, ProjectedAccuracyMidpointEquator) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance = S2Testing::MetersToAngle(1);
   S2Point a = S2LatLng::FromDegrees(50, 80).ToPoint();
   S2Point b = S2LatLng::FromDegrees(-50, -80).ToPoint();
@@ -305,8 +310,9 @@ TEST(S2EdgeTessellator, ProjectedAccuracyMidpointEquator) {
   EXPECT_LE(stats.max(), 1.0);
 }
 
+// Repro case for b/110719057.
 TEST(S2EdgeTessellator, ProjectedAccuracyCrossEquator) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance(S1Angle::E7(1));
   S2Point a = S2LatLng::FromDegrees(-20, -20).ToPoint();
   S2Point b = S2LatLng::FromDegrees(20, 20).ToPoint();
@@ -315,7 +321,7 @@ TEST(S2EdgeTessellator, ProjectedAccuracyCrossEquator) {
 }
 
 TEST(S2EdgeTessellator, ProjectedAccuracySeattleToNewYork) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance = S2Testing::MetersToAngle(1);
   S2Point seattle(S2LatLng::FromDegrees(47.6062, -122.3321).ToPoint());
   S2Point newyork(S2LatLng::FromDegrees(40.7128, -74.0059).ToPoint());
@@ -338,19 +344,19 @@ TEST(S2EdgeTessellator, ProjectedAccuracySeattleToNewYork) {
 // and (3) estimate the amount of overtessellation that occurs for various
 // types of edges (e.g., short vs. long edges, edges that follow lines of
 // latitude or longitude, etc).
-void TestEdgeError(const Projection& proj, double t) {
+void TestEdgeError(const S2::Projection& proj, double t) {
   // Here we compute how much we need to scale the error measured at the
   // chosen interpolation fraction "t" in order to bound the error along the
   // entire edge, under the assumption that the error is a convex combination
   // of E1(x) and E2(x) (see comments in the .cc file).
   const double x = 1 - 2 * t;
-  const double dlat = std::sin(0.5 * M_PI_4 * (1 - x));
-  const double dlng = std::sin(M_PI_4 * (1 - x));
-  const double dsin2 = dlat * dlat + dlng * dlng * std::sin(M_PI_4 * x) * M_SQRT1_2;
+  const double dlat = sin(0.5 * M_PI_4 * (1 - x));
+  const double dlng = sin(M_PI_4 * (1 - x));
+  const double dsin2 = dlat * dlat + dlng * dlng * sin(M_PI_4 * x) * M_SQRT1_2;
   const double dsin2_max = 0.5 * (1 - M_SQRT1_2);
   // Note that this is the reciprocal of the value used in the .cc file!
   const double kScaleFactor = max((2 * sqrt(3) / 9) / (x * (1 - x * x)),
-                                  std::asin(sqrt(dsin2_max)) / std::asin(sqrt(dsin2)));
+                                  asin(sqrt(dsin2_max)) / asin(sqrt(dsin2)));
 
   // Keep track of the average and maximum geometric and parametric errors.
   Stats stats_g, stats_p;
@@ -364,7 +370,7 @@ void TestEdgeError(const Projection& proj, double t) {
     // Uncomment to test edges than span more than 90 degrees longitude.
     // if (a[0] * b[0] + a[1] * b[1] < 0) continue;
     // Uncomment to only test edges of a certain length.
-    // b = InterpolateAtDistance(S1Angle::Radians(1e-5), a, b);
+    // b = S2::InterpolateAtDistance(S1Angle::Radians(1e-5), a, b);
     // Uncomment to only test edges that stay in one hemisphere.
     // if (a[2] * b[2] <= 0) continue;
     R2Point pa = proj.Project(a);
@@ -378,8 +384,8 @@ void TestEdgeError(const Projection& proj, double t) {
     if (max_dist_p <= S2EdgeTessellator::kMinTolerance()) continue;
 
     // Compute the estimated error bound.
-    S1Angle d1(Interpolate(t, a, b), proj.Unproject((1-t) * pa + t * pb));
-    S1Angle d2(Interpolate(1-t, a, b), proj.Unproject(t * pa + (1-t) * pb));
+    S1Angle d1(S2::Interpolate(t, a, b), proj.Unproject((1-t) * pa + t * pb));
+    S1Angle d2(S2::Interpolate(1-t, a, b), proj.Unproject(t * pa + (1-t) * pb));
     S1Angle dist = kScaleFactor * max(S1Angle::Radians(1e-300), max(d1, d2));
 
     // Compute the ratio of the true geometric/parametric errors to the
@@ -406,7 +412,7 @@ void TestEdgeError(const Projection& proj, double t) {
 static constexpr double kBestFraction = 0.31215691082248312;
 
 TEST(S2EdgeTessellator, MaxEdgeErrorPlateCarree) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   // Uncomment to test some nearby parameter values.
   // TestEdgeError(proj, 0.311);
   TestEdgeError(proj, kBestFraction);
@@ -414,7 +420,7 @@ TEST(S2EdgeTessellator, MaxEdgeErrorPlateCarree) {
 }
 
 TEST(S2EdgeTessellator, MaxEdgeErrorMercator) {
-  MercatorProjection proj(180);
+  S2::MercatorProjection proj(180);
   // Uncomment to test some nearby parameter values.
   // TestEdgeError(proj, 0.311);
   TestEdgeError(proj, kBestFraction);
@@ -423,7 +429,7 @@ TEST(S2EdgeTessellator, MaxEdgeErrorMercator) {
 
 // Tessellates random edges using the given projection and tolerance, and
 // verifies that the expected criteria are satisfied.
-void TestRandomEdges(const Projection& proj, S1Angle tolerance) {
+void TestRandomEdges(const S2::Projection& proj, S1Angle tolerance) {
   const int kIters = google::DEBUG_MODE ? 50 : 500;
   double max_r2 = 0, max_s2 = 0;
   for (int iter = 0; iter < kIters; ++iter) {
@@ -441,20 +447,20 @@ void TestRandomEdges(const Projection& proj, S1Angle tolerance) {
 }
 
 TEST(S2EdgeTessellator, RandomEdgesPlateCarree) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance = S2Testing::MetersToAngle(100);
   TestRandomEdges(proj, tolerance);
 }
 
 TEST(S2EdgeTessellator, RandomEdgesMercator) {
-  MercatorProjection proj(180);
+  S2::MercatorProjection proj(180);
   S1Angle tolerance = S2Testing::MetersToAngle(100);
   TestRandomEdges(proj, tolerance);
 }
 
 // TODO(ericv): Superceded by random edge tests above, remove?
 TEST(S2EdgeTessellator, UnprojectedAccuracyRandomCheck) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance(S1Angle::Degrees(1e-3));
   S2Testing::Random rand;
   const int kIters = google::DEBUG_MODE ? 250 : 5000;
@@ -472,7 +478,7 @@ TEST(S2EdgeTessellator, UnprojectedAccuracyRandomCheck) {
 
 // XXX(ericv): Superceded by random edge tests above, remove?
 TEST(S2EdgeTessellator, ProjectedAccuracyRandomCheck) {
-  PlateCarreeProjection proj(180);
+  S2::PlateCarreeProjection proj(180);
   S1Angle tolerance(S1Angle::Degrees(1e-3));
   S2Testing::Random rand;
   const int kIters = google::DEBUG_MODE ? 250 : 5000;
@@ -489,4 +495,4 @@ TEST(S2EdgeTessellator, ProjectedAccuracyRandomCheck) {
   }
 }
 
-}  // namespace s2
+}  // namespace

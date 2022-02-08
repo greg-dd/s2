@@ -35,19 +35,18 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include "s2//base/logging.h"
-#include "s2//util/gtl/btree_map.h"
+#include "s2/base/logging.h"
+#include "absl/container/btree_map.h"
 #include "absl/memory/memory.h"
-#include "s2//id_set_lexicon.h"
-#include "s2//mutable_s2shape_index.h"
-#include "s2//s2builder.h"
-#include "s2//s2builder_graph.h"
-#include "s2//s2builder_layer.h"
-#include "s2//s2error.h"
-#include "s2//s2loop.h"
-#include "s2//s2polygon.h"
+#include "s2/id_set_lexicon.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2builder.h"
+#include "s2/s2builder_graph.h"
+#include "s2/s2builder_layer.h"
+#include "s2/s2error.h"
+#include "s2/s2loop.h"
+#include "s2/s2polygon.h"
 
-namespace s2 {
 namespace s2builderutil {
 
 // A layer type that assembles edges (directed or undirected) into an
@@ -139,7 +138,7 @@ class S2PolygonLayer : public S2Builder::Layer {
                      std::vector<std::unique_ptr<S2Loop>>* loops) const;
   void AppendEdgeLabels(const Graph& g,
                         const std::vector<Graph::EdgeLoop>& edge_loops);
-  using LoopMap = gtl::btree_map<S2Loop*, std::pair<int, bool>>;
+  using LoopMap = absl::btree_map<S2Loop*, std::pair<int, bool>>;
   void InitLoopMap(const std::vector<std::unique_ptr<S2Loop>>& loops,
                    LoopMap* loop_map) const;
   void ReorderEdgeLabels(const LoopMap& loop_map);
@@ -208,6 +207,5 @@ inline void S2PolygonLayer::Options::set_validate(bool validate) {
 }
 
 }  // namespace s2builderutil
-}  // namespace s2
 
 #endif  // S2_S2BUILDERUTIL_S2POLYGON_LAYER_H_

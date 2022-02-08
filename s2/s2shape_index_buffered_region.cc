@@ -15,17 +15,15 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2shape_index_buffered_region.h"
+#include "s2/s2shape_index_buffered_region.h"
 
 #include <algorithm>
 #include <vector>
-#include "s2//s2metrics.h"
-#include "s2//s2shape_index_region.h"
+#include "s2/s2metrics.h"
+#include "s2/s2shape_index_region.h"
 
 using std::min;
 using std::vector;
-
-namespace s2 {
 
 S2ShapeIndexBufferedRegion::S2ShapeIndexBufferedRegion() {
 }
@@ -65,7 +63,7 @@ void S2ShapeIndexBufferedRegion::GetCellUnionBound(vector<S2CellId> *cellids)
   MakeS2ShapeIndexRegion(&index()).GetCellUnionBound(&orig_cellids);
 
   double radians = radius_.ToAngle().radians();
-  int max_level = s2::kMinWidth.GetLevelForMinValue(radians) - 1;
+  int max_level = S2::kMinWidth.GetLevelForMinValue(radians) - 1;
   if (max_level < 0) {
     return S2Cap::Full().GetCellUnionBound(cellids);
   }
@@ -79,6 +77,9 @@ void S2ShapeIndexBufferedRegion::GetCellUnionBound(vector<S2CellId> *cellids)
 }
 
 bool S2ShapeIndexBufferedRegion::Contains(const S2Cell& cell) const {
+  // Return true if the buffered region is guaranteed to cover whole globe.
+  if (radius_successor_ > S1ChordAngle::Straight()) return true;
+
   // To implement this method perfectly would require computing the directed
   // Hausdorff distance, which is expensive (and not currently implemented).
   // However the following heuristic is almost as good in practice and much
@@ -113,5 +114,3 @@ bool S2ShapeIndexBufferedRegion::Contains(const S2Point& p) const {
   // Return true if the distance is less than or equal to "radius_".
   return query_.IsDistanceLess(&target, radius_successor_);
 }
-
-}  // namespace s2

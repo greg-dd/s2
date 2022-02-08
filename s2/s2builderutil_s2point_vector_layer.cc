@@ -15,13 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2builderutil_s2point_vector_layer.h"
+#include "s2/s2builderutil_s2point_vector_layer.h"
 
-#include "s2//s2builder_graph.h"
+#include "s2/s2builder_graph.h"
 
 using std::vector;
-
-namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
@@ -74,4 +72,3 @@ GraphOptions S2PointVectorLayer::graph_options() const {
 }
 
 }  // namespace s2builderutil
-}  // namespace s2

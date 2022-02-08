@@ -18,10 +18,9 @@
 #ifndef S2_S2SHAPEUTIL_TESTING_H_
 #define S2_S2SHAPEUTIL_TESTING_H_
 
-#include "s2//s2shape.h"
-#include "s2//s2shape_index.h"
+#include "s2/s2shape.h"
+#include "s2/s2shape_index.h"
 
-namespace s2 {
 namespace s2testing {
 
 // Verifies that all methods of the two S2Shapes return identical results,
@@ -33,6 +32,5 @@ void ExpectEqual(const S2Shape& a, const S2Shape& b);
 void ExpectEqual(const S2ShapeIndex& a, const S2ShapeIndex& b);
 
 }  // namespace s2testing
-}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_TESTING_H_

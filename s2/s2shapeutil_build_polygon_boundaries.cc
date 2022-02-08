@@ -15,19 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2shapeutil_build_polygon_boundaries.h"
+#include "s2/s2shapeutil_build_polygon_boundaries.h"
 
-#include "s2//util/gtl/btree_map.h"
+#include "absl/container/btree_map.h"
 #include "absl/memory/memory.h"
-#include "s2//mutable_s2shape_index.h"
-#include "s2//s2contains_point_query.h"
-#include "s2//s2shape_index.h"
-#include "s2//s2shapeutil_contains_brute_force.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2contains_point_query.h"
+#include "s2/s2shape_index.h"
+#include "s2/s2shapeutil_contains_brute_force.h"
 
 using absl::WrapUnique;
 using std::vector;
 
-namespace s2 {
 namespace s2shapeutil {
 
 void BuildPolygonBoundaries(const vector<vector<S2Shape*>>& components,
@@ -40,10 +39,10 @@ void BuildPolygonBoundaries(const vector<vector<S2Shape*>>& components,
   // Loop A then contains loop B if (1) A contains the boundary of B and (2)
   // loop A does not contain the point at infinity.
   //
-  // We choose s2::Origin() for this purpose.  The loop nesting hierarchy then
+  // We choose S2::Origin() for this purpose.  The loop nesting hierarchy then
   // determines the face structure.  Here are the details:
   //
-  // 1. Build an S2ShapeIndex of all loops that do not contain s2::Origin().
+  // 1. Build an S2ShapeIndex of all loops that do not contain S2::Origin().
   //    This leaves at most one unindexed loop per connected component
   //    (the "outer loop").
   //
@@ -64,7 +63,7 @@ void BuildPolygonBoundaries(const vector<vector<S2Shape*>>& components,
     const auto& component = components[i];
     for (S2Shape* loop : component) {
       if (component.size() > 1 &&
-          !s2shapeutil::ContainsBruteForce(*loop, s2::Origin())) {
+          !s2shapeutil::ContainsBruteForce(*loop, S2::Origin())) {
         // Ownership is transferred back at the end of this function.
         index.Add(WrapUnique(loop));
         component_ids.push_back(i);
@@ -85,7 +84,7 @@ void BuildPolygonBoundaries(const vector<vector<S2Shape*>>& components,
   }
   // Assign each outer loop to the component whose depth is one less.
   // Components at depth 0 become a single face.
-  gtl::btree_map<S2Shape*, vector<S2Shape*>> children;
+  absl::btree_map<S2Shape*, vector<S2Shape*>> children;
   for (int i = 0; i < outer_loops.size(); ++i) {
     S2Shape* ancestor = nullptr;
     int depth = ancestors[i].size();
@@ -119,4 +118,3 @@ void BuildPolygonBoundaries(const vector<vector<S2Shape*>>& components,
 }
 
 }  // namespace s2shapeutil
-}  // namespace s2

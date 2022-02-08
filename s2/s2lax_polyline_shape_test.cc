@@ -15,14 +15,15 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2lax_polyline_shape.h"
+#include "s2/s2lax_polyline_shape.h"
 
-#include "gtest/gtest.h"
-#include "s2//s2text_format.h"
+#include <utility>
+
+#include <gtest/gtest.h>
+#include "s2/s2shapeutil_testing.h"
+#include "s2/s2text_format.h"
 
 using std::vector;
-
-namespace s2 {
 
 TEST(S2LaxPolylineShape, NoVertices) {
   vector<S2Point> vertices;
@@ -45,6 +46,23 @@ TEST(S2LaxPolylineShape, OneVertex) {
   EXPECT_FALSE(shape.is_full());
 }
 
+TEST(S2LaxPolylineShape, MoveConstructor) {
+  std::unique_ptr<S2LaxPolylineShape> original =
+      s2textformat::MakeLaxPolylineOrDie("1:1, 4:4");
+  S2LaxPolylineShape moved(std::move(*original));
+  ASSERT_EQ(0, original->num_vertices());
+  ASSERT_EQ(2, moved.num_vertices());
+}
+
+TEST(S2LaxPolylineShape, MoveAssignmentOperator) {
+  std::unique_ptr<S2LaxPolylineShape> original =
+      s2textformat::MakeLaxPolylineOrDie("1:1, 4:4");
+  S2LaxPolylineShape moved;
+  moved = std::move(*original);
+  ASSERT_EQ(0, original->num_vertices());
+  ASSERT_EQ(2, moved.num_vertices());
+}
+
 TEST(S2LaxPolylineShape, EdgeAccess) {
   vector<S2Point> vertices = s2textformat::ParsePoints("0:0, 0:1, 1:1");
   S2LaxPolylineShape shape(vertices);
@@ -63,4 +81,20 @@ TEST(S2LaxPolylineShape, EdgeAccess) {
   EXPECT_EQ(vertices[2], edge1.v1);
 }
 
-}  // namespace s2
+TEST(EncodedS2LaxPolylineShape, RoundtripEncoding) {
+  vector<S2Point> vertices = s2textformat::ParsePoints("0:0, 0:1, 1:1");
+  S2LaxPolylineShape shape(vertices);
+
+  Encoder encoder;
+  shape.Encode(&encoder, s2coding::CodingHint::COMPACT);
+  Decoder a_decoder(encoder.base(), encoder.length());
+  EncodedS2LaxPolylineShape a_shape;
+  a_shape.Init(&a_decoder);
+
+  Encoder b_encoder;
+  a_shape.Encode(&b_encoder, s2coding::CodingHint::COMPACT);
+  Decoder b_decoder(b_encoder.base(), b_encoder.length());
+  EncodedS2LaxPolylineShape b_shape;
+  b_shape.Init(&b_decoder);
+  s2testing::ExpectEqual(shape, b_shape);
+}

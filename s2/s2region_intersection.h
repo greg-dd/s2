@@ -20,12 +20,11 @@
 #include <memory>
 #include <vector>
 
-#include "s2//base/logging.h"
-#include "s2//_fp_contract_off.h"
-#include "s2//s2region.h"
 #include "absl/base/macros.h"
 
-namespace s2 {
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s2region.h"
 
 class Decoder;
 class Encoder;
@@ -77,7 +76,5 @@ class S2RegionIntersection final : public S2Region {
 
   void operator=(const S2RegionIntersection&) = delete;
 };
-
-}  // namespace s2
 
 #endif  // S2_S2REGION_INTERSECTION_H_

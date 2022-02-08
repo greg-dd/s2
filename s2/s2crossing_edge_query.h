@@ -23,15 +23,13 @@
 
 #include "absl/base/macros.h"
 #include "absl/container/inlined_vector.h"
-#include "s2//_fp_contract_off.h"
-#include "s2//r2.h"
-#include "s2//r2rect.h"
-#include "s2//s2padded_cell.h"
-#include "s2//s2shape_index.h"
-#include "s2//s2shapeutil_shape_edge.h"
-#include "s2//s2shapeutil_shape_edge_id.h"
-
-namespace s2 {
+#include "s2/_fp_contract_off.h"
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s2padded_cell.h"
+#include "s2/s2shape_index.h"
+#include "s2/s2shapeutil_shape_edge.h"
+#include "s2/s2shapeutil_shape_edge_id.h"
 
 // A parameter that controls the reporting of edge intersections.
 //
@@ -56,7 +54,7 @@ enum class CrossingType { INTERIOR, ALL };
 //   }
 //   S2CrossingEdgeQuery query(&index);
 //   for (const auto& edge : query.GetCrossingEdges(a, b, CrossingType::ALL)) {
-//     S2_CHECK_GE(s2::CrossingSign(a0, a1, edge.v0(), edge.v1()), 0);
+//     S2_CHECK_GE(S2::CrossingSign(a0, a1, edge.v0(), edge.v1()), 0);
 //   }
 // }
 //
@@ -115,7 +113,7 @@ class S2CrossingEdgeQuery {
 
   // Returns a superset of the edges that intersect a query edge (a0, a1).
   // This method is useful for clients that want to test intersections in some
-  // other way, e.g. using s2::EdgeOrVertexCrossing().
+  // other way, e.g. using S2::EdgeOrVertexCrossing().
   std::vector<s2shapeutil::ShapeEdgeId> GetCandidates(const S2Point& a0,
                                                       const S2Point& a1);
 
@@ -218,7 +216,5 @@ class S2CrossingEdgeQuery {
 inline S2CrossingEdgeQuery::S2CrossingEdgeQuery(const S2ShapeIndex* index) {
   Init(index);
 }
-
-}  // namespace s2
 
 #endif  // S2_S2CROSSING_EDGE_QUERY_H_

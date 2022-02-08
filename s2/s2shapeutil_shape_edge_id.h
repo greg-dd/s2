@@ -19,9 +19,8 @@
 #define S2_S2SHAPEUTIL_SHAPE_EDGE_ID_H_
 
 #include <iostream>
-#include "s2//base/integral_types.h"
+#include "s2/base/integral_types.h"
 
-namespace s2 {
 namespace s2shapeutil {
 
 // ShapeEdgeId is a unique identifier for an edge within an S2ShapeIndex,
@@ -94,6 +93,5 @@ struct ShapeEdgeIdHash {
 };
 
 }  // namespace s2shapeutil
-}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_SHAPE_EDGE_ID_H_

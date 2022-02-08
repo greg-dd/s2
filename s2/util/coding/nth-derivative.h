@@ -57,10 +57,8 @@
 #ifndef S2_UTIL_CODING_NTH_DERIVATIVE_H_
 #define S2_UTIL_CODING_NTH_DERIVATIVE_H_
 
-#include "s2//base/integral_types.h"
-#include "s2//base/logging.h"
-
-namespace s2 {
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
 
 class NthDerivativeCoder {
  public:
@@ -132,7 +130,5 @@ inline void NthDerivativeCoder::Reset() {
     memory_[i] = 0;
   m_ = 0;
 }
-
-}  // namespace s2
 
 #endif  // S2_UTIL_CODING_NTH_DERIVATIVE_H_

@@ -15,18 +15,19 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2edge_clipping.h"
+#include "s2/s2edge_clipping.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include "s2//base/logging.h"
-#include "s2//r1interval.h"
-#include "s2//s2coords.h"
-#include "s2//s2pointutil.h"
-#include "s2//util/math/vector.h"
+#include "s2/base/logging.h"
+#include "s2/r1interval.h"
+#include "s2/s2coords.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2pointutil.h"
+#include "s2/util/math/vector.h"
 
-namespace s2 {
+namespace S2 {
 
 using std::fabs;
 using std::max;
@@ -157,11 +158,11 @@ static int MoveOriginToValidFace(int face, const S2Point& a,
     return face;
   }
   // Otherwise check whether the normal AB even intersects this face.
-  S2PointUVW n = s2::FaceXYZtoUVW(face, ab);
+  S2PointUVW n = S2::FaceXYZtoUVW(face, ab);
   if (IntersectsFace(n)) {
     // Check whether the point where the line AB exits this face is on the
     // wrong side of A (by more than the acceptable error tolerance).
-    S2Point exit = s2::FaceUVtoXYZ(face, GetExitPoint(n, GetExitAxis(n)));
+    S2Point exit = S2::FaceUVtoXYZ(face, GetExitPoint(n, GetExitAxis(n)));
     S2Point a_tangent = ab.Normalize().CrossProd(a);
     if ((exit - a).DotProd(a_tangent) >= -kFaceClipErrorRadians) {
       return face;  // We can use the given face.
@@ -170,12 +171,12 @@ static int MoveOriginToValidFace(int face, const S2Point& a,
   // Otherwise we reproject A to the nearest adjacent face.  (If line AB does
   // not pass through a given face, it must pass through all adjacent faces.)
   if (fabs((*a_uv)[0]) >= fabs((*a_uv)[1])) {
-    face = s2::GetUVWFace(face, 0 /*U axis*/, (*a_uv)[0] > 0);
+    face = S2::GetUVWFace(face, 0 /*U axis*/, (*a_uv)[0] > 0);
   } else {
-    face = s2::GetUVWFace(face, 1 /*V axis*/, (*a_uv)[1] > 0);
+    face = S2::GetUVWFace(face, 1 /*V axis*/, (*a_uv)[1] > 0);
   }
-  S2_DCHECK(IntersectsFace(s2::FaceXYZtoUVW(face, ab)));
-  s2::ValidFaceXYZtoUV(face, a, a_uv);
+  S2_DCHECK(IntersectsFace(S2::FaceXYZtoUVW(face, ab)));
+  S2::ValidFaceXYZtoUV(face, a, a_uv);
   (*a_uv)[0] = max(-1.0, min(1.0, (*a_uv)[0]));
   (*a_uv)[1] = max(-1.0, min(1.0, (*a_uv)[1]));
   return face;
@@ -198,25 +199,25 @@ static int GetNextFace(int face, const R2Point& exit, int axis,
   // face, and (3) AB exits *exactly* through the corner.  (The SumEquals()
   // code checks whether the dot product of (u,v,1) and "n" is exactly zero.)
   if (fabs(exit[1 - axis]) == 1 &&
-      s2::GetUVWFace(face, 1 - axis, exit[1 - axis] > 0) == target_face &&
+      S2::GetUVWFace(face, 1 - axis, exit[1 - axis] > 0) == target_face &&
       SumEquals(exit[0] * n[0], exit[1] * n[1], -n[2])) {
     return target_face;
   }
   // Otherwise return the face that is adjacent to the exit point in the
   // direction of the exit axis.
-  return s2::GetUVWFace(face, axis, exit[axis] > 0);
+  return S2::GetUVWFace(face, axis, exit[axis] > 0);
 }
 
 void GetFaceSegments(const S2Point& a, const S2Point& b,
                      FaceSegmentVector* segments) {
-  S2_DCHECK(s2::IsUnitLength(a));
-  S2_DCHECK(s2::IsUnitLength(b));
+  S2_DCHECK(S2::IsUnitLength(a));
+  S2_DCHECK(S2::IsUnitLength(b));
   segments->clear();
 
   // Fast path: both endpoints are on the same face.
   FaceSegment segment;
-  int a_face = s2::XYZtoFaceUV(a, &segment.a);
-  int b_face = s2::XYZtoFaceUV(b, &segment.b);
+  int a_face = S2::XYZtoFaceUV(a, &segment.a);
+  int b_face = S2::XYZtoFaceUV(b, &segment.b);
   if (a_face == b_face) {
     segment.face = a_face;
     segments->push_back(segment);
@@ -232,7 +233,7 @@ void GetFaceSegments(const S2Point& a, const S2Point& b,
   // numerical errors, the line may not quite intersect the faces containing
   // the original endpoints.  We handle this by moving A and/or B slightly if
   // necessary so that they are on faces intersected by the line AB.
-  S2Point ab = s2::RobustCrossProd(a, b);
+  S2Point ab = S2::RobustCrossProd(a, b);
   a_face = MoveOriginToValidFace(a_face, a, ab, &segment.a);
   b_face = MoveOriginToValidFace(b_face, b, -ab, &segment.b);
 
@@ -242,7 +243,7 @@ void GetFaceSegments(const S2Point& a, const S2Point& b,
   for (int face = a_face; face != b_face; ) {
     // Complete the current segment by finding the point where AB exits the
     // current face.
-    S2PointUVW n = s2::FaceXYZtoUVW(face, ab);
+    S2PointUVW n = S2::FaceXYZtoUVW(face, ab);
     int exit_axis = GetExitAxis(n);
     segment.b = GetExitPoint(n, exit_axis);
     segments->push_back(segment);
@@ -250,9 +251,9 @@ void GetFaceSegments(const S2Point& a, const S2Point& b,
     // Compute the next face intersected by AB, and translate the exit point
     // of the current segment into the (u,v) coordinates of the next face.
     // This becomes the first point of the next segment.
-    S2Point exit_xyz = s2::FaceUVtoXYZ(face, segment.b);
+    S2Point exit_xyz = S2::FaceUVtoXYZ(face, segment.b);
     face = GetNextFace(face, segment.b, exit_axis, n, b_face);
-    S2PointUVW exit_uvw = s2::FaceXYZtoUVW(face, exit_xyz);
+    S2PointUVW exit_uvw = S2::FaceXYZtoUVW(face, exit_xyz);
     segment.face = face;
     segment.a = R2Point(exit_uvw[0], exit_uvw[1]);
   }
@@ -328,9 +329,9 @@ bool ClipToPaddedFace(const S2Point& a_xyz, const S2Point& b_xyz, int face,
                       double padding, R2Point* a_uv, R2Point* b_uv) {
   S2_DCHECK_GE(padding, 0);
   // Fast path: both endpoints are on the given face.
-  if (s2::GetFace(a_xyz) == face && s2::GetFace(b_xyz) == face) {
-    s2::ValidFaceXYZtoUV(face, a_xyz, a_uv);
-    s2::ValidFaceXYZtoUV(face, b_xyz, b_uv);
+  if (S2::GetFace(a_xyz) == face && S2::GetFace(b_xyz) == face) {
+    S2::ValidFaceXYZtoUV(face, a_xyz, a_uv);
+    S2::ValidFaceXYZtoUV(face, b_xyz, b_uv);
     return true;
   }
   // Convert everything into the (u,v,w) coordinates of the given face.  Note
@@ -339,9 +340,9 @@ bool ClipToPaddedFace(const S2Point& a_xyz, const S2Point& b_xyz, int face,
   // product) can produce different results in different coordinate systems
   // when one argument is a linear multiple of the other, due to the use of
   // symbolic perturbations.
-  S2PointUVW n = s2::FaceXYZtoUVW(face, s2::RobustCrossProd(a_xyz, b_xyz));
-  S2PointUVW a = s2::FaceXYZtoUVW(face, a_xyz);
-  S2PointUVW b = s2::FaceXYZtoUVW(face, b_xyz);
+  S2PointUVW n = S2::FaceXYZtoUVW(face, S2::RobustCrossProd(a_xyz, b_xyz));
+  S2PointUVW a = S2::FaceXYZtoUVW(face, a_xyz);
+  S2PointUVW b = S2::FaceXYZtoUVW(face, b_xyz);
 
   // Padding is handled by scaling the u- and v-components of the normal.
   // Letting R=1+padding, this means that when we compute the dot product of
@@ -353,12 +354,6 @@ bool ClipToPaddedFace(const S2Point& a_xyz, const S2Point& b_xyz, int face,
   S2PointUVW scaled_n(scale_uv * n[0], scale_uv * n[1], n[2]);
   if (!IntersectsFace(scaled_n)) return false;
 
-  // TODO(ericv): This is a temporary hack until I rewrite s2::RobustCrossProd;
-  // it avoids loss of precision in Normalize() when the vector is so small
-  // that it underflows.
-  if (max(fabs(n[0]), max(fabs(n[1]), fabs(n[2]))) < ldexp(1, -511)) {
-    n *= ldexp(1, 563);
-  }  // END OF HACK
   n = n.Normalize();
   S2PointUVW a_tangent = n.CrossProd(a);
   S2PointUVW b_tangent = b.CrossProd(n);
@@ -459,4 +454,4 @@ bool ClipEdge(const R2Point& a, const R2Point& b, const R2Rect& clip,
   return false;
 }
 
-}  // namespace s2
+}  // namespace S2

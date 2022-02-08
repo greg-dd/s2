@@ -15,23 +15,21 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2padded_cell.h"
+#include "s2/s2padded_cell.h"
 
 #include <algorithm>
 #include <cfloat>
 
-#include "s2//util/bits/bits.h"
-#include "s2//r1interval.h"
-#include "s2//s2coords.h"
+#include "s2/util/bits/bits.h"
+#include "s2/r1interval.h"
+#include "s2/s2coords.h"
 
 using std::max;
 using std::min;
-using s2::internal::kSwapMask;
-using s2::internal::kInvertMask;
-using s2::internal::kIJtoPos;
-using s2::internal::kPosToOrientation;
-
-namespace s2 {
+using S2::internal::kSwapMask;
+using S2::internal::kInvertMask;
+using S2::internal::kIJtoPos;
+using S2::internal::kPosToOrientation;
 
 S2PaddedCell::S2PaddedCell(S2CellId id, double padding)
     : id_(id), padding_(padding) {
@@ -79,8 +77,8 @@ const R2Rect& S2PaddedCell::middle() const {
   // time (i.e., for cells where the recursion terminates).
   if (middle_.is_empty()) {
     int ij_size = S2CellId::GetSizeIJ(level_);
-    double u = s2::STtoUV(s2::SiTitoST(2 * ij_lo_[0] + ij_size));
-    double v = s2::STtoUV(s2::SiTitoST(2 * ij_lo_[1] + ij_size));
+    double u = S2::STtoUV(S2::SiTitoST(2 * ij_lo_[0] + ij_size));
+    double v = S2::STtoUV(S2::SiTitoST(2 * ij_lo_[1] + ij_size));
     middle_ = R2Rect(R1Interval(u - padding_, u + padding_),
                      R1Interval(v - padding_, v + padding_));
   }
@@ -91,7 +89,7 @@ S2Point S2PaddedCell::GetCenter() const {
   int ij_size = S2CellId::GetSizeIJ(level_);
   unsigned int si = 2 * ij_lo_[0] + ij_size;
   unsigned int ti = 2 * ij_lo_[1] + ij_size;
-  return s2::FaceSiTitoXYZ(id_.face(), si, ti).Normalize();
+  return S2::FaceSiTitoXYZ(id_.face(), si, ti).Normalize();
 }
 
 S2Point S2PaddedCell::GetEntryVertex() const {
@@ -104,7 +102,7 @@ S2Point S2PaddedCell::GetEntryVertex() const {
     i += ij_size;
     j += ij_size;
   }
-  return s2::FaceSiTitoXYZ(id_.face(), 2 * i, 2 * j).Normalize();
+  return S2::FaceSiTitoXYZ(id_.face(), 2 * i, 2 * j).Normalize();
 }
 
 S2Point S2PaddedCell::GetExitVertex() const {
@@ -118,7 +116,7 @@ S2Point S2PaddedCell::GetExitVertex() const {
   } else {
     j += ij_size;
   }
-  return s2::FaceSiTitoXYZ(id_.face(), 2 * i, 2 * j).Normalize();
+  return S2::FaceSiTitoXYZ(id_.face(), 2 * i, 2 * j).Normalize();
 }
 
 S2CellId S2PaddedCell::ShrinkToFit(const R2Rect& rect) const {
@@ -131,8 +129,8 @@ S2CellId S2PaddedCell::ShrinkToFit(const R2Rect& rect) const {
     // Fast path (most calls to this function start with a face cell).
     if (rect[0].Contains(0) || rect[1].Contains(0)) return id();
   } else {
-    if (rect[0].Contains(s2::STtoUV(s2::SiTitoST(2 * ij_lo_[0] + ij_size))) ||
-        rect[1].Contains(s2::STtoUV(s2::SiTitoST(2 * ij_lo_[1] + ij_size)))) {
+    if (rect[0].Contains(S2::STtoUV(S2::SiTitoST(2 * ij_lo_[0] + ij_size))) ||
+        rect[1].Contains(S2::STtoUV(S2::SiTitoST(2 * ij_lo_[1] + ij_size)))) {
       return id();
     }
   }
@@ -142,15 +140,15 @@ S2CellId S2PaddedCell::ShrinkToFit(const R2Rect& rect) const {
   // differ.  This corresponds to the first cell level at which at least two
   // children intersect "rect".
 
-  // Increase the padding to compensate for the error in s2::UVtoST().
+  // Increase the padding to compensate for the error in S2::UVtoST().
   // (The constant below is a provable upper bound on the additional error.)
   R2Rect padded = rect.Expanded(padding() + 1.5 * DBL_EPSILON);
   int ij_min[2];  // Min i- or j- coordinate spanned by "padded"
   int ij_xor[2];  // XOR of the min and max i- or j-coordinates
   for (int d = 0; d < 2; ++d) {
-    ij_min[d] = max(ij_lo_[d], s2::STtoIJ(s2::UVtoST(padded[d][0])));
+    ij_min[d] = max(ij_lo_[d], S2::STtoIJ(S2::UVtoST(padded[d][0])));
     int ij_max = min(ij_lo_[d] + ij_size - 1,
-                     s2::STtoIJ(s2::UVtoST(padded[d][1])));
+                     S2::STtoIJ(S2::UVtoST(padded[d][1])));
     ij_xor[d] = ij_min[d] ^ ij_max;
   }
   // Compute the highest bit position where the two i- or j-endpoints differ,
@@ -162,5 +160,3 @@ S2CellId S2PaddedCell::ShrinkToFit(const R2Rect& rect) const {
   if (level <= level_) return id();
   return S2CellId::FromFaceIJ(id().face(), ij_min[0], ij_min[1]).parent(level);
 }
-
-}  // namespace s2

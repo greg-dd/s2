@@ -15,25 +15,23 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2closest_edge_query.h"
+#include "s2/s2closest_edge_query.h"
 
 #include <memory>
 #include "absl/memory/memory.h"
-#include "s2//s1angle.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2cell_union.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2region_coverer.h"
-#include "s2//s2shape_index_region.h"
-
-namespace s2 {
+#include "s2/s1angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2region_coverer.h"
+#include "s2/s2shape_index_region.h"
 
 void S2ClosestEdgeQuery::Options::set_conservative_max_distance(
     S1ChordAngle max_distance) {
   set_max_distance(Distance(max_distance.PlusError(
-      s2::GetUpdateMinDistanceMaxError(max_distance)).Successor()));
+      S2::GetUpdateMinDistanceMaxError(max_distance)).Successor()));
 }
 
 void S2ClosestEdgeQuery::Options::set_conservative_max_distance(
@@ -106,5 +104,3 @@ bool S2ClosestEdgeQuery::IsConservativeDistanceLessOrEqual(
   tmp_options.set_max_error(S1ChordAngle::Straight());
   return !base_.FindClosestEdge(target, tmp_options).is_empty();
 }
-
-}  // namespace s2

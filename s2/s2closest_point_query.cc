@@ -15,14 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2closest_point_query.h"
-
-namespace s2 {
+#include "s2/s2closest_point_query.h"
 
 void S2ClosestPointQueryOptions::set_conservative_max_distance(
     S1ChordAngle max_distance) {
   set_max_distance(Distance(max_distance.PlusError(
-      s2::GetUpdateMinDistanceMaxError(max_distance)).Successor()));
+      S2::GetUpdateMinDistanceMaxError(max_distance)).Successor()));
 }
 
 void S2ClosestPointQueryOptions::set_conservative_max_distance(
@@ -66,5 +64,3 @@ int S2ClosestPointQueryShapeIndexTarget::max_brute_force_index_size() const {
   // TODO(ericv): Adjust using benchmarks.
   return 30;
 }
-
-}  // namespace s2

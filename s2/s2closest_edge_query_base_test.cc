@@ -18,14 +18,14 @@
 // This file contains some basic tests of the templating support.  Testing of
 // the actual algorithms is in s2closest_edge_query_test.cc.
 
-#include "s2//s2closest_edge_query_base.h"
+#include "s2/s2closest_edge_query_base.h"
 
-#include "gtest/gtest.h"
-#include "s2//mutable_s2shape_index.h"
-#include "s2//s2max_distance_targets.h"
-#include "s2//s2text_format.h"
+#include <gtest/gtest.h>
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2max_distance_targets.h"
+#include "s2/s2text_format.h"
 
-namespace s2 {
+namespace {
 
 // This is a proof-of-concept prototype of a possible S2FurthestEdgeQuery
 // class.  The purpose of this test is just to make sure that the code
@@ -56,4 +56,4 @@ TEST(S2ClosestEdgeQueryBase, MaxDistance) {
               1e-13);
 }
 
-}  // namespace s2
+}  // namespace

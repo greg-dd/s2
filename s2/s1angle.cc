@@ -15,15 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s1angle.h"
+#include "s2/s1angle.h"
 
 #include <cmath>
 #include <cstdio>
 #include <ostream>
 
-#include "s2//s2latlng.h"
-
-namespace s2 {
+#include "s2/s2latlng.h"
 
 S1Angle::S1Angle(const S2Point& x, const S2Point& y)
     : radians_(x.Angle(y)) {
@@ -54,5 +52,3 @@ std::ostream& operator<<(std::ostream& os, S1Angle a) {
     return os << degrees;
   }
 }
-
-}  // namespace s2

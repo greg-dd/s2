@@ -100,21 +100,21 @@
 #include <algorithm>
 #include <cmath>
 
-#include "s2//base/integral_types.h"
-#include "s2//base/logging.h"
-#include "s2//r2.h"
-#include "s2//s2coords_internal.h"
-#include "s2//s2point.h"
-#include "s2//util/math/mathutil.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/r2.h"
+#include "s2/s2coords_internal.h"
+#include "s2/s2point.h"
+#include "s2/util/math/mathutil.h"
 
 // S2 is a namespace for constants and simple utility functions that are used
 // throughout the S2 library.  The name "S2" is derived from the mathematical
 // symbol for the two-dimensional unit sphere (note that the "2" refers to the
 // dimension of the surface, not the space it is embedded in).
-namespace s2 {
+namespace S2 {
 
 // This is the number of levels needed to specify a leaf cell.  This
-// constant is defined here so that the s2::Metric class and the conversion
+// constant is defined here so that the S2::Metric class and the conversion
 // functions below can be implemented without including s2cell_id.h.  Please
 // see s2cell_id.h for other useful constants and conversion functions.
 const int kMaxCellLevel = 30;
@@ -454,6 +454,6 @@ inline int GetUVWFace(int face, int axis, int direction) {
   return internal::kFaceUVWFaces[face][axis][direction];
 }
 
-}  // namespace s2
+}  // namespace S2
 
 #endif  // S2_S2COORDS_H_

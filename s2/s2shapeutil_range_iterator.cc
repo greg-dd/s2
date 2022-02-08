@@ -15,9 +15,8 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2shapeutil_range_iterator.h"
+#include "s2/s2shapeutil_range_iterator.h"
 
-namespace s2 {
 namespace s2shapeutil {
 
 RangeIterator::RangeIterator(const S2ShapeIndex& index)
@@ -57,4 +56,3 @@ inline void RangeIterator::Refresh() {
 }
 
 }  // namespace s2shapeutil
-}  // namespace s2

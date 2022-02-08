@@ -35,11 +35,9 @@
 #include <iosfwd>
 #include <type_traits>
 
-#include "s2//base/logging.h"
-#include "s2//util/math/mathutil.h"
-#include "s2//util/math/vector.h"
-
-namespace s2 {
+#include "s2/base/logging.h"
+#include "s2/util/math/mathutil.h"
+#include "s2/util/math/vector.h"
 
 template <class VType>
 class Matrix3x3 {
@@ -208,7 +206,7 @@ class Matrix3x3 {
   }
 
   // Return the determinant of the matrix
-  inline VType Det(void) const {
+  inline VType Det() const {
     return m_[0][0] * m_[1][1] * m_[2][2]
          + m_[0][1] * m_[1][2] * m_[2][0]
          + m_[0][2] * m_[1][0] * m_[2][1]
@@ -218,9 +216,7 @@ class Matrix3x3 {
   }
 
   // Return the trace of the matrix
-  inline VType Trace(void) const {
-    return m_[0][0] + m_[1][1] + m_[2][2];
-  }
+  inline VType Trace() const { return m_[0][0] + m_[1][1] + m_[2][2]; }
 
   // Return a pointer to the data array for interface with other libraries
   // like opencv
@@ -260,7 +256,7 @@ class Matrix3x3 {
   }
 
   // Return the transposed matrix
-  inline Matrix3x3 Transpose(void) const {
+  inline Matrix3x3 Transpose() const {
     return Matrix3x3(m_[0][0], m_[1][0], m_[2][0],
                      m_[0][1], m_[1][1], m_[2][1],
                      m_[0][2], m_[1][2], m_[2][2]);
@@ -268,7 +264,7 @@ class Matrix3x3 {
 
   // Return the transposed of the matrix of the cofactors
   // (Useful for inversion for example)
-  inline Matrix3x3 ComatrixTransposed(void) const {
+  inline Matrix3x3 ComatrixTransposed() const {
     return Matrix3x3(
       m_[1][1] * m_[2][2] - m_[2][1] * m_[1][2],
       m_[2][1] * m_[0][2] - m_[0][1] * m_[2][2],
@@ -283,7 +279,7 @@ class Matrix3x3 {
       m_[0][0] * m_[1][1] - m_[1][0] * m_[0][1]);
   }
   // Matrix inversion
-  inline Matrix3x3 Inverse(void) const {
+  inline Matrix3x3 Inverse() const {
     VType det = Det();
     S2_CHECK_NE(det, VType(0)) << " Can't inverse. Determinant = 0.";
     return (VType(1) / det) * ComatrixTransposed();
@@ -354,7 +350,7 @@ class Matrix3x3 {
   }
 
   // Return the identity matrix
-  static inline Matrix3x3 Identity(void) {
+  static inline Matrix3x3 Identity() {
     Matrix3x3 temp;
     temp.Set(VType(1), VType(0), VType(0),  //
              VType(0), VType(1), VType(0),  //
@@ -363,9 +359,7 @@ class Matrix3x3 {
   }
 
   // Return a matrix full of zeros
-  static inline Matrix3x3 Zero(void) {
-    return Matrix3x3();
-  }
+  static inline Matrix3x3 Zero() { return Matrix3x3(); }
 
   // Return a diagonal matrix with the coefficients in v
   static inline Matrix3x3 Diagonal(const MVector &v) {
@@ -420,7 +414,7 @@ class Matrix3x3 {
         sum += m_[i][j] * m_[i][j];
       }
     }
-    return sqrt(sum);
+    return std::sqrt(sum);
   }
 
   // Finds the eigen values of the matrix. Return the number of real eigenvalues
@@ -483,9 +477,9 @@ class Matrix3x3 {
     // error.
     double theta = atan2(q3_r2 <= 0 ? 0 : sqrt(q3_r2), r);
     double c2_3 = c2 / 3;
-    (*eig_val)[0] = sqrt_q * std::cos(theta / 3.0) - c2_3;
-    (*eig_val)[1] = sqrt_q * std::cos((theta + 2.0 * M_PI)/3.0) - c2_3;
-    (*eig_val)[2] = sqrt_q * std::cos((theta - 2.0 * M_PI)/3.0) - c2_3;
+    (*eig_val)[0] = sqrt_q * cos(theta / 3.0) - c2_3;
+    (*eig_val)[1] = sqrt_q * cos((theta + 2.0 * M_PI)/3.0) - c2_3;
+    (*eig_val)[2] = sqrt_q * cos((theta - 2.0 * M_PI)/3.0) - c2_3;
 
     // Sort eigen value in decreasing order
     Vector3<int> d_order = eig_val->ComponentOrder();
@@ -566,12 +560,16 @@ class Matrix3x3 {
     }
     return out;
   }
+
+  template <typename H>
+  friend H AbslHashValue(H h, const Matrix3x3& m) {
+    return H::combine_contiguous(std::move(h), m.Data(), 3 * 3);
+  }
 };
 
 typedef Matrix3x3<int>    Matrix3x3_i;
 typedef Matrix3x3<float>  Matrix3x3_f;
 typedef Matrix3x3<double> Matrix3x3_d;
 
-}  // namespace s2
 
 #endif  // S2_UTIL_MATH_MATRIX3X3_H_

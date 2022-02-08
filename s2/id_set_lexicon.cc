@@ -15,14 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//id_set_lexicon.h"
+#include "s2/id_set_lexicon.h"
 
 #include <algorithm>
 #include <vector>
 
-#include "s2//base/logging.h"
-
-namespace s2 {
+#include "s2/base/logging.h"
 
 IdSetLexicon::IdSetLexicon() {
 }
@@ -64,6 +62,10 @@ int32 IdSetLexicon::AddInternal(std::vector<int32>* ids) {
     // Canonicalize the set by sorting and removing duplicates.
     std::sort(ids->begin(), ids->end());
     ids->erase(std::unique(ids->begin(), ids->end()), ids->end());
+
+    // After eliminating duplicates, we may now have a singleton.
+    if (ids->size() == 1) return (*ids)[0];
+
     // Non-singleton sets are represented by the bitwise complement of the id
     // returned by SequenceLexicon.
     return ~id_sets_.Add(*ids);
@@ -81,5 +83,3 @@ IdSetLexicon::IdSet IdSetLexicon::id_set(int32 set_id) const {
     return IdSet(&*sequence.begin(), &*sequence.begin() + sequence.size());
   }
 }
-
-}  // namespace s2

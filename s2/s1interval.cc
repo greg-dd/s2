@@ -15,18 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s1interval.h"
+#include "s2/s1interval.h"
 
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
 
-#include "s2//base/logging.h"
+#include "s2/base/logging.h"
 
 using std::fabs;
 using std::max;
-
-namespace s2 {
 
 S1Interval S1Interval::FromPoint(double p) {
   if (p == -M_PI) p = M_PI;
@@ -296,5 +294,3 @@ bool S1Interval::ApproxEquals(const S1Interval& y, double max_error) const {
           fabs(remainder(y.hi() - hi(), 2 * M_PI)) <= max_error &&
           fabs(GetLength() - y.GetLength()) <= 2 * max_error);
 }
-
-}  // namespace s2

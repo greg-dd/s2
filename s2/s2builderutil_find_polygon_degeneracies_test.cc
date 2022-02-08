@@ -15,27 +15,30 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2builderutil_find_polygon_degeneracies.h"
+#include "s2/s2builderutil_find_polygon_degeneracies.h"
 
 #include <iosfwd>
 #include <memory>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
+#include "absl/flags/flag.h"
 #include "absl/memory/memory.h"
-#include "s2//s2builder.h"
-#include "s2//s2builder_graph.h"
-#include "s2//s2builder_layer.h"
-#include "s2//s2cap.h"
-#include "s2//s2lax_polygon_shape.h"
-#include "s2//s2pointutil.h"
-#include "s2//s2testing.h"
-#include "s2//s2text_format.h"
+
+#include "s2/s2builder.h"
+#include "s2/s2builder_graph.h"
+#include "s2/s2builder_layer.h"
+#include "s2/s2cap.h"
+#include "s2/s2lax_polygon_shape.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
 using absl::make_unique;
+using std::string;
 using std::vector;
 
-namespace s2 {
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
 using GraphOptions = S2Builder::GraphOptions;
@@ -47,9 +50,9 @@ using SiblingPairs = GraphOptions::SiblingPairs;
 namespace s2builderutil {
 
 struct TestDegeneracy {
-  std::string edge_str;
+  string edge_str;
   bool is_hole;
-  TestDegeneracy(std::string _edge_str, bool _is_hole)
+  TestDegeneracy(string _edge_str, bool _is_hole)
       : edge_str(_edge_str), is_hole(_is_hole) {
   }
 };
@@ -104,7 +107,7 @@ void DegeneracyCheckingLayer::Build(const Graph& g, S2Error* error) {
   EXPECT_EQ(IsFullyDegenerate(g), degeneracies.size() == g.num_edges());
 }
 
-void ExpectDegeneracies(const std::string& polygon_str,
+void ExpectDegeneracies(const string& polygon_str,
                         const vector<TestDegeneracy>& expected) {
   S2Builder builder{S2Builder::Options()};
   builder.StartLayer(make_unique<DegeneracyCheckingLayer>(expected));
@@ -113,10 +116,7 @@ void ExpectDegeneracies(const std::string& polygon_str,
       [&polygon](const Graph& graph, S2Error* error) {
         return polygon->GetReferencePoint().contained;
       });
-  for (int i = 0; i < polygon->num_edges(); ++i) {
-    auto edge = polygon->edge(i);
-    builder.AddEdge(edge.v0, edge.v1);
-  }
+  builder.AddShape(*polygon);
   S2Error error;
   EXPECT_TRUE(builder.Build(&error)) << error;
 }
@@ -181,4 +181,3 @@ TEST(FindPolygonDegeneracies, SiblingPairHolesWithinFull) {
 }
 
 }  // namespace s2builderutil
-}  // namespace s2

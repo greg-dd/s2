@@ -22,11 +22,9 @@
 #include <limits>
 #include <vector>
 
-#include "s2//base/integral_types.h"
-#include "s2//util/gtl/dense_hash_set.h"
-#include "s2//util/hash/mix.h"
-
-namespace s2 {
+#include "s2/base/integral_types.h"
+#include "s2/util/gtl/dense_hash_set.h"
+#include "s2/util/hash/mix.h"
 
 // SequenceLexicon is a class for compactly representing sequences of values
 // (e.g., tuples).  It automatically eliminates duplicates, and maps the
@@ -44,11 +42,11 @@ namespace s2 {
 //
 // Example usage:
 //
-//   SequenceLexicon<std::string> lexicon;
-//   vector<std::string> pets {"cat", "dog", "parrot"};
+//   SequenceLexicon<string> lexicon;
+//   vector<string> pets {"cat", "dog", "parrot"};
 //   uint32 pets_id = lexicon.Add(pets);
 //   S2_CHECK_EQ(pets_id, lexicon.Add(pets));
-//   std::string values;
+//   string values;
 //   for (const auto& pet : lexicon.sequence(pets_id)) {
 //     values += pet;
 //   }
@@ -161,6 +159,7 @@ const Hasher& SequenceLexicon<T, Hasher, KeyEqual>::IdHasher::hasher() const {
 template <class T, class Hasher, class KeyEqual>
 size_t SequenceLexicon<T, Hasher, KeyEqual>::IdHasher::operator()(
     uint32 id) const {
+  // TODO(user,b/205929456): Is there a way to use absl::Hash instead?
   HashMix mix;
   for (const auto& value : lexicon_->sequence(id)) {
     mix.Mix(hasher_(value));
@@ -295,5 +294,4 @@ SequenceLexicon<T, Hasher, KeyEqual>::sequence(uint32 id) const {
                   values_.begin() + begins_[id + 1]);
 }
 
-}  // namespace s2
 #endif  // S2_SEQUENCE_LEXICON_H_

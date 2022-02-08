@@ -15,31 +15,30 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2cap.h"
+#include "s2/s2cap.h"
 
 #include <cfloat>
 #include <cmath>
 #include <iosfwd>
 #include <vector>
 
-#include "s2//base/integral_types.h"
-#include "s2//base/logging.h"
-#include "s2//r1interval.h"
-#include "s2//s1interval.h"
-#include "s2//s2cell.h"
-#include "s2//s2debug.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2latlng.h"
-#include "s2//s2latlng_rect.h"
-#include "s2//s2metrics.h"
-#include "s2//s2pointutil.h"
-#include "s2//util/math/vector.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "absl/flags/flag.h"
+#include "s2/r1interval.h"
+#include "s2/s1interval.h"
+#include "s2/s2cell.h"
+#include "s2/s2debug.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2metrics.h"
+#include "s2/s2pointutil.h"
+#include "s2/util/math/vector.h"
 
 using std::fabs;
 using std::max;
 using std::vector;
-
-namespace s2 {
 
 double S2Cap::GetArea() const {
   return 2 * M_PI * max(0.0, height());
@@ -84,7 +83,7 @@ bool S2Cap::InteriorIntersects(const S2Cap& other) const {
 
 void S2Cap::AddPoint(const S2Point& p) {
   // Compute the squared chord length, then convert it into a height.
-  S2_DCHECK(IsUnitLength(p));
+  S2_DCHECK(S2::IsUnitLength(p));
   if (is_empty()) {
     center_ = p;
     radius_ = S1ChordAngle::Zero();
@@ -128,10 +127,10 @@ S2Cap S2Cap::Union(const S2Cap& other) const {
     return *this;
   } else {
     S1Angle result_radius = 0.5 * (distance + this_radius + other_radius);
-    S2Point result_center = InterpolateAtDistance(
-        0.5 * (distance - this_radius + other_radius),
+    S2Point result_center = S2::GetPointOnLine(
         center(),
-        other.center());
+        other.center(),
+        0.5 * (distance - this_radius + other_radius));
     return S2Cap(result_center, result_radius);
   }
 }
@@ -181,9 +180,9 @@ S2LatLngRect S2Cap::GetRectBound() const {
     // The formula for sin(a) follows from the relationship h = 1 - cos(a).
 
     double sin_a = sin(radius_);
-    double sin_c = std::cos(center_ll.lat().radians());
+    double sin_c = cos(center_ll.lat().radians());
     if (sin_a <= sin_c) {
-      double angle_A = std::asin(sin_a / sin_c);
+      double angle_A = asin(sin_a / sin_c);
       lng[0] = remainder(center_ll.lng().radians() - angle_A, 2 * M_PI);
       lng[1] = remainder(center_ll.lng().radians() + angle_A, 2 * M_PI);
     }
@@ -202,7 +201,7 @@ void S2Cap::GetCellUnionBound(vector<S2CellId>* cell_ids) const {
 
   // Find the maximum level such that the cap contains at most one cell vertex
   // and such that S2CellId::AppendVertexNeighbors() can be called.
-  int level = kMinWidth.GetLevelForMinValue(GetRadius().radians()) - 1;
+  int level = S2::kMinWidth.GetLevelForMinValue(GetRadius().radians()) - 1;
 
   // If level < 0, then more than three face cells are required.
   if (level < 0) {
@@ -290,12 +289,12 @@ bool S2Cap::MayIntersect(const S2Cell& cell) const {
 }
 
 bool S2Cap::Contains(const S2Point& p) const {
-  S2_DCHECK(IsUnitLength(p));
+  S2_DCHECK(S2::IsUnitLength(p));
   return S1ChordAngle(center_, p) <= radius_;
 }
 
 bool S2Cap::InteriorContains(const S2Point& p) const {
-  S2_DCHECK(IsUnitLength(p));
+  S2_DCHECK(S2::IsUnitLength(p));
   return is_full() || S1ChordAngle(center_, p) < radius_;
 }
 
@@ -309,7 +308,7 @@ bool S2Cap::ApproxEquals(const S2Cap& other, S1Angle max_error_angle) const {
   const double max_error = max_error_angle.radians();
   const double r2 = radius_.length2();
   const double other_r2 = other.radius_.length2();
-  return (::s2::ApproxEquals(center_, other.center_, max_error_angle) &&
+  return (S2::ApproxEquals(center_, other.center_, max_error_angle) &&
           fabs(r2 - other_r2) <= max_error) ||
          (is_empty() && other_r2 <= max_error) ||
          (other.is_empty() && r2 <= max_error) ||
@@ -342,10 +341,8 @@ bool S2Cap::Decode(Decoder* decoder) {
   center_ = S2Point(x, y, z);
   radius_ = S1ChordAngle::FromLength2(decoder->getdouble());
 
-  if (FLAGS_s2debug) {
-     S2_CHECK(is_valid()) << "Invalid S2Cap: " << *this;
+  if (absl::GetFlag(FLAGS_s2debug)) {
+    S2_CHECK(is_valid()) << "Invalid S2Cap: " << *this;
   }
   return true;
 }
-
-}  // namespace s2

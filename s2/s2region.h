@@ -20,10 +20,8 @@
 
 #include <vector>
 
-#include "s2//_fp_contract_off.h"
-#include "s2//s1angle.h"
-
-namespace s2 {
+#include "s2/_fp_contract_off.h"
+#include "s2/s1angle.h"
 
 class Decoder;
 class Encoder;
@@ -140,7 +138,5 @@ class S2Region {
   //
   // bool DecodeWithinScope(Decoder* const decoder);
 };
-
-}  // namespace s2
 
 #endif  // S2_S2REGION_H_

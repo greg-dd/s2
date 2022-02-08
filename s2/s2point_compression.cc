@@ -14,30 +14,30 @@
 //
 
 
-#include "s2//s2point_compression.h"
+#include "s2/s2point_compression.h"
 
 #include <utility>
 #include <vector>
 
-#include "s2//base/integral_types.h"
-#include "s2//base/logging.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2coords.h"
 #include "absl/base/casts.h"
 #include "absl/base/macros.h"
 #include "absl/container/fixed_array.h"
 #include "absl/types/span.h"
-#include "s2//util/bits/bit-interleave.h"
-#include "s2//util/coding/coder.h"
-#include "s2//util/coding/nth-derivative.h"
-#include "s2//util/coding/transforms.h"
-#include "s2//util/endian/endian.h"
+
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2coords.h"
+#include "s2/util/bits/bit-interleave.h"
+#include "s2/util/coding/coder.h"
+#include "s2/util/coding/nth-derivative.h"
+#include "s2/util/coding/transforms.h"
+#include "s2/util/endian/endian.h"
 
 using absl::Span;
 using std::pair;
 using std::vector;
 
-namespace s2 {
 namespace {
 
 const int kDerivativeEncodingOrder = 2;
@@ -187,8 +187,8 @@ inline int SiTitoPiQi(unsigned int si, int level) {
   // so we clamp "si" to the range [0, 2**level - 1] before trying to encode
   // it.  This is okay because if si == kMaxSiTi, then it is not a cell center
   // anyway and will be encoded separately as an "off-center" point.
-  si = std::min(si, s2::kMaxSiTi - 1);
-  return si >> (s2::kMaxCellLevel + 1 - level);
+  si = std::min(si, S2::kMaxSiTi - 1);
+  return si >> (S2::kMaxCellLevel + 1 - level);
 }
 
 inline double PiQitoST(int pi, int level) {
@@ -200,9 +200,9 @@ inline double PiQitoST(int pi, int level) {
 }
 
 S2Point FacePiQitoXYZ(int face, int pi, int qi, int level) {
-  return s2::FaceUVtoXYZ(face,
-                         s2::STtoUV(PiQitoST(pi, level)),
-                         s2::STtoUV(PiQitoST(qi, level))).Normalize();
+  return S2::FaceUVtoXYZ(face,
+                         S2::STtoUV(PiQitoST(pi, level)),
+                         S2::STtoUV(PiQitoST(qi, level))).Normalize();
 }
 
 void EncodeFirstPointFixedLength(const pair<int, int>& vertex_pi_qi,
@@ -387,5 +387,3 @@ bool S2DecodePointsCompressed(Decoder* decoder, int level,
   }
   return true;
 }
-
-}  // namespace s2

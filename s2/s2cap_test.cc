@@ -15,24 +15,23 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2cap.h"
+#include "s2/s2cap.h"
 
 #include <cfloat>
-#include "gtest/gtest.h"
-#include "s2//r1interval.h"
-#include "s2//s1interval.h"
-#include "s2//s2cell.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2coords.h"
-#include "s2//s2latlng.h"
-#include "s2//s2latlng_rect.h"
-#include "s2//s2metrics.h"
-#include "s2//s2testing.h"
-#include "s2//util/math/vector.h"
+
+#include <gtest/gtest.h>
+#include "s2/r1interval.h"
+#include "s2/s1interval.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2coords.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2metrics.h"
+#include "s2/s2testing.h"
+#include "s2/util/math/vector.h"
 
 using std::vector;
-
-namespace s2 {
 
 static S2Point GetLatLngPoint(double lat_degrees, double lng_degrees) {
   return S2LatLng::FromDegrees(lat_degrees, lng_degrees).ToPoint();
@@ -53,6 +52,11 @@ TEST(S2Cap, Basic) {
   EXPECT_TRUE(full.Complement().is_empty());
   EXPECT_EQ(2, full.height());
   EXPECT_DOUBLE_EQ(180.0, full.GetRadius().degrees());
+
+  // Test ==/!=.
+  EXPECT_EQ(full, full);
+  EXPECT_EQ(empty, empty);
+  EXPECT_NE(full, empty);
 
   // Test the S1Angle constructor using out-of-range arguments.
   EXPECT_TRUE(S2Cap(S2Point(1, 0, 0), S1Angle::Radians(-20)).is_empty());
@@ -230,10 +234,10 @@ TEST(S2Cap, S2CellMethods) {
     S2Cell root_cell = S2Cell::FromFace(face);
 
     // A leaf cell at the midpoint of the v=1 edge.
-    S2Cell edge_cell(FaceUVtoXYZ(face, 0, 1 - kEps));
+    S2Cell edge_cell(S2::FaceUVtoXYZ(face, 0, 1 - kEps));
 
     // A leaf cell at the u=1, v=1 corner.
-    S2Cell corner_cell(FaceUVtoXYZ(face, 1 - kEps, 1 - kEps));
+    S2Cell corner_cell(S2::FaceUVtoXYZ(face, 1 - kEps, 1 - kEps));
 
     // Quick check for full and empty caps.
     EXPECT_TRUE(S2Cap::Full().Contains(root_cell));
@@ -255,7 +259,7 @@ TEST(S2Cap, S2CellMethods) {
     int anti_face = (face + 3) % 6;  // Opposite face.
     for (int cap_face = 0; cap_face < 6; ++cap_face) {
       // A cap that barely contains all of 'cap_face'.
-      S2Point center = GetNorm(cap_face);
+      S2Point center = S2::GetNorm(cap_face);
       S2Cap covering(center, S1Angle::Radians(kFaceRadius + kEps));
       EXPECT_EQ(cap_face == face, covering.Contains(root_cell));
       EXPECT_EQ(cap_face != anti_face, covering.MayIntersect(root_cell));
@@ -289,7 +293,7 @@ TEST(S2Cap, GetCellUnionBoundLevel1Radius) {
   // Check that a cap whose radius is approximately the width of a level 1
   // S2Cell can be covered by only 3 faces.
   S2Cap cap(S2Point(1, 1, 1).Normalize(),
-            S1Angle::Radians(kMinWidth.GetValue(1)));
+            S1Angle::Radians(S2::kMinWidth.GetValue(1)));
   vector<S2CellId> covering;
   cap.GetCellUnionBound(&covering);
   EXPECT_EQ(3, covering.size());
@@ -380,4 +384,3 @@ TEST(S2Cap, EncodeDecode) {
   EXPECT_EQ(cap, decoded_cap);
 }
 
-}  // namespace s2

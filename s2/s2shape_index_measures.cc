@@ -15,11 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2shape_index_measures.h"
+#include "s2/s2shape_index_measures.h"
 
-#include "s2//s2shape_measures.h"
+#include "s2/s2shape_measures.h"
 
-namespace s2 {
+namespace S2 {
 
 int GetDimension(const S2ShapeIndex& index) {
   int dim = -1;
@@ -45,7 +45,7 @@ S1Angle GetLength(const S2ShapeIndex& index) {
   S1Angle length;
   for (int i = 0; i < index.num_shape_ids(); ++i) {
     S2Shape* shape = index.shape(i);
-    if (shape) length += s2::GetLength(*shape);
+    if (shape) length += S2::GetLength(*shape);
   }
   return length;
 }
@@ -54,7 +54,7 @@ S1Angle GetPerimeter(const S2ShapeIndex& index) {
   S1Angle perimeter;
   for (int i = 0; i < index.num_shape_ids(); ++i) {
     S2Shape* shape = index.shape(i);
-    if (shape) perimeter += s2::GetPerimeter(*shape);
+    if (shape) perimeter += S2::GetPerimeter(*shape);
   }
   return perimeter;
 }
@@ -63,7 +63,7 @@ double GetArea(const S2ShapeIndex& index) {
   double area = 0;
   for (int i = 0; i < index.num_shape_ids(); ++i) {
     S2Shape* shape = index.shape(i);
-    if (shape) area += s2::GetArea(*shape);
+    if (shape) area += S2::GetArea(*shape);
   }
   return area;
 }
@@ -72,7 +72,7 @@ double GetApproxArea(const S2ShapeIndex& index) {
   double area = 0;
   for (int i = 0; i < index.num_shape_ids(); ++i) {
     S2Shape* shape = index.shape(i);
-    if (shape) area += s2::GetApproxArea(*shape);
+    if (shape) area += S2::GetApproxArea(*shape);
   }
   return area;
 }
@@ -83,10 +83,10 @@ S2Point GetCentroid(const S2ShapeIndex& index) {
   for (int i = 0; i < index.num_shape_ids(); ++i) {
     S2Shape* shape = index.shape(i);
     if (shape && shape->dimension() == dim) {
-      centroid += s2::GetCentroid(*shape);
+      centroid += S2::GetCentroid(*shape);
     }
   }
   return centroid;
 }
 
-}  // namespace s2
+}  // namespace S2

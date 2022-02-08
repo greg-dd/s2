@@ -22,20 +22,18 @@
 
 #include <vector>
 
-#include "s2//base/logging.h"
-#include "s2//util/gtl/btree_set.h"
+#include "s2/base/logging.h"
+#include "absl/container/btree_set.h"
 #include "absl/container/inlined_vector.h"
-#include "s2//s1chord_angle.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2cell_index.h"
-#include "s2//s2cell_union.h"
-#include "s2//s2distance_target.h"
-#include "s2//s2region_coverer.h"
-#include "s2//util/gtl/dense_hash_set.h"
-#include "s2//util/hash/mix.h"
-
-namespace s2 {
+#include "absl/hash/hash.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_index.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2distance_target.h"
+#include "s2/s2region_coverer.h"
+#include "s2/util/gtl/dense_hash_set.h"
 
 // S2ClosestCellQueryBase is a templatized class for finding the closest
 // (cell_id, label) pairs in an S2CellIndex to a given target.  It is not
@@ -203,7 +201,7 @@ class S2ClosestCellQueryBase {
 
     // Indicates that linear rather than binary search should be used when this
     // type is used as the key in gtl::btree data structures.
-    using goog_btree_prefer_linear_node_search = std::true_type;
+    using absl_btree_prefer_linear_node_search = std::true_type;
 
    private:
     Distance distance_;
@@ -310,7 +308,7 @@ class S2ClosestCellQueryBase {
   // when result_set_ is used so that we could use a priority queue instead.
   Result result_singleton_;
   std::vector<Result> result_vector_;
-  gtl::btree_set<Result> result_set_;
+  absl::btree_set<Result> result_set_;
 
   // When the results are stored in a btree_set (see above), usually
   // duplicates can be removed simply by inserting candidate cells in the
@@ -332,9 +330,7 @@ class S2ClosestCellQueryBase {
   bool avoid_duplicates_;
   struct LabelledCellHash {
     size_t operator()(LabelledCell x) const {
-      HashMix mix(x.cell_id.id());
-      mix.Mix(x.label);
-      return mix.get();
+      return absl::HashOf(x.cell_id.id(), x.label);
     }
   };
   gtl::dense_hash_set<LabelledCell, LabelledCellHash> tested_cells_;
@@ -371,7 +367,6 @@ class S2ClosestCellQueryBase {
 
   std::vector<S2CellId> max_distance_covering_;
   std::vector<S2CellId> intersection_with_max_distance_;
-  const LabelledCell* tmp_range_data_[kMinRangesToEnqueue - 1];
 };
 
 
@@ -840,7 +835,5 @@ void S2ClosestCellQueryBase<Distance>::AddRange(const RangeIterator& range) {
     MaybeAddResult(contents_it_.cell_id(), contents_it_.label());
   }
 }
-
-}  // namespace s2
 
 #endif  // S2_S2CLOSEST_CELL_QUERY_BASE_H_

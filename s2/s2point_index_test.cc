@@ -15,16 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2point_index.h"
+#include "s2/s2point_index.h"
 
 #include <set>
 
-#include "gtest/gtest.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2cell_union.h"
-#include "s2//s2testing.h"
-
-namespace s2 {
+#include <gtest/gtest.h>
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2testing.h"
 
 class S2PointIndexTest : public ::testing::Test {
  protected:
@@ -147,5 +145,3 @@ TEST(S2PointIndex, EmptyData) {
   index.Remove(S2Point(1, 0, 0));
   EXPECT_EQ(0, index.num_points());
 }
-
-}  // namespace s2

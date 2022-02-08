@@ -30,14 +30,14 @@
 
 #include <cmath>
 
-#include "s2//base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/container/inlined_vector.h"
-#include "s2//_fp_contract_off.h"
-#include "s2//r2.h"
-#include "s2//r2rect.h"
-#include "s2//s2point.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s2point.h"
 
-namespace s2 {
+namespace S2 {
 
 // FaceSegment represents an edge AB clipped to an S2 cube face.  It is
 // represented by a face index and a pair of (u,v) coordinates.
@@ -56,8 +56,7 @@ using FaceSegmentVector = absl::InlinedVector<FaceSegment, 6>;
 // from A to B, and that all vertices are within kFaceClipErrorUVDist of the
 // line AB.  All vertices lie within the [-1,1]x[-1,1] cube face rectangles.
 // The results are consistent with s2pred::Sign(), i.e. the edge is
-// well-defined even its endpoints are antipodal.  [TODO(ericv): Extend the
-// implementation of s2::RobustCrossProd so that this statement is true.]
+// well-defined even its endpoints are antipodal.
 void GetFaceSegments(const S2Point& a, const S2Point& b,
                      FaceSegmentVector* segments);
 
@@ -80,7 +79,7 @@ bool ClipToPaddedFace(const S2Point& a, const S2Point& b, int face,
 //
 //  - kFaceClipErrorRadians is the maximum angle between a returned vertex
 //    and the nearest point on the exact edge AB.  It is equal to the
-//    maximum directional error in s2::RobustCrossProd, plus the error when
+//    maximum directional error in S2::RobustCrossProd, plus the error when
 //    projecting points onto a cube face.
 //
 //  - kFaceClipErrorDist is the same angle expressed as a maximum distance
@@ -178,6 +177,6 @@ inline double InterpolateDouble(double x, double a, double b,
   }
 }
 
-}  // namespace s2
+}  // namespace S2
 
 #endif  // S2_S2EDGE_CLIPPING_H_

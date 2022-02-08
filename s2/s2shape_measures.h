@@ -24,11 +24,11 @@
 
 #include <vector>
 
-#include "s2//s1angle.h"
-#include "s2//s2point.h"
-#include "s2//s2shape.h"
+#include "s2/s1angle.h"
+#include "s2/s2point.h"
+#include "s2/s2shape.h"
 
-namespace s2 {
+namespace S2 {
 
 // For shapes of dimension 1, returns the sum of all polyline lengths on the
 // unit sphere.  Otherwise returns zero.  (See GetPerimeter for shapes of
@@ -90,6 +90,6 @@ S2Point GetCentroid(const S2Shape& shape);
 void GetChainVertices(const S2Shape& shape, int chain_id,
                       std::vector<S2Point>* vertices);
 
-}  // namespace s2
+}  // namespace S2
 
 #endif  // S2_S2SHAPE_MEASURES_H_

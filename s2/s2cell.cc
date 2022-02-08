@@ -15,33 +15,31 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2cell.h"
+#include "s2/s2cell.h"
 
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <iomanip>
 
-#include "s2//base/logging.h"
-#include "s2//r1interval.h"
-#include "s2//r2.h"
-#include "s2//s1chord_angle.h"
-#include "s2//s1interval.h"
-#include "s2//s2cap.h"
-#include "s2//s2coords.h"
-#include "s2//s2edge_crosser.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2latlng.h"
-#include "s2//s2latlng_rect.h"
-#include "s2//s2measures.h"
-#include "s2//s2metrics.h"
+#include "s2/base/logging.h"
+#include "s2/r1interval.h"
+#include "s2/r2.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s1interval.h"
+#include "s2/s2cap.h"
+#include "s2/s2coords.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2measures.h"
+#include "s2/s2metrics.h"
 
-using s2::internal::kPosToIJ;
-using s2::internal::kPosToOrientation;
+using S2::internal::kPosToIJ;
+using S2::internal::kPosToOrientation;
 using std::min;
 using std::max;
-
-namespace s2 {
 
 // Since S2Cells are copied by value, the following assertion is a reminder
 // not to add fields unnecessarily.  An S2Cell currently consists of 43 data
@@ -62,16 +60,12 @@ S2Cell::S2Cell(S2CellId id) {
   uv_ = S2CellId::IJLevelToBoundUV(ij, level_);
 }
 
-S2Point S2Cell::GetVertexRaw(int k) const {
-  return s2::FaceUVtoXYZ(face_, uv_.GetVertex(k));
-}
-
 S2Point S2Cell::GetEdgeRaw(int k) const {
   switch (k & 3) {
-    case 0:  return s2::GetVNorm(face_, uv_[1][0]);   // Bottom
-    case 1:  return s2::GetUNorm(face_, uv_[0][1]);   // Right
-    case 2:  return -s2::GetVNorm(face_, uv_[1][1]);  // Top
-    default: return -s2::GetUNorm(face_, uv_[0][0]);  // Left
+    case 0:  return S2::GetVNorm(face_, uv_[1][0]);   // Bottom
+    case 1:  return S2::GetUNorm(face_, uv_[0][1]);   // Right
+    case 2:  return -S2::GetVNorm(face_, uv_[1][1]);  // Top
+    default: return -S2::GetUNorm(face_, uv_[0][0]);  // Left
   }
 }
 
@@ -111,7 +105,7 @@ S2Point S2Cell::GetCenterRaw() const {
 }
 
 double S2Cell::AverageArea(int level) {
-  return s2::kAvgArea.GetValue(level);
+  return S2::kAvgArea.GetValue(level);
 }
 
 double S2Cell::ApproxArea() const {
@@ -142,7 +136,7 @@ double S2Cell::ExactArea() const {
   S2Point v1 = GetVertex(1);
   S2Point v2 = GetVertex(2);
   S2Point v3 = GetVertex(3);
-  return s2::Area(v0, v1, v2) + s2::Area(v0, v2, v3);
+  return S2::Area(v0, v1, v2) + S2::Area(v0, v2, v3);
 }
 
 S2Cell* S2Cell::Clone() const {
@@ -159,7 +153,7 @@ S2Cap S2Cell::GetCapBound() const {
   // the (u,v)-origin never determine the maximum cap size (this is a
   // possible future optimization).
 
-  S2Point center = s2::FaceUVtoXYZ(face_, uv_.GetCenter()).Normalize();
+  S2Point center = S2::FaceUVtoXYZ(face_, uv_.GetCenter()).Normalize();
   S2Cap cap = S2Cap::FromPoint(center);
   for (int k = 0; k < 4; ++k) {
     cap.AddPoint(GetVertex(k));
@@ -168,12 +162,12 @@ S2Cap S2Cell::GetCapBound() const {
 }
 
 inline double S2Cell::GetLatitude(int i, int j) const {
-  S2Point p = s2::FaceUVtoXYZ(face_, uv_[0][i], uv_[1][j]);
+  S2Point p = S2::FaceUVtoXYZ(face_, uv_[0][i], uv_[1][j]);
   return S2LatLng::Latitude(p).radians();
 }
 
 inline double S2Cell::GetLongitude(int i, int j) const {
-  S2Point p = s2::FaceUVtoXYZ(face_, uv_[0][i], uv_[1][j]);
+  S2Point p = S2::FaceUVtoXYZ(face_, uv_[0][i], uv_[1][j]);
   return S2LatLng::Longitude(p).radians();
 }
 
@@ -192,8 +186,8 @@ S2LatLngRect S2Cell::GetRectBound() const {
     // coordinate based on the axis direction and the cell's (u,v) quadrant.
     double u = uv_[0][0] + uv_[0][1];
     double v = uv_[1][0] + uv_[1][1];
-    int i = s2::GetUAxis(face_)[2] == 0 ? (u < 0) : (u > 0);
-    int j = s2::GetVAxis(face_)[2] == 0 ? (v < 0) : (v > 0);
+    int i = S2::GetUAxis(face_)[2] == 0 ? (u < 0) : (u > 0);
+    int j = S2::GetVAxis(face_)[2] == 0 ? (v < 0) : (v > 0);
     R1Interval lat = R1Interval::FromPointPair(GetLatitude(i, j),
                                                GetLatitude(1-i, 1-j));
     S1Interval lng = S1Interval::FromPointPair(GetLongitude(i, 1-j),
@@ -227,7 +221,7 @@ S2LatLngRect S2Cell::GetRectBound() const {
   static const double kPoleMinLat = asin(sqrt(1./3)) - 0.5 * DBL_EPSILON;
 
   // The face centers are the +X, +Y, +Z, -X, -Y, -Z axes in that order.
-  S2_DCHECK_EQ(((face_ < 3) ? 1 : -1), s2::GetNorm(face_)[face_ % 3]);
+  S2_DCHECK_EQ(((face_ < 3) ? 1 : -1), S2::GetNorm(face_)[face_ % 3]);
 
   S2LatLngRect bound;
   switch (face_) {
@@ -279,7 +273,7 @@ bool S2Cell::Contains(const S2Point& p) const {
   // boundary between two faces (i.e. u or v is +1/-1) we need to return
   // true for both adjacent cells.
   R2Point uv;
-  if (!s2::FaceXYZtoUV(face_, p, &uv)) return false;
+  if (!S2::FaceXYZtoUV(face_, p, &uv)) return false;
 
   // Expand the (u,v) bound to ensure that
   //
@@ -354,7 +348,7 @@ inline static S1ChordAngle EdgeDistance(double dirIJ, double uv) {
 S1ChordAngle S2Cell::GetDistanceInternal(const S2Point& target_xyz,
                                          bool to_interior) const {
   // All calculations are done in the (u,v,w) coordinates of this cell's face.
-  S2Point target = s2::FaceXYZtoUVW(face_, target_xyz);
+  S2Point target = S2::FaceXYZtoUVW(face_, target_xyz);
 
   // Compute dot products with all four upward or rightward-facing edge
   // normals.  "dirIJ" is the dot product for the edge corresponding to axis
@@ -414,7 +408,7 @@ S1ChordAngle S2Cell::GetBoundaryDistance(const S2Point& target) const {
 S1ChordAngle S2Cell::GetMaxDistance(const S2Point& target) const {
   // First check the 4 cell vertices.  If all are within the hemisphere
   // centered around target, the max distance will be to one of these vertices.
-  S2Point target_uvw = s2::FaceXYZtoUVW(face_, target);
+  S2Point target_uvw = S2::FaceXYZtoUVW(face_, target);
   S1ChordAngle max_dist = max(max(VertexChordDist(target_uvw, 0, 0),
                                          VertexChordDist(target_uvw, 1, 0)),
                                      max(VertexChordDist(target_uvw, 0, 1),
@@ -465,7 +459,7 @@ S1ChordAngle S2Cell::GetDistance(const S2Point& a, const S2Point& b) const {
   // the interior of a cell edge, because the only way that this distance can
   // be minimal is if the two edges cross (already checked above).
   for (int i = 0; i < 4; ++i) {
-    s2::UpdateMinDistance(v[i], a, b, &min_dist);
+    S2::UpdateMinDistance(v[i], a, b, &min_dist);
   }
   return min_dist;
 }
@@ -505,8 +499,8 @@ S1ChordAngle S2Cell::GetDistance(const S2Cell& target) const {
   S1ChordAngle min_dist = S1ChordAngle::Infinity();
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
-      s2::UpdateMinDistance(va[i], vb[j], vb[(j + 1) & 3], &min_dist);
-      s2::UpdateMinDistance(vb[i], va[j], va[(j + 1) & 3], &min_dist);
+      S2::UpdateMinDistance(va[i], vb[j], vb[(j + 1) & 3], &min_dist);
+      S2::UpdateMinDistance(vb[i], va[j], va[(j + 1) & 3], &min_dist);
     }
   }
   return min_dist;
@@ -545,11 +539,10 @@ S1ChordAngle S2Cell::GetMaxDistance(const S2Cell& target) const {
   S1ChordAngle max_dist = S1ChordAngle::Negative();
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
-      s2::UpdateMaxDistance(va[i], vb[j], vb[(j + 1) & 3], &max_dist);
-      s2::UpdateMaxDistance(vb[i], va[j], va[(j + 1) & 3], &max_dist);
+      S2::UpdateMaxDistance(va[i], vb[j], vb[(j + 1) & 3], &max_dist);
+      S2::UpdateMaxDistance(vb[i], va[j], va[(j + 1) & 3], &max_dist);
     }
   }
   return max_dist;
 }
 
-}  // namespace s2

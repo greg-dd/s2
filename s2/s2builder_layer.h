@@ -18,9 +18,7 @@
 #ifndef S2_S2BUILDER_LAYER_H_
 #define S2_S2BUILDER_LAYER_H_
 
-#include "s2//s2builder_graph.h"
-
-namespace s2 {
+#include "s2/s2builder_graph.h"
 
 // This class is not needed by ordinary S2Builder clients.  It is only
 // necessary if you wish to implement a new S2Builder::Layer subtype.
@@ -48,7 +46,5 @@ class S2Builder::Layer {
   // s2builderutil::ClosedSetNormalizer).
   virtual void Build(const Graph& g, S2Error* error) = 0;
 };
-
-}  // namespace s2
 
 #endif  // S2_S2BUILDER_LAYER_H_

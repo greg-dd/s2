@@ -22,18 +22,16 @@
 
 #include <vector>
 
-#include "s2//base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/container/inlined_vector.h"
-#include "s2//s1chord_angle.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2cell_union.h"
-#include "s2//s2distance_target.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2point_index.h"
-#include "s2//s2region_coverer.h"
-
-namespace s2 {
+#include "s2/s1chord_angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2distance_target.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2point_index.h"
+#include "s2/s2region_coverer.h"
 
 // Options that control the set of points returned.  Note that by default
 // *all* points are returned, so you will always want to set either the
@@ -765,7 +763,5 @@ bool S2ClosestPointQueryBase<Distance, Data>::ProcessOrEnqueue(
   }
   return false;  // No need to seek to next child.
 }
-
-}  // namespace s2
 
 #endif  // S2_S2CLOSEST_POINT_QUERY_BASE_H_

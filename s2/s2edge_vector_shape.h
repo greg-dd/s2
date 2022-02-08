@@ -20,9 +20,8 @@
 
 #include <utility>
 #include <vector>
-#include "s2//s2shape.h"
+#include "s2/s2shape.h"
 
-namespace s2 {
 // S2EdgeVectorShape is an S2Shape representing an arbitrary set of edges.  It
 // is mainly used for testing, but it can also be useful if you have, say, a
 // collection of polylines and don't care about memory efficiency (since this
@@ -83,5 +82,4 @@ class S2EdgeVectorShape : public S2Shape {
   std::vector<std::pair<S2Point, S2Point>> edges_;
 };
 
-}  // namespace s2
 #endif  // S2_S2EDGE_VECTOR_SHAPE_H_

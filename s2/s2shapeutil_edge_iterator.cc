@@ -13,11 +13,12 @@
 // limitations under the License.
 //
 
-#include "s2//s2shapeutil_edge_iterator.h"
+#include "s2/s2shapeutil_edge_iterator.h"
 
 #include "absl/strings/str_cat.h"
 
-namespace s2 {
+using std::string;
+
 namespace s2shapeutil {
 
 EdgeIterator::EdgeIterator(const S2ShapeIndex* index)
@@ -39,9 +40,8 @@ void EdgeIterator::Next() {
   }
 }
 
-std::string EdgeIterator::DebugString() const {
+string EdgeIterator::DebugString() const {
   return absl::StrCat("(shape=", shape_id_, ", edge=", edge_id_, ")");
 }
 
 }  // namespace s2shapeutil
-}  // namespace s2

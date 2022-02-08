@@ -15,13 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//id_set_lexicon.h"
+#include "s2/id_set_lexicon.h"
 
 #include <vector>
 
-#include "gtest/gtest.h"
-
-namespace s2 {
+#include <gtest/gtest.h>
 
 void ExpectIdSet(const std::vector<int32>& expected,
                  const IdSetLexicon::IdSet& actual) {
@@ -40,7 +38,7 @@ TEST(IdSetLexicon, EmptySet) {
 TEST(IdSetLexicon, SingletonSets) {
   IdSetLexicon lexicon;
   EXPECT_EQ(5, lexicon.Add(Seq{5}));
-  EXPECT_EQ(0, lexicon.Add(Seq{0}));
+  EXPECT_EQ(0, lexicon.Add(Seq{0, 0}));
   EXPECT_EQ(1, lexicon.AddSingleton(1));
   int32 m = std::numeric_limits<int32>::max();
   EXPECT_EQ(m, lexicon.Add(&m, &m + 1));
@@ -70,5 +68,3 @@ TEST(IdSetLexicon, Clear) {
   EXPECT_EQ(~0, lexicon.Add(Seq{3, 4}));
   EXPECT_EQ(~1, lexicon.Add(Seq{1, 2}));
 }
-
-}  // namespace s2

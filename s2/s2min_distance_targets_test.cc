@@ -15,26 +15,24 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2min_distance_targets.h"
+#include "s2/s2min_distance_targets.h"
 
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "s2//util/gtl/btree_set.h"
-#include "s2//mutable_s2shape_index.h"
-#include "s2//s1angle.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2shape_index.h"
-#include "s2//s2text_format.h"
+#include <gtest/gtest.h>
+#include "absl/container/btree_set.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s1angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2shape_index.h"
+#include "s2/s2text_format.h"
 
-using s2::s2textformat::MakeIndexOrDie;
-using s2::s2textformat::MakePointOrDie;
-using s2::s2textformat::ParsePointsOrDie;
+using s2textformat::MakeIndexOrDie;
+using s2textformat::MakePointOrDie;
+using s2textformat::ParsePointsOrDie;
 using std::vector;
-
-namespace s2 {
 
 TEST(PointTarget, UpdateMinDistanceToEdgeWhenEqual) {
   // Verifies that UpdateMinDistance only returns true when the new distance
@@ -126,7 +124,7 @@ TEST(ShapeIndexTarget, UpdateMinDistanceToCellWhenEqual) {
 
 vector<int> GetContainingShapes(S2MinDistanceTarget* target,
                                 const S2ShapeIndex& index, int max_shapes) {
-  gtl::btree_set<int32> shape_ids;
+  absl::btree_set<int32> shape_ids;
   (void) target->VisitContainingShapes(
       index, [&shape_ids, max_shapes](S2Shape* containing_shape,
                                       const S2Point& target_point) {
@@ -239,5 +237,3 @@ TEST(ShapeIndexTarget, VisitContainingShapesEmptyAndFull) {
   S2MinDistanceShapeIndexTarget empty_target(empty_polygon_index.get());
   EXPECT_EQ((vector<int>{}), GetContainingShapes(&empty_target, *index, 5));
 }
-
-}  // namespace s2

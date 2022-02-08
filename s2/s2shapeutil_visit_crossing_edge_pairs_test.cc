@@ -15,28 +15,31 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2shapeutil_visit_crossing_edge_pairs.h"
+#include "s2/s2shapeutil_visit_crossing_edge_pairs.h"
 
 #include <memory>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include "absl/memory/memory.h"
-#include "s2//mutable_s2shape_index.h"
-#include "s2//s2edge_crossings.h"
-#include "s2//s2edge_vector_shape.h"
-#include "s2//s2error.h"
-#include "s2//s2loop.h"
-#include "s2//s2polygon.h"
-#include "s2//s2shapeutil_contains_brute_force.h"
-#include "s2//s2shapeutil_edge_iterator.h"
-#include "s2//s2text_format.h"
+#include "absl/strings/string_view.h"
+
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2edge_vector_shape.h"
+#include "s2/s2error.h"
+#include "s2/s2loop.h"
+#include "s2/s2polygon.h"
+#include "s2/s2shapeutil_contains_brute_force.h"
+#include "s2/s2shapeutil_edge_iterator.h"
+#include "s2/s2text_format.h"
 
 using absl::make_unique;
+using std::string;
 using std::unique_ptr;
 using std::vector;
 
-namespace s2 {
 namespace s2shapeutil {
 
 // A set of edge pairs within an S2ShapeIndex.
@@ -66,7 +69,7 @@ EdgePairVector GetCrossingEdgePairsBruteForce(const S2ShapeIndex& index,
     EdgeIterator b_iter = a_iter;
     for (b_iter.Next(); !b_iter.Done(); b_iter.Next()) {
       auto b = b_iter.edge();
-      if (CrossingSign(a.v0, a.v1, b.v0, b.v1) >= min_sign) {
+      if (S2::CrossingSign(a.v0, a.v1, b.v0, b.v1) >= min_sign) {
         result.push_back(
             std::make_pair(a_iter.shape_edge_id(), b_iter.shape_edge_id()));
       }
@@ -159,11 +162,11 @@ void TestHasCrossingPermutations(vector<unique_ptr<S2Loop>>* loops, int i,
   }
 }
 
-// Given a std::string reprsenting a polygon, and a boolean indicating whether this
+// Given a string reprsenting a polygon, and a boolean indicating whether this
 // polygon has any self-intersections or loop crossings, verify that all
 // HasSelfIntersection returns the expected result for all possible cyclic
 // permutations of the loop vertices.
-void TestHasCrossing(const std::string& polygon_str, bool has_crossing) {
+void TestHasCrossing(absl::string_view polygon_str, bool has_crossing) {
   // Set S2Debug::DISABLE to allow invalid polygons.
   unique_ptr<S2Polygon> polygon =
       s2textformat::MakePolygonOrDie(polygon_str, S2Debug::DISABLE);
@@ -183,4 +186,3 @@ TEST(FindSelfIntersection, Basic) {
 }
 
 }  // namespace s2shapeutil
-}  // namespace s2

@@ -15,41 +15,43 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2closest_edge_query.h"
+#include "s2/s2closest_edge_query.h"
 
 #include <memory>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
+#include "absl/flags/flag.h"
 #include "absl/memory/memory.h"
-#include "s2//encoded_s2shape_index.h"
-#include "s2//mutable_s2shape_index.h"
-#include "s2//s1angle.h"
-#include "s2//s2cap.h"
-#include "s2//s2cell.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2closest_edge_query_testing.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2loop.h"
-#include "s2//s2metrics.h"
-#include "s2//s2point_vector_shape.h"
-#include "s2//s2polygon.h"
-#include "s2//s2predicates.h"
-#include "s2//s2shapeutil_coding.h"
-#include "s2//s2testing.h"
-#include "s2//s2text_format.h"
+
+#include "s2/encoded_s2shape_index.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s1angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2closest_edge_query_testing.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2loop.h"
+#include "s2/s2metrics.h"
+#include "s2/s2point_vector_shape.h"
+#include "s2/s2polygon.h"
+#include "s2/s2predicates.h"
+#include "s2/s2shapeutil_coding.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
 using absl::make_unique;
-using s2::s2shapeutil::ShapeEdgeId;
-using s2::s2textformat::MakeIndexOrDie;
-using s2::s2textformat::MakePointOrDie;
-using s2::s2textformat::MakePolygonOrDie;
+using s2shapeutil::ShapeEdgeId;
+using s2textformat::MakeIndexOrDie;
+using s2textformat::MakePointOrDie;
+using s2textformat::MakePolygonOrDie;
 using std::min;
 using std::pair;
+using std::string;
 using std::unique_ptr;
 using std::vector;
-
-namespace s2 {
 
 TEST(S2ClosestEdgeQuery, NoEdges) {
   MutableS2ShapeIndex index;
@@ -288,7 +290,7 @@ TEST(S2ClosestEdgeQuery, IsConservativeDistanceLessOrEqual) {
     S2Point x = S2Testing::RandomPoint();
     S2Point dir = S2Testing::RandomPoint();
     S1Angle r = S1Angle::Radians(M_PI * pow(1e-30, rnd.RandDouble()));
-    S2Point y = InterpolateAtDistance(r, x, dir);
+    S2Point y = S2::InterpolateAtDistance(r, x, dir);
     S1ChordAngle limit(r);
     if (s2pred::CompareDistance(x, y, limit) <= 0) {
       MutableS2ShapeIndex index;
@@ -400,13 +402,13 @@ static void TestWithIndexFactory(const s2testing::ShapeIndexFactory& factory,
   vector<S2Cap> index_caps;
   vector<unique_ptr<MutableS2ShapeIndex>> indexes;
   for (int i = 0; i < num_indexes; ++i) {
-    S2Testing::rnd.Reset(kS2RandomSeed + i);
+    S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed) + i);
     index_caps.push_back(S2Cap(S2Testing::RandomPoint(), kTestCapRadius));
     indexes.push_back(make_unique<MutableS2ShapeIndex>());
     factory.AddEdges(index_caps.back(), num_edges, indexes.back().get());
   }
   for (int i = 0; i < num_queries; ++i) {
-    S2Testing::rnd.Reset(kS2RandomSeed + i);
+    S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed) + i);
     int i_index = S2Testing::rnd.Uniform(num_indexes);
     const S2Cap& index_cap = index_caps[i_index];
 
@@ -455,7 +457,7 @@ static void TestWithIndexFactory(const s2testing::ShapeIndexFactory& factory,
       TestFindClosestEdges(&target, &query);
     } else if (target_type == 2) {
       // Find the edges closest to a given cell.
-      int min_level = kMaxDiag.GetLevelForMaxValue(query_radius.radians());
+      int min_level = S2::kMaxDiag.GetLevelForMaxValue(query_radius.radians());
       int level = min_level + S2Testing::rnd.Uniform(
           S2CellId::kMaxLevel - min_level + 1);
       S2Point a = S2Testing::SamplePoint(query_cap);
@@ -493,16 +495,15 @@ TEST(S2ClosestEdgeQuery, PointCloudEdges) {
 }
 
 TEST(S2ClosestEdgeQuery, ConservativeCellDistanceIsUsed) {
-  // Don't use google::FlagSaver, so it works in opensource without gflags.
-  const int saved_seed = kS2RandomSeed;
+  // Don't use absl::FlagSaver, so it works in opensource without gflags.
+  const int saved_seed = absl::GetFlag(FLAGS_s2_random_seed);
   // These specific test cases happen to fail if max_error() is not properly
   // taken into account when measuring distances to S2ShapeIndex cells.
   for (int seed : {42, 681, 894, 1018, 1750, 1759, 2401}) {
-    kS2RandomSeed = seed;
+    absl::SetFlag(&FLAGS_s2_random_seed, seed);
     TestWithIndexFactory(s2testing::FractalLoopShapeIndexFactory(),
                          5, 100, 10);
   }
-  kS2RandomSeed = saved_seed;
+  absl::SetFlag(&FLAGS_s2_random_seed, saved_seed);
 }
 
-}  // namespace s2

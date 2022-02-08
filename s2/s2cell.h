@@ -18,16 +18,14 @@
 #ifndef S2_S2CELL_H_
 #define S2_S2CELL_H_
 
-#include "s2//base/integral_types.h"
-#include "s2//base/logging.h"
-#include "s2//_fp_contract_off.h"
-#include "s2//r2rect.h"
-#include "s2//s1chord_angle.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2region.h"
-#include "s2//util/math/vector.h"
-
-namespace s2 {
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r2rect.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2region.h"
+#include "s2/util/math/vector.h"
 
 class Decoder;
 class Encoder;
@@ -87,7 +85,9 @@ class S2Cell final : public S2Region {
   // plane).  The points returned by GetVertexRaw are not normalized.
   // For convenience, the argument is reduced modulo 4 to the range [0..3].
   S2Point GetVertex(int k) const { return GetVertexRaw(k).Normalize(); }
-  S2Point GetVertexRaw(int k) const;
+  S2Point GetVertexRaw(int k) const {
+    return S2::FaceUVtoXYZ(face_, uv_.GetVertex(k));
+  }
 
   // Returns the inward-facing normal of the great circle passing through the
   // edge from vertex k to vertex k+1 (mod 4).  The normals returned by
@@ -247,7 +247,5 @@ inline int S2Cell::GetSizeIJ() const {
 inline double S2Cell::GetSizeST() const {
   return S2CellId::GetSizeST(level());
 }
-
-}  // namespace s2
 
 #endif  // S2_S2CELL_H_

@@ -15,57 +15,64 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2edge_distances.h"
+#include "s2/s2edge_distances.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include "s2//base/logging.h"
-#include "s2//s1chord_angle.h"
-#include "s2//s2edge_crossings.h"
-#include "s2//s2pointutil.h"
-#include "s2//s2predicates.h"
+#include "s2/base/logging.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
 
 using std::max;
 using std::min;
 
-namespace s2 {
+namespace S2 {
 
 double GetDistanceFraction(const S2Point& x,
-                             const S2Point& a0, const S2Point& a1) {
-  S2_DCHECK_NE(a0, a1);
-  double d0 = x.Angle(a0);
-  double d1 = x.Angle(a1);
-  return d0 / (d0 + d1);
+                           const S2Point& a, const S2Point& b) {
+  S2_DCHECK_NE(a, b);
+  double da = x.Angle(a);
+  double db = x.Angle(b);
+  return da / (da + db);
 }
 
-S2Point InterpolateAtDistance(S1Angle ax_angle,
-                              const S2Point& a, const S2Point& b) {
-  double ax = ax_angle.radians();
-
-  S2_DCHECK(s2::IsUnitLength(a));
-  S2_DCHECK(s2::IsUnitLength(b));
-
-  // Use RobustCrossProd() to compute the tangent vector at A towards B.  The
-  // result is always perpendicular to A, even if A=B or A=-B, but it is not
-  // necessarily unit length.  (We effectively normalize it below.)
-  Vector3_d normal = s2::RobustCrossProd(a, b);
-  Vector3_d tangent = normal.CrossProd(a);
-  S2_DCHECK(tangent != S2Point(0, 0, 0));
-
-  // Now compute the appropriate linear combination of A and "tangent".  With
-  // infinite precision the result would always be unit length, but we
-  // normalize it anyway to ensure that the error is within acceptable bounds.
-  // (Otherwise errors can build up when the result of one interpolation is
-  // fed into another interpolation.)
-  return (std::cos(ax) * a + (std::sin(ax) / tangent.Norm()) * tangent).Normalize();
+S2Point GetPointOnLine(const S2Point& a, const S2Point& b,
+                      S1ChordAngle r) {
+  // Use RobustCrossProd() to compute the tangent vector at A towards B.  This
+  // technique is robust even when A and B are antipodal or nearly so.
+  S2Point dir = S2::RobustCrossProd(a, b).CrossProd(a).Normalize();
+  return GetPointOnRay(a, dir, r);
 }
 
-S2Point Interpolate(double t, const S2Point& a, const S2Point& b) {
+S2Point GetPointOnLine(const S2Point& a, const S2Point& b, S1Angle r) {
+  // See comments above.
+  S2Point dir = S2::RobustCrossProd(a, b).CrossProd(a).Normalize();
+  return GetPointOnRay(a, dir, r);
+}
+
+S2Point GetPointToLeft(const S2Point& a, const S2Point& b, S1Angle r) {
+  return GetPointOnRay(a, S2::RobustCrossProd(a, b).Normalize(), r);
+}
+
+S2Point GetPointToLeft(const S2Point& a, const S2Point& b, S1ChordAngle r) {
+  return GetPointOnRay(a, S2::RobustCrossProd(a, b).Normalize(), r);
+}
+
+S2Point GetPointToRight(const S2Point& a, const S2Point& b, S1Angle r) {
+  return GetPointOnRay(a, S2::RobustCrossProd(b, a).Normalize(), r);
+}
+
+S2Point GetPointToRight(const S2Point& a, const S2Point& b, S1ChordAngle r) {
+  return GetPointOnRay(a, S2::RobustCrossProd(b, a).Normalize(), r);
+}
+
+S2Point Interpolate(const S2Point& a, const S2Point& b, double t) {
   if (t == 0) return a;
   if (t == 1) return b;
-  S1Angle ab(a, b);
-  return InterpolateAtDistance(t * ab, a, b);
+  return GetPointOnLine(a, b, t * S1Angle(a, b));
 }
 
 // If the minimum distance from X to AB is attained at an interior point of AB
@@ -82,9 +89,9 @@ template <bool always_update>
 inline bool AlwaysUpdateMinInteriorDistance(
     const S2Point& x, const S2Point& a, const S2Point& b,
     double xa2, double xb2, S1ChordAngle* min_dist) {
-  S2_DCHECK(s2::IsUnitLength(x) && s2::IsUnitLength(a) && s2::IsUnitLength(b));
-  S2_DCHECK_EQ(xa2, (x-a).Norm2());
-  S2_DCHECK_EQ(xb2, (x-b).Norm2());
+  S2_DCHECK(S2::IsUnitLength(x) && S2::IsUnitLength(a) && S2::IsUnitLength(b));
+  S2_DCHECK_EQ(xa2, (x - a).Norm2());
+  S2_DCHECK_EQ(xb2, (x - b).Norm2());
 
   // The closest point on AB could either be one of the two vertices (the
   // "vertex case") or in the interior (the "interior case").  Let C = A x B.
@@ -100,13 +107,37 @@ inline bool AlwaysUpdateMinInteriorDistance(
   // interior case then both of these angles must be acute.
   //
   // We check this by computing the squared edge lengths of the planar
-  // triangle ABX, and testing acuteness using the law of cosines:
+  // triangle ABX, and testing whether angles XAB and XBA are both acute using
+  // the law of cosines:
   //
-  //             max(XA^2, XB^2) < min(XA^2, XB^2) + AB^2
+  //            | XA^2 - XB^2 | < AB^2      (*)
   //
-  if (max(xa2, xb2) >= min(xa2, xb2) + (a-b).Norm2()) {
+  // This test must be done conservatively (taking numerical errors into
+  // account) since otherwise we might miss a situation where the true minimum
+  // distance is achieved by a point on the edge interior.
+  //
+  // There are two sources of error in the expression above (*).  The first is
+  // that points are not normalized exactly; they are only guaranteed to be
+  // within 2 * DBL_EPSILON of unit length.  Under the assumption that the two
+  // sides of (*) are nearly equal, the total error due to normalization errors
+  // can be shown to be at most
+  //
+  //        2 * DBL_EPSILON * (XA^2 + XB^2 + AB^2) + 8 * DBL_EPSILON ^ 2 .
+  //
+  // The other source of error is rounding of results in the calculation of (*).
+  // Each of XA^2, XB^2, AB^2 has a maximum relative error of 2.5 * DBL_EPSILON,
+  // plus an additional relative error of 0.5 * DBL_EPSILON in the final
+  // subtraction which we further bound as 0.25 * DBL_EPSILON * (XA^2 + XB^2 +
+  // AB^2) for convenience.  This yields a final error bound of
+  //
+  //        4.75 * DBL_EPSILON * (XA^2 + XB^2 + AB^2) + 8 * DBL_EPSILON ^ 2 .
+  double ab2 = (a - b).Norm2();
+  double max_error = (4.75 * DBL_EPSILON * (xa2 + xb2 + ab2) +
+                      8 * DBL_EPSILON * DBL_EPSILON);
+  if (std::fabs(xa2 - xb2) >= ab2 + max_error) {
     return false;
   }
+
   // The minimum distance might be to a point on the edge interior.  Let R
   // be closest point to X that lies on the great circle through AB.  Rather
   // than computing the geodesic distance along the surface of the sphere,
@@ -120,7 +151,7 @@ inline bool AlwaysUpdateMinInteriorDistance(
   // We ignore the QR^2 term and instead use XQ^2 as a lower bound, since it
   // is faster and the corresponding distance on the Earth's surface is
   // accurate to within 1% for distances up to about 1800km.
-  S2Point c = s2::RobustCrossProd(a, b);
+  S2Point c = S2::RobustCrossProd(a, b);
   double c2 = c.Norm2();
   double x_dot_c = x.DotProd(c);
   double x_dot_c2 = x_dot_c * x_dot_c;
@@ -134,8 +165,11 @@ inline bool AlwaysUpdateMinInteriorDistance(
   // Otherwise we do the exact, more expensive test for the interior case.
   // This test is very likely to succeed because of the conservative planar
   // test we did initially.
+  //
+  // TODO(ericv): Ensure that the errors in test are accurately reflected in the
+  // GetUpdateMinInteriorDistanceMaxError().
   S2Point cx = c.CrossProd(x);
-  if (a.DotProd(cx) >= 0 || b.DotProd(cx) <= 0) {
+  if ((a - x).DotProd(cx) >= 0 || (b - x).DotProd(cx) <= 0) {
     return false;
   }
   // Compute the squared chord length XR^2 = XQ^2 + QR^2 (see above).
@@ -149,6 +183,7 @@ inline bool AlwaysUpdateMinInteriorDistance(
     return false;
   }
   *min_dist = S1ChordAngle::FromLength2(dist2);
+
   return true;
 }
 
@@ -164,9 +199,9 @@ template <bool always_update>
 inline bool AlwaysUpdateMinDistance(const S2Point& x,
                                     const S2Point& a, const S2Point& b,
                                     S1ChordAngle* min_dist) {
-  S2_DCHECK(s2::IsUnitLength(x) && s2::IsUnitLength(a) && s2::IsUnitLength(b));
+  S2_DCHECK(S2::IsUnitLength(x) && S2::IsUnitLength(a) && S2::IsUnitLength(b));
 
-  double xa2 = (x-a).Norm2(), xb2 = (x-b).Norm2();
+  double xa2 = (x - a).Norm2(), xb2 = (x - b).Norm2();
   if (AlwaysUpdateMinInteriorDistance<always_update>(x, a, b, xa2, xb2,
                                                      min_dist)) {
     return true;  // Minimum distance is attained along the edge interior.
@@ -210,7 +245,7 @@ bool UpdateMaxDistance(const S2Point& x, const S2Point& a, const S2Point& b,
 bool UpdateMinInteriorDistance(const S2Point& x,
                                const S2Point& a, const S2Point& b,
                                S1ChordAngle* min_dist) {
-  double xa2 = (x-a).Norm2(), xb2 = (x-b).Norm2();
+  double xa2 = (x - a).Norm2(), xb2 = (x - b).Norm2();
   return AlwaysUpdateMinInteriorDistance<false>(x, a, b, xa2, xb2, min_dist);
 }
 
@@ -243,23 +278,43 @@ double GetUpdateMinDistanceMaxError(S1ChordAngle dist) {
 
 S2Point Project(const S2Point& x, const S2Point& a, const S2Point& b,
                 const Vector3_d& a_cross_b) {
-  S2_DCHECK(s2::IsUnitLength(a));
-  S2_DCHECK(s2::IsUnitLength(b));
-  S2_DCHECK(s2::IsUnitLength(x));
+  S2_DCHECK(S2::IsUnitLength(a));
+  S2_DCHECK(S2::IsUnitLength(b));
+  S2_DCHECK(S2::IsUnitLength(x));
 
-  // Find the closest point to X along the great circle through AB.
-  S2Point p = x - (x.DotProd(a_cross_b) / a_cross_b.Norm2()) * a_cross_b;
+  // TODO(ericv): When X is nearly perpendicular to the plane containing AB,
+  // the result is guaranteed to be close to the edge AB but may be far from
+  // the true projected result.  This could be fixed by computing the product
+  // (A x B) x X x (A x B) using methods similar to S2::RobustCrossProd() and
+  // S2::GetIntersection().  However note that the error tolerance would need
+  // to be significantly larger in order for this calculation to succeed in
+  // double precision most of the time.  For example to avoid higher precision
+  // when X is within 60 degrees of AB the minimum error would be 18 * DBL_ERR,
+  // and to avoid higher precision when X is within 87 degrees of AB the
+  // minimum error would be 120 * DBL_ERR.
+
+  // The following is not necessary to meet accuracy guarantees but helps
+  // to avoid unexpected results in unit tests.
+  if (x == a || x == b) return x;
+
+  // Find the closest point to X along the great circle through AB.  Note that
+  // we use "n" rather than a_cross_b in the final cross product in order to
+  // avoid the possibility of underflow.
+  S2Point n = a_cross_b.Normalize();
+  S2Point p = S2::RobustCrossProd(n, x).CrossProd(n).Normalize();
 
   // If this point is on the edge AB, then it's the closest point.
-  if (s2::SimpleCCW(a_cross_b, a, p) && s2::SimpleCCW(p, b, a_cross_b)) {
-    return p.Normalize();
+  S2Point pn = p.CrossProd(n);
+  if (s2pred::Sign(p, n, a, pn) > 0 && s2pred::Sign(p, n, b, pn) < 0) {
+    return p;
   }
+
   // Otherwise, the closest point is either A or B.
   return ((x - a).Norm2() <= (x - b).Norm2()) ? a : b;
 }
 
 S2Point Project(const S2Point& x, const S2Point& a, const S2Point& b) {
-  return Project(x, a, b, s2::RobustCrossProd(a, b));
+  return Project(x, a, b, S2::RobustCrossProd(a, b));
 }
 
 bool UpdateEdgePairMinDistance(
@@ -269,7 +324,7 @@ bool UpdateEdgePairMinDistance(
   if (*min_dist == S1ChordAngle::Zero()) {
     return false;
   }
-  if (s2::CrossingSign(a0, a1, b0, b1) > 0) {
+  if (S2::CrossingSign(a0, a1, b0, b1) >= 0) {
     *min_dist = S1ChordAngle::Zero();
     return true;
   }
@@ -292,7 +347,7 @@ bool UpdateEdgePairMaxDistance(
   if (*max_dist == S1ChordAngle::Straight()) {
     return false;
   }
-  if (s2::CrossingSign(a0, a1, -b0, -b1) > 0) {
+  if (S2::CrossingSign(a0, a1, -b0, -b1) >= 0) {
     *max_dist = S1ChordAngle::Straight();
     return true;
   }
@@ -311,8 +366,8 @@ bool UpdateEdgePairMaxDistance(
 std::pair<S2Point, S2Point> GetEdgePairClosestPoints(
       const S2Point& a0, const S2Point& a1,
       const S2Point& b0, const S2Point& b1) {
-  if (s2::CrossingSign(a0, a1, b0, b1) > 0) {
-    S2Point x = s2::GetIntersection(a0, a1, b0, b1);
+  if (S2::CrossingSign(a0, a1, b0, b1) > 0) {
+    S2Point x = S2::GetIntersection(a0, a1, b0, b1);
     return std::make_pair(x, x);
   }
   // We save some work by first determining which vertex/edge pair achieves
@@ -332,6 +387,7 @@ std::pair<S2Point, S2Point> GetEdgePairClosestPoints(
   }
 }
 
+// TODO(ericv): Optimize this function to use S1ChordAngle rather than S1Angle.
 bool IsEdgeBNearEdgeA(const S2Point& a0, const S2Point& a1,
                       const S2Point& b0, const S2Point& b1,
                       S1Angle tolerance) {
@@ -344,7 +400,7 @@ bool IsEdgeBNearEdgeA(const S2Point& a0, const S2Point& a1,
   // the distance between circ(B) and circ(A) is the angle between the planes
   // containing them.
 
-  Vector3_d a_ortho = s2::RobustCrossProd(a0, a1).Normalize();
+  Vector3_d a_ortho = S2::RobustCrossProd(a0, a1).Normalize();
   const S2Point a_nearest_b0 = Project(b0, a0, a1, a_ortho);
   const S2Point a_nearest_b1 = Project(b1, a0, a1, a_ortho);
   // If a_nearest_b0 and a_nearest_b1 have opposite orientation from a0 and a1,
@@ -368,17 +424,12 @@ bool IsEdgeBNearEdgeA(const S2Point& a0, const S2Point& a1,
   // already know that b0 and b1 are close to A, and S2Edges are all shorter
   // than 180 degrees).  The angle between the planes containing circ(A) and
   // circ(B) is the angle between their normal vectors.
-  const Vector3_d b_ortho = s2::RobustCrossProd(b0, b1).Normalize();
+  const Vector3_d b_ortho = S2::RobustCrossProd(b0, b1).Normalize();
   const S1Angle planar_angle(a_ortho, b_ortho);
   if (planar_angle <= tolerance)
     return true;
 
-
-  // As planar_angle approaches M_PI, the projection of a_ortho onto the plane
-  // of B approaches the null vector, and normalizing it is numerically
-  // unstable.  This makes it unreliable or impossible to identify pairs of
-  // points where circ(A) is furthest from circ(B).  At this point in the
-  // algorithm, this can only occur for two reasons:
+  // When planar_angle >= Pi/2, there are only two possible scenarios:
   //
   //  1.) b0 and b1 are closest to A at distinct endpoints of A, in which case
   //      the opposite orientation of a_ortho and b_ortho means that A and B are
@@ -389,22 +440,28 @@ bool IsEdgeBNearEdgeA(const S2Point& a0, const S2Point& a1,
   //      cross a1.  B must be shorter than 2*tolerance and all points in B are
   //      close to one endpoint of A, and hence to A.
   //
-  // The logic applies when planar_angle is robustly greater than M_PI/2, but
-  // may be more computationally expensive than the logic beyond, so we choose a
-  // value close to M_PI.
-  if (planar_angle >= S1Angle::Radians(M_PI - 0.01)) {
-    return (S1Angle(b0, a0) < S1Angle(b0, a1)) ==
-        (S1Angle(b1, a0) < S1Angle(b1, a1));
+  // Note that this logic *must* be used when planar_angle >= Pi/2 because the
+  // code beyond does not handle the case where the maximum distance is
+  // attained at the interior point of B that is equidistant from the
+  // endpoints of A.  This happens when B intersects the perpendicular
+  // bisector of the endpoints of A in the hemisphere opposite A's midpoint.
+  if (planar_angle >= S1Angle::Radians(M_PI_2)) {
+    return ((S1Angle(b0, a0) < S1Angle(b0, a1)) ==
+            (S1Angle(b1, a0) < S1Angle(b1, a1)));
   }
 
-  // Finally, if either of the two points on circ(B) where circ(B) is furthest
-  // from circ(A) lie on edge B, edge B is not near edge A.
+  // Otherwise, if either of the two points on circ(B) where circ(B) is
+  // furthest from circ(A) lie on edge B, edge B is not near edge A.
   //
   // The normalized projection of a_ortho onto the plane of circ(B) is one of
   // the two points along circ(B) where it is furthest from circ(A).  The other
   // is -1 times the normalized projection.
-  S2Point furthest = (a_ortho - a_ortho.DotProd(b_ortho) * b_ortho).Normalize();
-  S2_DCHECK(s2::IsUnitLength(furthest));
+  //
+  // Note that the formula (A - (A.B) * B) loses accuracy when |A.B| ~= 1, so
+  // instead we compute it using two cross products.  (The first product does
+  // not need RobustCrossProd since its arguments are perpendicular.)
+  S2Point furthest = b_ortho.CrossProd(S2::RobustCrossProd(a_ortho, b_ortho))
+                     .Normalize();
   S2Point furthest_inv = -1 * furthest;
 
   // A point p lies on B if you can proceed from b_ortho to b0 to p to b1 and
@@ -416,4 +473,4 @@ bool IsEdgeBNearEdgeA(const S2Point& a0, const S2Point& a1,
             s2pred::Sign(furthest_inv, b1, b_ortho) > 0));
 }
 
-}  // namespace s2
+}  // namespace S2

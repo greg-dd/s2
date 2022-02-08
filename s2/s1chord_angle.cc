@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s1chord_angle.h"
+#include "s2/s1chord_angle.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include "s2//s1angle.h"
-#include "s2//s2pointutil.h"
+#include "s2/s1angle.h"
+#include "s2/s2pointutil.h"
 
 using std::max;
 using std::min;
@@ -33,8 +33,6 @@ using std::min;
 using std::nextafter;
 #endif
 
-namespace s2 {
-
 static constexpr double kMaxLength2 = 4.0;
 
 S1ChordAngle::S1ChordAngle(S1Angle angle) {
@@ -44,7 +42,7 @@ S1ChordAngle::S1ChordAngle(S1Angle angle) {
     *this = Infinity();
   } else {
     // The chord length is 2 * sin(angle / 2).
-    double length = 2 * std::sin(0.5 * min(M_PI, angle.radians()));
+    double length = 2 * sin(0.5 * min(M_PI, angle.radians()));
     length2_ = length * length;
   }
   S2_DCHECK(is_valid());
@@ -53,7 +51,7 @@ S1ChordAngle::S1ChordAngle(S1Angle angle) {
 S1Angle S1ChordAngle::ToAngle() const {
   if (is_negative()) return S1Angle::Radians(-1);
   if (is_infinity()) return S1Angle::Infinity();
-  return S1Angle::Radians(2 * std::asin(0.5 * sqrt(length2_)));
+  return S1Angle::Radians(2 * asin(0.5 * sqrt(length2_)));
 }
 
 bool S1ChordAngle::is_valid() const {
@@ -90,16 +88,17 @@ double S1ChordAngle::GetS2PointConstructorMaxError() const {
 
 double S1ChordAngle::GetS1AngleConstructorMaxError() const {
   // Assuming that an accurate math library is being used, the sin() call and
-  // the multiply each have a relative error of 0.5 * DBL_EPSILON.
-  return DBL_EPSILON * length2_;
+  // the multiply each have a relative error of 0.5 * DBL_EPSILON.  However
+  // the sin() error is squared.
+  return 1.5 * DBL_EPSILON * length2_;
 }
 
 S1ChordAngle operator+(S1ChordAngle a, S1ChordAngle b) {
   // Note that this method is much more efficient than converting the chord
   // angles to S1Angles and adding those.  It requires only one square root
   // plus a few additions and multiplications.
-  S2_DCHECK(!a.is_special());
-  S2_DCHECK(!b.is_special());
+  S2_DCHECK(!a.is_special()) << a;
+  S2_DCHECK(!b.is_special()) << b;
 
   // Optimization for the common case where "b" is an error tolerance
   // parameter that happens to be set to zero.
@@ -122,14 +121,19 @@ S1ChordAngle operator+(S1ChordAngle a, S1ChordAngle b) {
 
 S1ChordAngle operator-(S1ChordAngle a, S1ChordAngle b) {
   // See comments in operator+().
-  S2_DCHECK(!a.is_special());
-  S2_DCHECK(!b.is_special());
+  S2_DCHECK(!a.is_special()) << a;
+  S2_DCHECK(!b.is_special()) << b;
   double a2 = a.length2(), b2 = b.length2();
   if (b2 == 0) return a;
   if (a2 <= b2) return S1ChordAngle::Zero();
   double x = a2 * (1 - 0.25 * b2);
   double y = b2 * (1 - 0.25 * a2);
-  return S1ChordAngle(max(0.0, x + y - 2 * sqrt(x * y)));
+
+  // The calculation below is formulated differently (with two square roots
+  // rather than one) to avoid excessive cancellation error when two nearly
+  // equal values are subtracted.
+  double c = max(0.0, sqrt(x) - sqrt(y));
+  return S1ChordAngle(c * c);
 }
 
 double sin2(S1ChordAngle a) {
@@ -159,5 +163,3 @@ double tan(S1ChordAngle a) {
 std::ostream& operator<<(std::ostream& os, S1ChordAngle a) {
   return os << a.ToAngle();
 }
-
-}  // namespace s2

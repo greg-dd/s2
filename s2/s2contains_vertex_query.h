@@ -18,10 +18,8 @@
 #ifndef S2_S2CONTAINS_VERTEX_QUERY_H_
 #define S2_S2CONTAINS_VERTEX_QUERY_H_
 
-#include "s2//util/gtl/btree_map.h"
-#include "s2//s2point.h"
-
-namespace s2 {
+#include "absl/container/btree_map.h"
+#include "s2/s2point.h"
 
 // This class determines whether a polygon contains one of its vertices given
 // the edges incident to that vertex.  The result is +1 if the vertex is
@@ -50,7 +48,7 @@ class S2ContainsVertexQuery {
 
  private:
   S2Point target_;
-  gtl::btree_map<S2Point, int> edge_map_;
+  absl::btree_map<S2Point, int> edge_map_;
 };
 
 
@@ -64,7 +62,5 @@ inline S2ContainsVertexQuery::S2ContainsVertexQuery(const S2Point& target)
 inline void S2ContainsVertexQuery::AddEdge(const S2Point& v, int direction) {
   edge_map_[v] += direction;
 }
-
-}  // namespace s2
 
 #endif  // S2_S2CONTAINS_VERTEX_QUERY_H_

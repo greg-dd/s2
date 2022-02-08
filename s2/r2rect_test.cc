@@ -18,12 +18,10 @@
 // Most of the R2Rect methods have trivial implementations in terms of the
 // R1Interval class, so most of the testing is done in that unit test.
 
-#include "s2//r2rect.h"
+#include "s2/r2rect.h"
 
-#include "gtest/gtest.h"
-#include "s2//r2.h"
-
-namespace s2 {
+#include <gtest/gtest.h>
+#include "s2/r2.h"
 
 static void TestIntervalOps(const R2Rect& x, const R2Rect& y,
                             const char* expected_rexion,
@@ -60,6 +58,7 @@ TEST(R2Rect, EmptyRectangles) {
   R2Rect empty = R2Rect::Empty();
   EXPECT_TRUE(empty.is_valid());
   EXPECT_TRUE(empty.is_empty());
+  EXPECT_EQ(empty, empty);
 }
 
 TEST(R2Rect, ConstructorsAndAccessors) {
@@ -87,8 +86,12 @@ TEST(R2Rect, ConstructorsAndAccessors) {
   EXPECT_EQ(R1Interval(3, 4), r[0]);
   EXPECT_EQ(R1Interval(5, 6), r[1]);
 
+  EXPECT_EQ(r, r);
+  EXPECT_NE(r, R2Rect::Empty());
+
   R2Rect r2;
   EXPECT_TRUE(r2.is_empty());
+  EXPECT_EQ(r2, R2Rect::Empty());
 }
 
 TEST(R2Rect, FromCenterSize) {
@@ -228,5 +231,3 @@ TEST(R2Rect, Expanded) {
   EXPECT_TRUE(R2Rect(R2Point(0.2, 0.4), R2Point(0.3, 0.7)).Expanded(0.1).
               ApproxEquals(R2Rect(R2Point(0.1, 0.3), R2Point(0.4, 0.8))));
 }
-
-}  // namespace s2

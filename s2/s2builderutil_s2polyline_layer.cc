@@ -15,13 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2builderutil_s2polyline_layer.h"
+#include "s2/s2builderutil_s2polyline_layer.h"
 
-#include "s2//s2debug.h"
+#include "s2/s2debug.h"
 
 using std::vector;
-
-namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
@@ -105,4 +103,3 @@ void S2PolylineLayer::Build(const Graph& g, S2Error* error) {
 }
 
 }  // namespace s2builderutil
-}  // namespace s2

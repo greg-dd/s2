@@ -15,15 +15,15 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2projections.h"
+#include "s2/s2projections.h"
 
 #include <limits>
-#include "gtest/gtest.h"
-#include "s2//s2latlng.h"
-#include "s2//s2pointutil.h"
-#include "s2//s2testing.h"
+#include <gtest/gtest.h>
+#include "s2/s2latlng.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
 
-namespace s2 {
+namespace S2 {
 
 TEST(PlateCarreeProjection, Interpolate) {
   PlateCarreeProjection proj(180);
@@ -46,7 +46,7 @@ void TestProjectUnproject(const Projection& projection,
   // The arguments are chosen such that projection is exact, but
   // unprojection may not be.
   EXPECT_EQ(px, projection.Project(x)) << projection.Project(x);
-  EXPECT_TRUE(ApproxEquals(x, projection.Unproject(px)))
+  EXPECT_TRUE(S2::ApproxEquals(x, projection.Unproject(px)))
       << x << " vs. " << projection.Unproject(px);
 }
 
@@ -75,4 +75,4 @@ TEST(MercatorProjection, ProjectUnproject) {
                        S2LatLng::FromRadians(1, 0).ToPoint());
 }
 
-}  //  namespace s2
+}  //  namespace S2

@@ -16,37 +16,6 @@
 #ifndef S2_BASE_LOGGING_H_
 #define S2_BASE_LOGGING_H_
 
-#include <glog/logging.h>
-
-// The names CHECK, etc. are too common and may conflict with other
-// packages.  We use S2_CHECK to make it easier to switch to
-// something other than GLOG for logging.
-
-#define S2_LOG LOG
-#define S2_LOG_IF LOG_IF
-#define S2_DLOG_IF DLOG_IF
-
-#define S2_CHECK CHECK
-#define S2_CHECK_EQ CHECK_EQ
-#define S2_CHECK_NE CHECK_NE
-#define S2_CHECK_LT CHECK_LT
-#define S2_CHECK_LE CHECK_LE
-#define S2_CHECK_GT CHECK_GT
-#define S2_CHECK_GE CHECK_GE
-
-#define S2_DCHECK DCHECK
-#define S2_DCHECK_EQ DCHECK_EQ
-#define S2_DCHECK_NE DCHECK_NE
-#define S2_DCHECK_LT DCHECK_LT
-#define S2_DCHECK_LE DCHECK_LE
-#define S2_DCHECK_GT DCHECK_GT
-#define S2_DCHECK_GE DCHECK_GE
-
-#define S2_VLOG VLOG
-#define S2_VLOG_IS_ON VLOG_IS_ON
-
-
-#if 0
 #ifdef S2_USE_GLOG
 
 #include <glog/logging.h>
@@ -57,6 +26,7 @@
 
 #define S2_LOG LOG
 #define S2_LOG_IF LOG_IF
+#define S2_DLOG DLOG
 #define S2_DLOG_IF DLOG_IF
 
 #define S2_CHECK CHECK
@@ -82,11 +52,8 @@
 
 #include <iostream>
 
-#include "s2//base/log_severity.h"
 #include "absl/base/attributes.h"
-#include "absl/base/log_severity.h"
-
-namespace s2 {
+#include "s2/base/log_severity.h"
 
 class S2LogMessage {
  public:
@@ -169,11 +136,14 @@ struct S2LogMessageVoidify {
 
 #ifndef NDEBUG
 
+#define S2_DLOG S2_LOG
 #define S2_DLOG_IF S2_LOG_IF
 #define S2_DCHECK S2_CHECK
 
 #else  // defined(NDEBUG)
 
+#define S2_DLOG(severity) \
+  while (false) S2NullStream()
 #define S2_DLOG_IF(severity, condition) \
     while (false && (condition)) S2NullStream()
 #define S2_DCHECK(condition) \
@@ -201,10 +171,6 @@ struct S2LogMessageVoidify {
 #define S2_VLOG(verbose_level) S2NullStream()
 #define S2_VLOG_IS_ON(verbose_level) (false)
 
-}  // namespace s2
-
 #endif  // !defined(S2_USE_GLOG)
-#endif
-
 
 #endif  // S2_BASE_LOGGING_H_

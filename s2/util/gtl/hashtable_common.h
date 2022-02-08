@@ -48,11 +48,10 @@
 
 #include <cassert>
 #include <cstddef>
+
 #include <algorithm>
 
 #include <stdexcept>                 // For length_error
-
-namespace s2 {
 
 // Settings contains parameters for growing and shrinking the table.
 // It also packages zero-size functor (ie. hasher).  One invariant
@@ -251,6 +250,5 @@ struct sh_is_transparent {
   enum { value = sizeof(Test<T>(nullptr)) == sizeof(Yes) };
 };
 
-}  // namespace s2
 
 #endif  // S2_UTIL_GTL_HASHTABLE_COMMON_H_

@@ -15,25 +15,25 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2loop_measures.h"
+#include "s2/s2loop_measures.h"
 
 #include <cfloat>
 #include <cmath>
 #include <vector>
-#include "s2//base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/container/inlined_vector.h"
-#include "s2//s1angle.h"
-#include "s2//s2centroids.h"
-#include "s2//s2edge_distances.h"
-#include "s2//s2measures.h"
-#include "s2//s2pointutil.h"
+#include "s2/s1angle.h"
+#include "s2/s2centroids.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2measures.h"
+#include "s2/s2pointutil.h"
 
 using std::fabs;
 using std::max;
 using std::min;
 using std::vector;
 
-namespace s2 {
+namespace S2 {
 
 S1Angle GetPerimeter(S2PointLoopSpan loop) {
   S1Angle perimeter = S1Angle::Zero();
@@ -52,7 +52,7 @@ double GetArea(S2PointLoopSpan loop) {
 }
 
 double GetSignedArea(S2PointLoopSpan loop) {
-  // It is suprisingly difficult to compute the area of a loop robustly.  The
+  // It is surprisingly difficult to compute the area of a loop robustly.  The
   // main issues are (1) whether degenerate loops are considered to be CCW or
   // not (i.e., whether their area is close to 0 or 4*Pi), and (2) computing
   // the areas of small loops with good relative accuracy.
@@ -66,7 +66,7 @@ double GetSignedArea(S2PointLoopSpan loop) {
   // considered clockwise, then it will contain virtually all points and so
   // its area should be approximately 4*Pi.
   //
-  // More precisely, let U be the set of S2Points for which s2::IsUnitLength()
+  // More precisely, let U be the set of S2Points for which S2::IsUnitLength()
   // is true, let P(U) be the projection of those points onto the mathematical
   // unit sphere, and let V(P(U)) be the Voronoi diagram of the projected
   // points.  Then for every loop x, we would like GetArea() to approximately
@@ -118,10 +118,13 @@ double GetSignedArea(S2PointLoopSpan loop) {
 
   // The signed area should be between approximately -4*Pi and 4*Pi.
   // Normalize it to be in the range [-2*Pi, 2*Pi].
-  double area = GetSurfaceIntegral(loop, s2::SignedArea);
+  double area = GetSurfaceIntegral(loop, S2::SignedArea);
   double max_error = GetCurvatureMaxError(loop);
-  S2_DCHECK_LE(fabs(area), 4 * M_PI + max_error);
+
+  // Normalize the area to be in the range (-2*Pi, 2*Pi].  Effectively this
+  // means that hemispheres are always interpreted as having positive area.
   area = remainder(area, 4 * M_PI);
+  if (area == -2 * M_PI) area = 2 * M_PI;
 
   // If the area is a small negative or positive number, verify that the sign
   // of the result is consistent with the loop orientation.
@@ -200,12 +203,12 @@ double GetCurvature(S2PointLoopSpan loop) {
   // algorithm (http://en.wikipedia.org/wiki/Kahan_summation_algorithm).
   LoopOrder order = GetCanonicalLoopOrder(loop);
   int i = order.first, dir = order.dir, n = loop.size();
-  double sum = s2::TurnAngle(loop[(i + n - dir) % n], loop[i],
+  double sum = S2::TurnAngle(loop[(i + n - dir) % n], loop[i],
                              loop[(i + dir) % n]);
   double compensation = 0;  // Kahan summation algorithm
   while (--n > 0) {
     i += dir;
-    double angle = s2::TurnAngle(loop[i - dir], loop[i], loop[i + dir]);
+    double angle = S2::TurnAngle(loop[i - dir], loop[i], loop[i + dir]);
     double old_sum = sum;
     angle += compensation;
     sum += angle;
@@ -218,21 +221,21 @@ double GetCurvature(S2PointLoopSpan loop) {
 
 double GetCurvatureMaxError(S2PointLoopSpan loop) {
   // The maximum error can be bounded as follows:
-  //   2.24 * DBL_EPSILON    for RobustCrossProd(b, a)
-  //   2.24 * DBL_EPSILON    for RobustCrossProd(c, b)
+  //   3.00 * DBL_EPSILON    for RobustCrossProd(b, a)
+  //   3.00 * DBL_EPSILON    for RobustCrossProd(c, b)
   //   3.25 * DBL_EPSILON    for Angle()
   //   2.00 * DBL_EPSILON    for each addition in the Kahan summation
-  //   ------------------
-  //   9.73 * DBL_EPSILON
+  //  -------------------
+  //  11.25 * DBL_EPSILON
   //
-  // TODO(ericv): This error estimate is approximate.  There are two issues:
-  // (1) SignedArea needs some improvements to ensure that its error is
+  // TODO(b/203697029): This error estimate is approximate.  There are two
+  // issues: (1) SignedArea needs some improvements to ensure that its error is
   // actually never higher than GirardArea, and (2) although the number of
   // triangles in the sum is typically N-2, in theory it could be as high as
   // 2*N for pathological inputs.  But in other respects this error bound is
   // very conservative since it assumes that the maximum error is achieved on
   // every triangle.
-  const double kMaxErrorPerVertex = 9.73 * DBL_EPSILON;
+  const double kMaxErrorPerVertex = 11.25 * DBL_EPSILON;
   return kMaxErrorPerVertex * loop.size();
 }
 
@@ -241,7 +244,7 @@ S2Point GetCentroid(S2PointLoopSpan loop) {
   // interior, or the negative of the integral of position over the loop
   // exterior.  But these two values are the same (!), because the integral of
   // position over the entire sphere is (0, 0, 0).
-  return GetSurfaceIntegral(loop, s2::TrueCentroid);
+  return GetSurfaceIntegral(loop, S2::TrueCentroid);
 }
 
 static inline bool IsOrderLess(LoopOrder order1, LoopOrder order2,
@@ -310,4 +313,4 @@ std::ostream& operator<<(std::ostream& os, LoopOrder order) {
   return os << "(" << order.first << ", " << order.dir << ")";
 }
 
-}  // namespace s2
+}  // namespace S2

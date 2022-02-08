@@ -19,11 +19,10 @@
 #define S2_S2BUILDERUTIL_CLOSED_SET_NORMALIZER_H_
 
 #include <vector>
-#include "s2//id_set_lexicon.h"
-#include "s2//s2builder_graph.h"
-#include "s2//s2builderutil_find_polygon_degeneracies.h"
+#include "s2/id_set_lexicon.h"
+#include "s2/s2builder_graph.h"
+#include "s2/s2builderutil_find_polygon_degeneracies.h"
 
-namespace s2 {
 namespace s2builderutil {
 
 // The purpose of this class is to allow S2Builder::Layer implementations to
@@ -218,6 +217,5 @@ ClosedSetNormalizer::graph_options() const {
 }
 
 }  // namespace s2builderutil
-}  // namespace s2
 
 #endif  // S2_S2BUILDERUTIL_CLOSED_SET_NORMALIZER_H_

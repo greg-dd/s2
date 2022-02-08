@@ -15,17 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//encoded_uint_vector.h"
+#include "s2/encoded_uint_vector.h"
 
 #include <vector>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using std::vector;
 
-namespace s2 {
 namespace s2coding {
 
-static_assert(sizeof(EncodedUintVector<uint64>) == 16, "too big");
+// Make sure that this class is compact since it is extensively used.
+// 16 for 64-bit, 12 for 32-bit.
+static_assert(sizeof(EncodedUintVector<uint64>) <= 16, "too big");
 
 template <class T>
 void TestEncodedUintVector(const vector<T>& expected, size_t expected_bytes) {
@@ -122,5 +123,21 @@ TEST(EncodedUintVector, LowerBound) {
   }
 }
 
+TEST(EncodedUintVectorTest, RoundtripEncoding) {
+  std::vector<uint64> values{10, 20, 30, 40};
+
+  Encoder a_encoder;
+  auto a = MakeEncodedVector<uint64>(values, &a_encoder);
+  ASSERT_EQ(a.Decode(), values);
+
+  Encoder b_encoder;
+  a.Encode(&b_encoder);
+  Decoder decoder(b_encoder.base(), b_encoder.length());
+
+  EncodedUintVector<uint64> v2;
+  ASSERT_TRUE(v2.Init(&decoder));
+
+  EXPECT_EQ(v2.Decode(), values);
+}
+
 }  // namespace s2coding
-}  // namespace s2

@@ -117,20 +117,20 @@
 #define S2_UTIL_GTL_DENSE_HASH_SET_H_
 
 #include <cstdio>
+
 #include <algorithm>
 #include <functional>
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "s2//base/port.h"
+#include "s2/base/port.h"
 #include "absl/base/macros.h"
-#include "s2//util/gtl/densehashtable.h"  // IWYU pragma: export
+#include "s2/util/gtl/densehashtable.h"  // IWYU pragma: export
 
 // Some files test for this symbol.
 #define S2__DENSE_HASH_SET_H_
 
-namespace s2 {
 namespace gtl {
 
 template <class Value,
@@ -354,7 +354,6 @@ inline void swap(dense_hash_set<Val, HashFcn, EqualKey, Alloc>& hs1,
   hs1.swap(hs2);
 }
 
-}  // namespace gtl
-}  // namespace s2
+}
 
 #endif  // S2_UTIL_GTL_DENSE_HASH_SET_H_

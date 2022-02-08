@@ -15,13 +15,10 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2debug.h"
+#include "s2/s2debug.h"
 
-#include "s2//base/logging.h"
+#include "s2/base/logging.h"
+#include "s2/base/log_severity.h"
 
-namespace s2 {
-
-DEFINE_bool(s2debug, !!google::DEBUG_MODE,
-            "Enable automatic validity checking in S2 code");
-
-}  // namespace s2
+S2_DEFINE_bool(s2debug, !!google::DEBUG_MODE,
+               "Enable automatic validity checking in S2 code");

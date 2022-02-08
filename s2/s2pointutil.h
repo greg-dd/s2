@@ -21,91 +21,73 @@
 #ifndef S2_S2POINTUTIL_H_
 #define S2_S2POINTUTIL_H_
 
-#include "s2//_fp_contract_off.h"
-#include "s2//s1angle.h"
-#include "s2//s2point.h"
-#include "s2//util/math/matrix3x3.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s1angle.h"
+#include "s2/s2point.h"
+#include "s2/util/math/matrix3x3.h"
 
 // S2 is a namespace for constants and simple utility functions that are used
 // throughout the S2 library.  The name "S2" is derived from the mathematical
 // symbol for the two-dimensional unit sphere (note that the "2" refers to the
 // dimension of the surface, not the space it is embedded in).
-namespace s2 {
+namespace S2 {
 
-// Return a unique "origin" on the sphere for operations that need a fixed
+// Returns a unique "origin" on the sphere for operations that need a fixed
 // reference point.  In particular, this is the "point at infinity" used for
 // point-in-polygon testing (by counting the number of edge crossings).
+// To be clear, this is NOT (0,0,0), the origin of the coordinate system.
 inline S2Point Origin();
 
-// Return true if the given point is approximately unit length
+// Returns true if the given point is approximately unit length
 // (this is mainly useful for assertions).
 bool IsUnitLength(const S2Point& p);
 
-// Return true if two points are within the given distance of each other (this
-// is mainly useful for testing). It is an error if either point is a
-// zero-length vector (default S2Point), but this is only checked in debug mode.
-// In non-debug mode it will always return true.
+// Returns true if two points are within the given distance of each other
+// (this is mainly useful for testing).  It is an error if either point is a
+// zero-length vector (default S2Point), but this is only checked in debug
+// mode.  In non-debug mode it will always return true.
 bool ApproxEquals(const S2Point& a, const S2Point& b,
                   S1Angle max_error = S1Angle::Radians(1e-15));
 
-// Return a unit-length vector that is orthogonal to "a".  Satisfies
+// Returns a unit-length vector that is orthogonal to "a".  Satisfies
 // Ortho(-a) = -Ortho(a) for all a.
 //
 // Note that Vector3_d also defines an "Ortho" method, but this one is
 // preferred for use in S2 code because it explicitly tries to avoid result
-// result coordinates that are zero.  (This is a performance optimization that
-// reduces the amount of time spent in functions which handle degeneracies.)
+// coordinates that are zero.  (This is a performance optimization that
+// reduces the amount of time spent in functions that handle degeneracies.)
 S2Point Ortho(const S2Point& a);
 
-// Return a vector "c" that is orthogonal to the given unit-length vectors
-// "a" and "b".  This function is similar to a.CrossProd(b) except that it
-// does a better job of ensuring orthogonality when "a" is nearly parallel
-// to "b", and it returns a non-zero result even when a == b or a == -b.
-//
-// It satisfies the following properties (RCP == RobustCrossProd):
-//
-//   (1) RCP(a,b) != 0 for all a, b
-//   (2) RCP(b,a) == -RCP(a,b) unless a == b or a == -b
-//   (3) RCP(-a,b) == -RCP(a,b) unless a == b or a == -b
-//   (4) RCP(a,-b) == -RCP(a,b) unless a == b or a == -b
-//
-// The result is not guaranteed to be unit length.
-S2Point RobustCrossProd(const S2Point& a, const S2Point& b);
+// Returns a unit-length vector used as the reference direction for deciding
+// whether a polygon with semi-open boundaries contains the given vertex "a"
+// (see S2ContainsVertexQuery).  The result is unit length and is guaranteed
+// to be different from the given point "a".
+S2Point RefDir(const S2Point& a);
 
-// Rotate the given point about the given axis by the given angle.  "p" and
+// Rotates the given point about the given axis by the given angle.  "p" and
 // "axis" must be unit length; "angle" has no restrictions (e.g., it can be
 // positive, negative, greater than 360 degrees, etc).
+//
+// See also the closely related functions S2::GetPointOnRay() and
+// S2::GetPointOnLine(), which are declared in s2edge_distances.h.
 S2Point Rotate(const S2Point& p, const S2Point& axis, S1Angle angle);
 
-// Extend the given point "z" on the unit sphere into a right-handed
+// Extends the given point "z" on the unit sphere into a right-handed
 // coordinate frame of unit-length column vectors m = (x,y,z).  Note that the
 // vectors (x,y) are an orthonormal frame for the tangent space at "z", while
 // "z" itself is an orthonormal frame for the normal space at "z".
 Matrix3x3_d GetFrame(const S2Point& z);
 void GetFrame(const S2Point& z, Matrix3x3_d* m);
 
-// Given an orthonormal basis "m" of column vectors and a point "p", return
+// Given an orthonormal basis "m" of column vectors and a point "p", returns
 // the coordinates of "p" with respect to the basis "m".  The resulting
 // point "q" satisfies the identity (m * q == p).
 S2Point ToFrame(const Matrix3x3_d& m, const S2Point& p);
 
 // Given an orthonormal basis "m" of column vectors and a point "q" with
-// respect to that basis, return the equivalent point "p" with respect to
+// respect to that basis, returns the equivalent point "p" with respect to
 // the standard axis-aligned basis.  The result satisfies (p == m * q).
-Matrix3x3_d GetFrame(const S2Point& z);
 S2Point FromFrame(const Matrix3x3_d& m, const S2Point& q);
-
-// Return true if the points A, B, C are strictly counterclockwise.  Return
-// false if the points are clockwise or collinear (i.e. if they are all
-// contained on some great circle).
-//
-// Due to numerical errors, situations may arise that are mathematically
-// impossible, e.g. ABC may be considered strictly CCW while BCA is not.
-// However, the implementation guarantees the following:
-//
-//   If SimpleCCW(a,b,c), then !SimpleCCW(c,b,a) for all a,b,c.
-ABSL_DEPRECATED("Use s2pred::Sign instead.")
-bool SimpleCCW(const S2Point& a, const S2Point& b, const S2Point& c);
 
 
 //////////////////   Implementation details follow   ////////////////////
@@ -134,6 +116,10 @@ inline S2Point Origin() {
 #endif
 }
 
-}  // namespace s2
+inline S2Point RefDir(const S2Point& a) {
+  return S2::Ortho(a);
+}
+
+}  // namespace S2
 
 #endif  // S2_S2POINTUTIL_H_

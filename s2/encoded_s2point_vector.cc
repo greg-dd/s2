@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//encoded_s2point_vector.h"
+#include "s2/encoded_s2point_vector.h"
 
 #include "absl/base/internal/unaligned_access.h"
-#include "s2//util/bits/bits.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2coords.h"
+#include "s2/util/bits/bits.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2coords.h"
 
 using absl::MakeSpan;
 using absl::Span;
@@ -28,7 +28,6 @@ using std::max;
 using std::min;
 using std::vector;
 
-namespace s2 {
 namespace s2coding {
 
 // Like util_bits::InterleaveUint32, but interleaves bit pairs rather than
@@ -106,7 +105,7 @@ bool EncodedS2PointVector::Init(Decoder* decoder) {
 
   // Peek at the format but don't advance the decoder; the format-specific
   // Init functions will do that.
-  format_ = static_cast<Format>(*decoder->ptr() & kEncodingFormatMask);
+  format_ = static_cast<Format>(*decoder->skip(0) & kEncodingFormatMask);
   switch (format_) {
     case UNCOMPRESSED:
       return InitUncompressedFormat(decoder);
@@ -128,6 +127,23 @@ vector<S2Point> EncodedS2PointVector::Decode() const {
   return points;
 }
 
+// The encoding must be identical to EncodeS2PointVector().
+void EncodedS2PointVector::Encode(Encoder* encoder) const {
+  switch (format_) {
+    case UNCOMPRESSED:
+      EncodeS2PointVectorFast(MakeSpan(uncompressed_.points, size_), encoder);
+      break;
+
+    case CELL_IDS: {
+      // This is a full decode/encode dance, and not at all efficient.
+      EncodeS2PointVectorCompact(Decode(), encoder);
+      break;
+    }
+
+    default:
+      S2_LOG(FATAL) << "Unknown Format: " << static_cast<int>(format_);
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //                     UNCOMPRESSED Encoding Format
@@ -180,7 +196,7 @@ bool EncodedS2PointVector::InitUncompressedFormat(Decoder* decoder) {
   size_t bytes = size_t{size_} * sizeof(S2Point);
   if (decoder->avail() < bytes) return false;
 
-  uncompressed_.points = reinterpret_cast<const S2Point*>(decoder->ptr());
+  uncompressed_.points = reinterpret_cast<const S2Point*>(decoder->skip(0));
   decoder->skip(bytes);
   return true;
 }
@@ -206,12 +222,12 @@ struct CellPoint {
 // Block sizes of 4, 8, 16, and 32 were tested and kBlockSize == 16 seems to
 // offer the best compression.  (Note that kBlockSize == 32 requires some code
 // modifications which have since been removed.)
-constexpr int kBlockShift = 4;
-constexpr size_t kBlockSize = 1 << kBlockShift;
+static constexpr int kBlockShift = 4;
+static constexpr size_t kBlockSize = 1 << kBlockShift;
 
 // Used to indicate that a point must be encoded as an exception (a 24-byte
 // S2Point) rather than as an S2CellId.
-constexpr uint64 kException = ~0ULL;
+static constexpr uint64 kException = ~0ULL;
 
 // Represents the encoding parameters to be used for a given block (consisting
 // of kBlockSize encodable 64-bit values).  See below.
@@ -293,9 +309,9 @@ void EncodeS2PointVectorCompact(Span<const S2Point> points, Encoder* encoder) {
   // except that it is faster to decode and the spatial locality is not quite
   // as good.
   //
-  // The 64-bit values are divided into blocks of size 8, and then each value is
-  // encoded as the sum of a base value, a per-block offset, and a per-value
-  // delta within that block:
+  // The 64-bit values are divided into blocks of size kBlockSize, and then
+  // each value is encoded as the sum of a base value, a per-block offset, and
+  // a per-value delta within that block:
   //
   //   v[i,j] = base + offset[i] + delta[i, j]
   //
@@ -381,10 +397,11 @@ void EncodeS2PointVectorCompact(Span<const S2Point> points, Encoder* encoder) {
   //
   // If there are any points that could not be represented as S2CellIds, then
   // "have_exceptions" in the header is true.  In that case the delta values
-  // within each block are encoded as (delta + 8), and values 0-7 are used to
-  // represent exceptions.  If a block has exceptions, they are encoded
-  // immediately following the array of deltas, and are referenced by encoding
-  // the corresponding exception index (0-7) as the delta.
+  // within each block are encoded as (delta + kBlockSize), and values
+  // 0...kBlockSize-1 are used to represent exceptions.  If a block has
+  // exceptions, they are encoded immediately following the array of deltas,
+  // and are referenced by encoding the corresponding exception index
+  // 0...kBlockSize-1 as the delta.
   //
   // TODO(ericv): A vector containing a single leaf cell is currently encoded as
   // 13 bytes (2 byte header, 7 byte base, 1 byte block count, 1 byte block
@@ -395,7 +412,7 @@ void EncodeS2PointVectorCompact(Span<const S2Point> points, Encoder* encoder) {
   // (3 bits), followed by the S2CellId bytes.  The extra 2 header bits could be
   // used to store single points using other encodings, e.g. E7.
   //
-  // If we wind up using 8-value blocks, we could also use the extra bit in the
+  // If we had used 8-value blocks, we could have used the extra bit in the
   // first byte of the header to indicate that there is only one value, and
   // then skip the 2nd byte of header and the EncodedStringVector.  But this
   // would be messy because it also requires special cases while decoding.
@@ -537,7 +554,7 @@ int ChooseBestLevel(Span<const S2Point> points,
   for (const S2Point& point : points) {
     int face;
     uint32 si, ti;
-    int level = s2::XYZtoFaceSiTi(point, &face, &si, &ti);
+    int level = S2::XYZtoFaceSiTi(point, &face, &si, &ti);
     cell_points->push_back(CellPoint(level, face, si, ti));
     if (level >= 0) ++level_counts[level];
   }
@@ -737,9 +754,12 @@ BlockCode GetBlockCode(Span<const uint64> values, uint64 base,
     }
   }
 
-  // Avoid wasting 4 bits of delta when the block size is 1.  This reduces the
-  // encoding size for single leaf cells by one byte.
-  if (values.size() == 1) {
+  // When the block size is 1 and no exceptions exist, we have delta_bits == 4
+  // and overlap_bits == 0 which wastes 4 bits.  We fix this below, which
+  // among other things reduces the encoding size for single leaf cells by one
+  // byte.  (Note that when exceptions exist, delta_bits == 8 and overlap_bits
+  // may be 0 or 4.  These cases are covered by the unit tests.)
+  if (values.size() == 1 && !have_exceptions) {
     S2_DCHECK(delta_bits == 4 && overlap_bits == 0);
     delta_bits = 8;
   }
@@ -832,9 +852,8 @@ S2Point EncodedS2PointVector::DecodeCellIdsFormat(int i) const {
   int si = (((sj << 1) | 1) << shift) & 0x7fffffff;
   int ti = (((tj << 1) | 1) << shift) & 0x7fffffff;
   int face = ((sj << shift) >> 30) | (((tj << (shift + 1)) >> 29) & 4);
-  return s2::FaceUVtoXYZ(face, s2::STtoUV(s2::SiTitoST(si)),
-                         s2::STtoUV(s2::SiTitoST(ti))).Normalize();
+  return S2::FaceUVtoXYZ(face, S2::STtoUV(S2::SiTitoST(si)),
+                         S2::STtoUV(S2::SiTitoST(ti))).Normalize();
 }
 
 }  // namespace s2coding
-}  // namespace s2

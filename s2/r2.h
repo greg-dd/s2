@@ -18,13 +18,9 @@
 #ifndef S2_R2_H_
 #define S2_R2_H_
 
-#include "s2//_fp_contract_off.h"
-#include "s2//util/math/vector.h"  // IWYU pragma: export
-
-namespace s2 {
+#include "s2/_fp_contract_off.h"
+#include "s2/util/math/vector.h"  // IWYU pragma: export
 
 using R2Point = Vector2_d;
-
-}  // namespace s2
 
 #endif  // S2_R2_H_

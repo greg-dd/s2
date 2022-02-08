@@ -15,14 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2region_union.h"
+#include "s2/s2region_union.h"
 
-#include "s2//s2cap.h"
-#include "s2//s2latlng_rect.h"
+#include "s2/s2cap.h"
+#include "s2/s2latlng_rect.h"
 
 using std::vector;
-
-namespace s2 {
 
 S2RegionUnion::S2RegionUnion(vector<std::unique_ptr<S2Region>> regions) {
   Init(std::move(regions));
@@ -90,5 +88,3 @@ bool S2RegionUnion::MayIntersect(const S2Cell& cell) const {
   }
   return false;
 }
-
-}  // namespace s2

@@ -15,19 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2builderutil_closed_set_normalizer.h"
+#include "s2/s2builderutil_closed_set_normalizer.h"
 
 #include <memory>
 
 #include "absl/memory/memory.h"
-#include "s2//s2builder_layer.h"
+#include "s2/s2builder_layer.h"
 
 using absl::make_unique;
 using std::shared_ptr;
 using std::unique_ptr;
 using std::vector;
-
-namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
@@ -313,4 +311,3 @@ LayerVector NormalizeClosedSet(LayerVector output_layers,
 }
 
 }  // namespace s2builderutil
-}  // namespace s2

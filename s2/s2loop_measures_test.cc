@@ -15,31 +15,33 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2loop_measures.h"
+#include "s2/s2loop_measures.h"
 
 #include <cmath>
 #include <string>
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "s2//s2latlng.h"
-#include "s2//s2loop.h"
-#include "s2//s2measures.h"
-#include "s2//s2testing.h"
-#include "s2//s2text_format.h"
+#include <gtest/gtest.h>
+#include "absl/strings/string_view.h"
+#include "s2/s2latlng.h"
+#include "s2/s2loop.h"
+#include "s2/s2measures.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
-using s2::s2textformat::ParsePointsOrDie;
+using s2textformat::ParsePointsOrDie;
 using std::fabs;
 using std::min;
+using std::string;
 using std::vector;
 
-namespace s2 {
+namespace {
 
-// Given a std::string where each character "ch" represents a vertex (such as
+// Given a string where each character "ch" represents a vertex (such as
 // "abac"), returns a vector of S2Points of the form (ch, 0, 0).  Note that
 // these points are not unit length and therefore are not suitable for general
 // use, however they are useful for testing certain functions below.
-vector<S2Point> MakeTestLoop(const std::string& loop_str) {
+vector<S2Point> MakeTestLoop(absl::string_view loop_str) {
   vector<S2Point> loop;
   for (char ch : loop_str) {
     loop.push_back(S2Point(ch, 0, 0));
@@ -48,13 +50,13 @@ vector<S2Point> MakeTestLoop(const std::string& loop_str) {
 }
 
 // Given a loop whose vertices are represented as characters (such as "abcd" or
-// "abccb"), verify that PruneDegeneracies() yields the loop "expected".
-void TestPruneDegeneracies(const std::string& input_str,
-                           const std::string& expected_str) {
+// "abccb"), verify that S2::PruneDegeneracies() yields the loop "expected".
+void TestPruneDegeneracies(absl::string_view input_str,
+                           absl::string_view expected_str) {
   vector<S2Point> input = MakeTestLoop(input_str);
   vector<S2Point> new_vertices;
-  std::string actual_str;
-  for (const S2Point& p : PruneDegeneracies(input, &new_vertices)) {
+  string actual_str;
+  for (const S2Point& p : S2::PruneDegeneracies(input, &new_vertices)) {
     actual_str.push_back(static_cast<char>(p[0]));
   }
   EXPECT_EQ(expected_str, actual_str);
@@ -87,36 +89,41 @@ TEST(PruneDegeneracies, SomeDegeneracies) {
 }
 
 // Given a loop whose vertices are represented as characters (such as "abcd" or
-// "abccb"), verify that GetCanonicalLoopOrder returns the given result.
-void TestCanonicalLoopOrder(const std::string& input_str,
-                            LoopOrder expected_order) {
-  EXPECT_EQ(expected_order, GetCanonicalLoopOrder(MakeTestLoop(input_str)));
+// "abccb"), verify that S2::GetCanonicalLoopOrder returns the given result.
+void TestCanonicalLoopOrder(absl::string_view input_str,
+                            S2::LoopOrder expected_order) {
+  EXPECT_EQ(expected_order, S2::GetCanonicalLoopOrder(MakeTestLoop(input_str)));
 }
 
 TEST(GetCanonicalLoopOrder, AllDegeneracies) {
-  TestCanonicalLoopOrder("", LoopOrder(0, 1));
-  TestCanonicalLoopOrder("a", LoopOrder(0, 1));
-  TestCanonicalLoopOrder("aaaaa", LoopOrder(0, 1));
-  TestCanonicalLoopOrder("ba", LoopOrder(1, 1));
-  TestCanonicalLoopOrder("bab", LoopOrder(1, 1));
-  TestCanonicalLoopOrder("cbab", LoopOrder(2, 1));
-  TestCanonicalLoopOrder("bacbcab", LoopOrder(8, -1));
+  TestCanonicalLoopOrder("", S2::LoopOrder(0, 1));
+  TestCanonicalLoopOrder("a", S2::LoopOrder(0, 1));
+  TestCanonicalLoopOrder("aaaaa", S2::LoopOrder(0, 1));
+  TestCanonicalLoopOrder("ba", S2::LoopOrder(1, 1));
+  TestCanonicalLoopOrder("bab", S2::LoopOrder(1, 1));
+  TestCanonicalLoopOrder("cbab", S2::LoopOrder(2, 1));
+  TestCanonicalLoopOrder("bacbcab", S2::LoopOrder(8, -1));
 }
 
 TEST(GetPerimeter, Empty) {
-  EXPECT_EQ(S1Angle::Zero(), GetPerimeter(vector<S2Point>{}));
+  EXPECT_EQ(S1Angle::Zero(), S2::GetPerimeter(vector<S2Point>{}));
 }
 
 TEST(GetPerimeter, Octant) {
   auto loop = ParsePointsOrDie("0:0, 0:90, 90:0");
-  EXPECT_DOUBLE_EQ(3 * M_PI_2, GetPerimeter(loop).radians());
+  EXPECT_DOUBLE_EQ(3 * M_PI_2, S2::GetPerimeter(loop).radians());
 }
 
 TEST(GetPerimeter, MoreThanTwoPi) {
   // Make sure that GetPerimeter doesn't use S1ChordAngle, which can only
   // represent distances up to 2*Pi.
   auto loop = ParsePointsOrDie("0:0, 0:90, 0:180, 90:0, 0:-90");
-  EXPECT_DOUBLE_EQ(5 * M_PI_2, GetPerimeter(loop).radians());
+  EXPECT_DOUBLE_EQ(5 * M_PI_2, S2::GetPerimeter(loop).radians());
+}
+
+TEST(GetSignedArea, Underflow) {
+  auto loop = ParsePointsOrDie("0:0, 0:1e-88, 1e-88:1e-88, 1e-88:0");
+  EXPECT_GT(S2::GetSignedArea(loop), 0);
 }
 
 class LoopTestBase : public testing::Test {
@@ -181,8 +188,8 @@ static void TestAreaConsistentWithCurvature(const vector<S2Point>& loop) {
   // Check that the area computed using GetArea() is consistent with the loop
   // curvature.  According to the Gauss-Bonnet theorem, the area of the loop
   // equals 2*Pi minus its curvature.
-  double area = GetArea(loop);
-  double gauss_area = 2 * M_PI - GetCurvature(loop);
+  double area = S2::GetArea(loop);
+  double gauss_area = 2 * M_PI - S2::GetCurvature(loop);
   // The error bound below is sufficient for current tests but not guaranteed.
   EXPECT_LE(fabs(area - gauss_area), 1e-14)
       << "Failed loop: " << s2textformat::ToString(loop)
@@ -200,6 +207,22 @@ TEST_F(LoopTestBase, GetAreaConsistentWithCurvature) {
   TestAreaConsistentWithCurvature(skinny_chevron_);
   TestAreaConsistentWithCurvature(three_leaf_clover_);
   TestAreaConsistentWithCurvature(tessellated_loop_);
+}
+
+TEST_F(LoopTestBase, GetSurfaceIntegralGreaterThan4Pi) {
+  // This test demonstrates that even when GetSurfaceIntegral() returns a an
+  // area greater than 4*Pi, GetSignedArea() still returns an accurate result.
+
+  // GetSurfaceIntegral() returns an area > 4 * Pi for this loop.  (Note that
+  // the result of GetSurfaceIntegral is only correct modulo 4 * Pi, and that
+  // S2::GetSignedArea() automatically corrects for this.)
+  const vector<S2Point> loop1 = {
+    {1, 0, 0}, {0, 1, 1e-150}, S2Point{-1, -2, 0}.Normalize(),
+    {-1, 0, 1e-50}, {0, 0, 1}
+  };
+  ASSERT_TRUE(S2Loop(loop1).IsValid());
+  EXPECT_GT(S2::GetSurfaceIntegral(loop1, S2::SignedArea), 4 * M_PI + 0.1);
+  TestAreaConsistentWithCurvature(loop1);
 }
 
 TEST_F(LoopTestBase, GetAreaConsistentWithOrientation) {
@@ -223,9 +246,9 @@ TEST_F(LoopTestBase, GetAreaConsistentWithOrientation) {
             S2LatLng::FromRadians(0, rnd->RandDouble() * M_PI_2).ToPoint());
       }
     } while (!S2Loop(loop, S2Debug::DISABLE).IsValid());
-    bool ccw = IsNormalized(loop);
+    bool ccw = S2::IsNormalized(loop);
     // The error bound is sufficient for current tests but not guaranteed.
-    EXPECT_NEAR(ccw ? 0 : 4 * M_PI, GetArea(loop), 1e-14)
+    EXPECT_NEAR(ccw ? 0 : 4 * M_PI, S2::GetArea(loop), 1e-14)
         << "Failed loop " << i << ": " << s2textformat::ToString(loop);
     EXPECT_EQ(!ccw, S2Loop(loop).Contains(S2Point(0, 0, 1)));
   }
@@ -237,11 +260,11 @@ TEST_F(LoopTestBase, GetAreaAccuracy) {
 }
 
 TEST_F(LoopTestBase, GetAreaAndCentroid) {
-  EXPECT_EQ(4 * M_PI, GetArea(full_));
-  EXPECT_EQ(S2Point(0, 0, 0), GetCentroid(full_));
+  EXPECT_EQ(4 * M_PI, S2::GetArea(full_));
+  EXPECT_EQ(S2Point(0, 0, 0), S2::GetCentroid(full_));
 
-  EXPECT_DOUBLE_EQ(GetArea(north_hemi_), 2 * M_PI);
-  EXPECT_NEAR(2 * M_PI, GetArea(east_hemi_), 1e-12);
+  EXPECT_DOUBLE_EQ(S2::GetArea(north_hemi_), 2 * M_PI);
+  EXPECT_NEAR(2 * M_PI, S2::GetArea(east_hemi_), 1e-12);
 
   // Construct spherical caps of random height, and approximate their boundary
   // with closely spaces vertices.  Then check that the area and centroid are
@@ -261,19 +284,19 @@ TEST_F(LoopTestBase, GetAreaAndCentroid) {
     // Thus we want fabs(atan(tan(phi) / cos(dtheta/2)) - phi) <= kMaxDist.
     static const double kMaxDist = 1e-6;
     double height = 2 * S2Testing::rnd.RandDouble();
-    double phi = std::asin(1 - height);
-    double max_dtheta = 2 * std::acos(std::tan(fabs(phi)) / std::tan(fabs(phi) + kMaxDist));
+    double phi = asin(1 - height);
+    double max_dtheta = 2 * acos(tan(fabs(phi)) / tan(fabs(phi) + kMaxDist));
     max_dtheta = min(M_PI, max_dtheta);  // At least 3 vertices.
 
     vector<S2Point> loop;
     for (double theta = 0; theta < 2 * M_PI;
          theta += S2Testing::rnd.RandDouble() * max_dtheta) {
-      loop.push_back(std::cos(theta) * std::cos(phi) * x +
-                     std::sin(theta) * std::cos(phi) * y +
-                     std::sin(phi) * z);
+      loop.push_back(cos(theta) * cos(phi) * x +
+                     sin(theta) * cos(phi) * y +
+                     sin(phi) * z);
     }
-    double area = GetArea(loop);
-    S2Point centroid = GetCentroid(loop);
+    double area = S2::GetArea(loop);
+    S2Point centroid = S2::GetCentroid(loop);
     double expected_area = 2 * M_PI * height;
     EXPECT_LE(fabs(area - expected_area), 2 * M_PI * kMaxDist);
     S2Point expected_centroid = expected_area * (1 - 0.5 * height) * z;
@@ -281,8 +304,8 @@ TEST_F(LoopTestBase, GetAreaAndCentroid) {
   }
 }
 
-static void ExpectSameOrder(S2PointLoopSpan loop1, LoopOrder order1,
-                            S2PointLoopSpan loop2, LoopOrder order2) {
+static void ExpectSameOrder(S2PointLoopSpan loop1, S2::LoopOrder order1,
+                            S2PointLoopSpan loop2, S2::LoopOrder order2) {
   S2_DCHECK_EQ(loop1.size(), loop2.size());
   int i1 = order1.first, i2 = order2.first;
   int dir1 = order1.dir, dir2 = order2.dir;
@@ -296,32 +319,32 @@ static void ExpectSameOrder(S2PointLoopSpan loop1, LoopOrder order1,
 // Check that the curvature is *identical* when the vertex order is
 // rotated, and that the sign is inverted when the vertices are reversed.
 static void CheckCurvatureInvariants(const vector<S2Point>& loop_in) {
-  LoopOrder order_in = GetCanonicalLoopOrder(loop_in);
+  S2::LoopOrder order_in = S2::GetCanonicalLoopOrder(loop_in);
   auto loop = loop_in;
-  double expected = GetCurvature(loop);
+  double expected = S2::GetCurvature(loop);
   for (int i = 0; i < loop.size(); ++i) {
     std::reverse(loop.begin(), loop.end());
     EXPECT_EQ((expected == 2 * M_PI) ? expected : -expected,
-              GetCurvature(loop));
-    ExpectSameOrder(loop_in, order_in, loop, GetCanonicalLoopOrder(loop));
+              S2::GetCurvature(loop));
+    ExpectSameOrder(loop_in, order_in, loop, S2::GetCanonicalLoopOrder(loop));
     std::reverse(loop.begin(), loop.end());
     std::rotate(loop.begin(), loop.begin() + 1, loop.end());
-    EXPECT_EQ(expected, GetCurvature(loop));
-    ExpectSameOrder(loop_in, order_in, loop, GetCanonicalLoopOrder(loop));
+    EXPECT_EQ(expected, S2::GetCurvature(loop));
+    ExpectSameOrder(loop_in, order_in, loop, S2::GetCanonicalLoopOrder(loop));
   }
 }
 
 TEST_F(LoopTestBase, GetCurvature) {
-  EXPECT_EQ(-2 * M_PI, GetCurvature(full_));
+  EXPECT_EQ(-2 * M_PI, S2::GetCurvature(full_));
 
-  EXPECT_EQ(2 * M_PI, GetCurvature(v_loop_));
+  EXPECT_EQ(2 * M_PI, S2::GetCurvature(v_loop_));
   CheckCurvatureInvariants(v_loop_);
 
   // This curvature should be computed exactly.
-  EXPECT_EQ(0, GetCurvature(north_hemi3_));
+  EXPECT_EQ(0, S2::GetCurvature(north_hemi3_));
   CheckCurvatureInvariants(north_hemi3_);
 
-  EXPECT_NEAR(0, GetCurvature(west_hemi_), 1e-15);
+  EXPECT_NEAR(0, S2::GetCurvature(west_hemi_), 1e-15);
   CheckCurvatureInvariants(west_hemi_);
 
   // We don't have an easy way to estimate the curvature of these loops, but
@@ -329,10 +352,10 @@ TEST_F(LoopTestBase, GetCurvature) {
   CheckCurvatureInvariants(candy_cane_);
   CheckCurvatureInvariants(three_leaf_clover_);
 
-  EXPECT_DOUBLE_EQ(2 * M_PI, GetCurvature(line_triangle_));
+  EXPECT_DOUBLE_EQ(2 * M_PI, S2::GetCurvature(line_triangle_));
   CheckCurvatureInvariants(line_triangle_);
 
-  EXPECT_DOUBLE_EQ(2 * M_PI, GetCurvature(skinny_chevron_));
+  EXPECT_DOUBLE_EQ(2 * M_PI, S2::GetCurvature(skinny_chevron_));
   CheckCurvatureInvariants(skinny_chevron_);
 
   // Build a narrow spiral loop starting at the north pole.  This is designed
@@ -346,8 +369,8 @@ TEST_F(LoopTestBase, GetCurvature) {
   spiral[kArmPoints] = S2Point(0, 0, 1);
   for (int i = 0; i < kArmPoints; ++i) {
     double angle = (2 * M_PI / 3) * i;
-    double x = std::cos(angle);
-    double y = std::sin(angle);
+    double x = cos(angle);
+    double y = sin(angle);
     double r1 = i * kArmRadius / kArmPoints;
     double r2 = (i + 1.5) * kArmRadius / kArmPoints;
     spiral[kArmPoints - i - 1] = S2Point(r1 * x, r1 * y, 1).Normalize();
@@ -360,8 +383,8 @@ TEST_F(LoopTestBase, GetCurvature) {
   // roundoff errors happen in the same direction and this test is not
   // designed to achieve that.  The error in GetArea() can be ignored for the
   // purposes of this test since it is generally much smaller.
-  EXPECT_NEAR(2 * M_PI - GetArea(spiral), GetCurvature(spiral),
-              0.01 * GetCurvatureMaxError(spiral));
+  EXPECT_NEAR(2 * M_PI - S2::GetArea(spiral), S2::GetCurvature(spiral),
+              0.01 * S2::GetCurvatureMaxError(spiral));
 }
 
-}  // namespace s2
+}  // namespace

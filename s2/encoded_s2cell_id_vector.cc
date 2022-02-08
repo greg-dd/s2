@@ -15,14 +15,15 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//encoded_s2cell_id_vector.h"
+#include "s2/encoded_s2cell_id_vector.h"
+
+#include "s2/util/bits/bits.h"
 
 using absl::Span;
 using std::max;
 using std::min;
 using std::vector;
 
-namespace s2 {
 namespace s2coding {
 
 void EncodeS2CellIdVector(Span<const S2CellId> v, Encoder* encoder) {
@@ -138,7 +139,9 @@ bool EncodedS2CellIdVector::Init(Decoder* decoder) {
   int shift_code = code_plus_len >> 3;
   if (shift_code == 31) {
     shift_code = 29 + decoder->get8();
+    if (shift_code > 56) return false;  // Valid range 0..56
   }
+
   // Decode the "base_len" most-significant bytes of "base".
   int base_len = code_plus_len & 7;
   if (!DecodeUintWithLength(base_len, decoder, &base_)) return false;
@@ -163,4 +166,3 @@ vector<S2CellId> EncodedS2CellIdVector::Decode() const {
 }
 
 }  // namespace s2coding
-}  // namespace s2

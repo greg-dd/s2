@@ -15,15 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2shapeutil_get_reference_point.h"
+#include "s2/s2shapeutil_get_reference_point.h"
 
 #include <algorithm>
 
-#include "s2//base/logging.h"
-#include "s2//s2contains_vertex_query.h"
+#include "s2/base/logging.h"
+#include "s2/s2contains_vertex_query.h"
 
 using std::vector;
-namespace s2 {
 using ReferencePoint = S2Shape::ReferencePoint;
 
 namespace s2shapeutil {
@@ -37,7 +36,7 @@ static bool GetReferencePointAtVertex(
     const S2Shape& shape, const S2Point& vtest, ReferencePoint* result) {
   // Let P be an unbalanced vertex.  Vertex P is defined to be inside the
   // region if the region contains a particular direction vector starting from
-  // P, namely the direction s2::Ortho(P).  This can be calculated using
+  // P, namely the direction S2::RefDir(P).  This can be calculated using
   // S2ContainsVertexQuery.
   S2ContainsVertexQuery contains_query(vtest);
   int n = shape.num_edges();
@@ -106,4 +105,3 @@ S2Shape::ReferencePoint GetReferencePoint(const S2Shape& shape) {
 }
 
 }  // namespace s2shapeutil
-}  // namespace s2

@@ -18,17 +18,17 @@
 #ifndef S2_S2REGION_COVERER_H_
 #define S2_S2REGION_COVERER_H_
 
+#include <cstddef>
+#include <new>
 #include <queue>
 #include <utility>
 #include <vector>
 
 #include "absl/base/macros.h"
-#include "s2//_fp_contract_off.h"
-#include "s2//s2cell.h"
-#include "s2//s2cell_id.h"
-#include "s2//s2cell_union.h"
-
-namespace s2 {
+#include "s2/_fp_contract_off.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
 
 class S2Region;
 
@@ -112,7 +112,7 @@ class S2RegionCoverer {
     // cell level that corresponds to an average edge length of 10km, use:
     //
     //   int level =
-    //       s2::kAvgEdge.GetClosestLevel(S2Earth::KmToRadians(length_km));
+    //       S2::kAvgEdge.GetClosestLevel(S2Earth::KmToRadians(length_km));
     //
     // Note that min_level() takes priority over max_cells(), i.e. cells below
     // the given level will never be used even if this causes a large number
@@ -179,7 +179,7 @@ class S2RegionCoverer {
   // Returns an S2CellUnion that covers (GetCovering) or is contained within
   // (GetInteriorCovering) the given region and satisfies the current options.
   //
-  // Note that if options().min_level() > 0 or options().level_mod() > 1, the
+  // Note that if options().min_level() > 0 or options().level_mod() > 1, then
   // by definition the S2CellUnion may not be normalized, i.e. there may be
   // groups of four child cells that can be replaced by their parent cell.
   S2CellUnion GetCovering(const S2Region& region);
@@ -247,9 +247,27 @@ class S2RegionCoverer {
 
  private:
   struct Candidate {
+    void* operator new(std::size_t size, std::size_t max_children) {
+      return ::operator new (size + max_children * sizeof(Candidate *));
+    }
+
+    void operator delete(void* p) {
+      ::operator delete (p);
+    }
+
+    Candidate(const S2Cell& cell, const std::size_t max_children)
+        : cell(cell), is_terminal(max_children == 0) {
+      std::fill_n(&children[0], max_children,
+                  absl::implicit_cast<Candidate*>(nullptr));
+    }
+
+    // Default destructor is fine; Candidate* is trivially destructible.
+    // children must be deleted by DeleteCandidate.
+    ~Candidate() = default;
+
     S2Cell cell;
     bool is_terminal;        // Cell should not be expanded further.
-    int num_children;        // Number of children that intersect the region.
+    int num_children = 0;    // Number of children that intersect the region.
     Candidate* children[0];  // Actual size may be 0, 4, 16, or 64 elements.
   };
 
@@ -334,7 +352,5 @@ class S2RegionCoverer {
   // Counter of number of candidates created, for performance evaluation.
   int candidates_created_counter_;
 };
-
-}  // namespace s2
 
 #endif  // S2_S2REGION_COVERER_H_

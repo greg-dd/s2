@@ -20,9 +20,7 @@
 #include <memory>
 #include <vector>
 
-#include "s2//s2polyline.h"
-
-namespace s2 {
+#include "s2/s2polyline.h"
 
 // This library provides code to compute vertex alignments between S2Polylines.
 //
@@ -244,5 +242,4 @@ std::unique_ptr<S2Polyline> GetConsensusPolyline(
     const std::vector<std::unique_ptr<S2Polyline>>& polylines,
     const ConsensusOptions options);
 }  // namespace s2polyline_alignment
-}  // namespace s2
 #endif  // S2_S2POLYLINE_ALIGNMENT_H_

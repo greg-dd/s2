@@ -18,11 +18,9 @@
 #ifndef S2_S2PADDED_CELL_H_
 #define S2_S2PADDED_CELL_H_
 
-#include "s2//_fp_contract_off.h"
-#include "s2//r2rect.h"
-#include "s2//s2cell_id.h"
-
-namespace s2 {
+#include "s2/_fp_contract_off.h"
+#include "s2/r2rect.h"
+#include "s2/s2cell_id.h"
 
 // S2PaddedCell represents an S2Cell whose (u,v)-range has been expanded on
 // all sides by a given amount of "padding".  Unlike S2Cell, its methods and
@@ -102,10 +100,9 @@ class S2PaddedCell {
 
 
 inline void S2PaddedCell::GetChildIJ(int pos, int* i, int* j) const {
-  int ij = s2::internal::kPosToIJ[orientation_][pos];
+  int ij = S2::internal::kPosToIJ[orientation_][pos];
   *i = ij >> 1;
   *j = ij & 1;
 }
 
-}  // namespace s2
 #endif  // S2_S2PADDED_CELL_H_

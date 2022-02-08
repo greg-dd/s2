@@ -15,11 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2//s2wedge_relations.h"
+#include "s2/s2wedge_relations.h"
 
-#include "s2//s2predicates.h"
+#include "s2/s2predicates.h"
 
-namespace s2 {
+namespace S2 {
 
 bool WedgeContains(
     const S2Point& a0, const S2Point& ab1, const S2Point& a2,
@@ -77,4 +77,4 @@ WedgeRelation GetWedgeRelation(
       WEDGE_IS_DISJOINT : WEDGE_PROPERLY_OVERLAPS;
 }
 
-}  // namespace s2
+}  // namespace S2
