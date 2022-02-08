@@ -50,6 +50,7 @@ cc_library(
         "@com_github_gflags_gflags//:gflags",
         "@com_google_absl//absl/algorithm",
         "@com_google_absl//absl/base",
+        "@com_google_absl//absl/container:btree_map"
         "@com_google_absl//absl/container:container_memory",
         "@com_google_absl//absl/container:fixed_array",
         "@com_google_absl//absl/container:inlined_vector",
@@ -58,6 +59,7 @@ cc_library(
         "@com_google_absl//absl/meta:type_traits",
         "@com_google_absl//absl/numeric:int128",
         "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/synchronization"
         "@com_google_absl//absl/types:span",
         "@com_google_absl//absl/utility",
         "@com_google_glog//:glog",
