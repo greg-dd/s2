@@ -3,28 +3,11 @@
 # The following modifications were made so as to compile with Bazel and
 # integrate into our existing codebase:
 #
-# i) using our own third_party abseil library rather than `third_party/absl/`,
-#     which was accordingly deleted.
+# i) introducing a testing bazel macro instantiating an `cc_test` rule for S2 tests
+#      under s2test.bzl;
 #
-# ii) switching all mentions of "string" to "std::string";
+# ii) deleting `third_party/cmake`;
 #
-# iii) getting rid of each and every s2 strings namespace;
-#
-# iv) introducing a testing bazel macro instantiating an `cc_test` rule for S2 tests
-#     under s2test.bzl;
-#
-# v) deleting `third_party/cmake`;
-#
-# vi) making use of our own third_party openssl library;
-#
-# vii) replacing all instances of "namespace S2" with "namespace s2", given that we
-#      added the s2 namespace around all previously non-namespaced code.
-#
-# viii) moving Mutex and CondVar from base/mutex.h out of the absl namespace and into
-#       the s2 namespace, changing at all sites that define a Mutex or CondVar.
-#
-# ix) commenting out all non-essential macros and global variables in base/port.h
-
 package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
