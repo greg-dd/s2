@@ -27,7 +27,6 @@ DEFAULT_COPTS = [
     "-Wno-unused-private-field",
     "-Wno-unused-variable",
     "-Wno-unused-function",
-    "-std=c++17",
 ]
 
 cc_library(
