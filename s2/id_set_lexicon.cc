@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/id_set_lexicon.h"
+#include "s2//id_set_lexicon.h"
 
 #include <algorithm>
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
+#include "s2//base/logging.h"
 
 namespace s2 {
 

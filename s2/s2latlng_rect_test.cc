@@ -19,21 +19,21 @@
 // use the R1Interval and S1Interval classes, so most of the testing
 // is done in those unit tests.
 
-#include "third_party/s2/s2latlng_rect.h"
+#include "s2//s2latlng_rect.h"
 
 #include <algorithm>
 #include <cmath>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/util/coding/coder.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//util/coding/coder.h"
+#include "s2//s1angle.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2latlng.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 
 using s2::s2textformat::MakePointOrDie;
 using std::fabs;

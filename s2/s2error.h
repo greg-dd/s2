@@ -25,7 +25,7 @@
 #include <ostream>
 #include <string>
 
-#include "third_party/s2/base/port.h"
+#include "s2//base/port.h"
 
 namespace s2 {
 

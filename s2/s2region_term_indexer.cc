@@ -72,15 +72,15 @@
 //   "covering term" or an "ancestor term".  One choice minimizes query size
 //   while the other minimizes index size.
 
-#include "third_party/s2/s2region_term_indexer.h"
+#include "s2//s2region_term_indexer.h"
 
 #include <cctype>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2region.h"
+#include "s2//base/logging.h"
+#include "s2//s1angle.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2region.h"
 #include "absl/strings/str_cat.h"
 
 using absl::string_view;

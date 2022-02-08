@@ -20,9 +20,9 @@
 #include <memory>
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s2region.h"
+#include "s2//base/logging.h"
+#include "s2//_fp_contract_off.h"
+#include "s2//s2region.h"
 #include "absl/base/macros.h"
 
 namespace s2 {

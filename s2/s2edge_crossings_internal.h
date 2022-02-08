@@ -21,8 +21,8 @@
 #ifndef S2_S2EDGE_CROSSINGS_INTERNAL_H_
 #define S2_S2EDGE_CROSSINGS_INTERNAL_H_
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2point.h"
+#include "s2//s1angle.h"
+#include "s2//s2point.h"
 
 namespace s2 {
 namespace internal {

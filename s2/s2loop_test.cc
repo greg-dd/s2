@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2loop.h"
+#include "s2//s2loop.h"
 
 #include <algorithm>
 #include <cmath>
@@ -27,32 +27,32 @@
 #include <utility>
 #include <vector>
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/logging.h"
+#include "s2//base/commandlineflags.h"
+#include "s2//base/logging.h"
 #include "gtest/gtest.h"
 
-#include "third_party/s2/util/coding/coder.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2error.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2latlng_rect_bounder.h"
-#include "third_party/s2/s2measures.h"
-#include "third_party/s2/s2point_compression.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//util/coding/coder.h"
+#include "s2//r1interval.h"
+#include "s2//s1angle.h"
+#include "s2//s1interval.h"
+#include "s2//s2cell.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2debug.h"
+#include "s2//s2edge_crossings.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2error.h"
+#include "s2//s2latlng.h"
+#include "s2//s2latlng_rect_bounder.h"
+#include "s2//s2measures.h"
+#include "s2//s2point_compression.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2predicates.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 #include "absl/container/fixed_array.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/util/math/matrix3x3.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2//util/math/matrix3x3.h"
+#include "s2//util/math/vector.h"
 
 using absl::make_unique;
 using std::fabs;

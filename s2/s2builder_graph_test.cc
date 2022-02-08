@@ -18,7 +18,7 @@
 // Most of S2Builder::Graph is tested by the S2Builder::Layer implementations
 // rather than here.
 
-#include "third_party/s2/s2builder_graph.h"
+#include "s2//s2builder_graph.h"
 
 #include <iosfwd>
 #include <memory>
@@ -26,10 +26,10 @@
 
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/id_set_lexicon.h"
-#include "third_party/s2/s2builderutil_testing.h"
-#include "third_party/s2/s2lax_polyline_shape.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//id_set_lexicon.h"
+#include "s2//s2builderutil_testing.h"
+#include "s2//s2lax_polyline_shape.h"
+#include "s2//s2text_format.h"
 
 using absl::make_unique;
 using s2::s2builderutil::GraphClone;

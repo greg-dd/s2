@@ -15,9 +15,9 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2wedge_relations.h"
+#include "s2//s2wedge_relations.h"
 
-#include "third_party/s2/s2predicates.h"
+#include "s2//s2predicates.h"
 
 namespace s2 {
 

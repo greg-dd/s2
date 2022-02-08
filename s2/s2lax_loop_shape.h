@@ -36,8 +36,8 @@
 #include <memory>
 #include <vector>
 
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2shape.h"
+#include "s2//s2loop.h"
+#include "s2//s2shape.h"
 
 namespace s2 {
 

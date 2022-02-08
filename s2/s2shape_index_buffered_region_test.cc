@@ -15,20 +15,20 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shape_index_buffered_region.h"
+#include "s2//s2shape_index_buffered_region.h"
 
 #include <iostream>
 #include <memory>
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2region_coverer.h"
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell_union.h"
+#include "s2//s2polygon.h"
+#include "s2//s2region_coverer.h"
+#include "s2//s2shape_index.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 
 using absl::make_unique;
 using s2::s2textformat::MakeIndexOrDie;

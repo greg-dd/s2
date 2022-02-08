@@ -13,20 +13,20 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/s2polyline_alignment.h"
-#include "third_party/s2/s2polyline_alignment_internal.h"
+#include "s2//s2polyline_alignment.h"
+#include "s2//s2polyline_alignment_internal.h"
 
 #include <vector>
 
 #include "gtest/gtest.h"
 
-#include "third_party/s2/base/stringprintf.h"
+#include "s2//base/stringprintf.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//s2cap.h"
+#include "s2//s2loop.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 
 namespace s2 {
 namespace s2polyline_alignment {

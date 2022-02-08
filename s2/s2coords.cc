@@ -15,9 +15,9 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2coords.h"
+#include "s2//s2coords.h"
 
-#include "third_party/s2/util/bits/bits.h"
+#include "s2//util/bits/bits.h"
 
 namespace s2 {
 

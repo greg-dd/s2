@@ -15,14 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/value_lexicon.h"
+#include "s2//value_lexicon.h"
 
 #include <memory>
 
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2point.h"
+#include "s2//s1angle.h"
+#include "s2//s2point.h"
 
 using absl::make_unique;
 

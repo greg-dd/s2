@@ -20,7 +20,7 @@
 
 #include <vector>
 
-#include "third_party/s2/s2builder_graph.h"
+#include "s2//s2builder_graph.h"
 
 namespace s2 {
 namespace s2builderutil {

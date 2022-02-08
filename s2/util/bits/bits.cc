@@ -16,7 +16,7 @@
 //
 // Derived from code by Moses Charikar
 
-#include "third_party/s2/util/bits/bits.h"
+#include "s2//util/bits/bits.h"
 
 #include <cassert>
 #include "absl/numeric/int128.h"

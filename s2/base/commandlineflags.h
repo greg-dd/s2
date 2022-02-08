@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include "third_party/s2/base/integral_types.h"
+#include "s2//base/integral_types.h"
 
 #define DEFINE_bool(name, default_value, description) \
   bool FLAGS_##name = default_value

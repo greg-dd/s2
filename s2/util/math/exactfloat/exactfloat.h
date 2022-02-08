@@ -118,9 +118,9 @@
 
 #include "openssl/bn.h"
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/base/port.h"
+#include "s2//base/integral_types.h"
+#include "s2//base/logging.h"
+#include "s2//base/port.h"
 
 namespace s2 {
 

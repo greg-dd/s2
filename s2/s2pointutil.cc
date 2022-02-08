@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2pointutil.h"
+#include "s2//s2pointutil.h"
 
 #include <cfloat>
 #include <cmath>

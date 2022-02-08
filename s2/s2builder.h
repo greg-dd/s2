@@ -24,18 +24,18 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include "third_party/s2/base/integral_types.h"
+#include "s2//base/integral_types.h"
 #include "absl/base/macros.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/id_set_lexicon.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2error.h"
-#include "third_party/s2/s2point_index.h"
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/util/gtl/compact_array.h"
+#include "s2//_fp_contract_off.h"
+#include "s2//id_set_lexicon.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s1angle.h"
+#include "s2//s1chord_angle.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2error.h"
+#include "s2//s2point_index.h"
+#include "s2//s2shape_index.h"
+#include "s2//util/gtl/compact_array.h"
 
 namespace s2 {
 

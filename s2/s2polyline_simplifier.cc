@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2polyline_simplifier.h"
+#include "s2//s2polyline_simplifier.h"
 
 #include <cfloat>
 
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s1interval.h"
+#include "s2//s1chord_angle.h"
+#include "s2//s1interval.h"
 
 namespace s2 {
 

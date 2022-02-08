@@ -21,7 +21,7 @@
 #ifndef S2_S2MEASURES_H_
 #define S2_S2MEASURES_H_
 
-#include "third_party/s2/s2point.h"
+#include "s2//s2point.h"
 
 namespace s2 {
 

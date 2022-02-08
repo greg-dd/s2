@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/util/math/exactfloat/exactfloat.h"
+#include "s2//util/math/exactfloat/exactfloat.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -27,8 +27,8 @@
 #include "openssl/bn.h"
 #include "openssl/crypto.h"  // for OPENSSL_free
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
+#include "s2//base/integral_types.h"
+#include "s2//base/logging.h"
 #include "absl/base/macros.h"
 #include "absl/container/fixed_array.h"
 

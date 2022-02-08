@@ -22,9 +22,9 @@
 #include <limits>
 #include <vector>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/util/gtl/dense_hash_set.h"
-#include "third_party/s2/util/hash/mix.h"
+#include "s2//base/integral_types.h"
+#include "s2//util/gtl/dense_hash_set.h"
+#include "s2//util/hash/mix.h"
 
 namespace s2 {
 

@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/encoded_s2cell_id_vector.h"
+#include "s2//encoded_s2cell_id_vector.h"
 
 #include <vector>
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//s2loop.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2shape_index.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 
 using absl::make_unique;
 using s2::s2textformat::MakeCellIdOrDie;

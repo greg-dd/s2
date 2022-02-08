@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/mutable_s2shape_index.h"
+#include "s2//mutable_s2shape_index.h"
 
 #include <functional>
 #include <memory>
@@ -26,30 +26,30 @@
 
 #include "gtest/gtest.h"
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/base/mutex.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2edge_clipping.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2edge_vector_shape.h"
-#include "third_party/s2/s2error.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2shapeutil_coding.h"
-#include "third_party/s2/s2shapeutil_contains_brute_force.h"
-#include "third_party/s2/s2shapeutil_testing.h"
-#include "third_party/s2/s2shapeutil_visit_crossing_edge_pairs.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//base/commandlineflags.h"
+#include "s2//base/logging.h"
+#include "s2//base/mutex.h"
+#include "s2//r2.h"
+#include "s2//r2rect.h"
+#include "s2//s1angle.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2cell_union.h"
+#include "s2//s2debug.h"
+#include "s2//s2edge_clipping.h"
+#include "s2//s2edge_crosser.h"
+#include "s2//s2edge_vector_shape.h"
+#include "s2//s2error.h"
+#include "s2//s2loop.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2polygon.h"
+#include "s2//s2shapeutil_coding.h"
+#include "s2//s2shapeutil_contains_brute_force.h"
+#include "s2//s2shapeutil_testing.h"
+#include "s2//s2shapeutil_visit_crossing_edge_pairs.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 #include "absl/memory/memory.h"
 
 using absl::WrapUnique;

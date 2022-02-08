@@ -20,9 +20,9 @@
 
 #include <vector>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/s2builder_graph.h"
-#include "third_party/s2/s2error.h"
+#include "s2//base/integral_types.h"
+#include "s2//s2builder_graph.h"
+#include "s2//s2error.h"
 
 namespace s2 {
 namespace s2builderutil {

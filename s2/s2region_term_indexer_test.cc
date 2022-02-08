@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2region_term_indexer.h"
+#include "s2//s2region_term_indexer.h"
 
 #include <cstdio>
 #include <memory>
@@ -24,15 +24,15 @@
 #include <unordered_map>
 #include <vector>
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/logging.h"
+#include "s2//base/commandlineflags.h"
+#include "s2//base/logging.h"
 #include "gtest/gtest.h"
 
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2testing.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2cell_union.h"
+#include "s2//s2testing.h"
 
 using std::vector;
 

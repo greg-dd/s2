@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_s2polygon_layer.h"
+#include "s2//s2builderutil_s2polygon_layer.h"
 
 #include <algorithm>
 #include <memory>
 #include "absl/memory/memory.h"
-#include "third_party/s2/s2debug.h"
+#include "s2//s2debug.h"
 
 using absl::make_unique;
 using std::make_pair;

@@ -15,29 +15,29 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/mutable_s2shape_index.h"
+#include "s2//mutable_s2shape_index.h"
 
 #include <algorithm>
 #include <atomic>
 #include <cmath>
 
-#include "third_party/s2/base/casts.h"
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/spinlock.h"
-#include "third_party/s2/encoded_s2cell_id_vector.h"
-#include "third_party/s2/encoded_string_vector.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2edge_clipping.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2metrics.h"
-#include "third_party/s2/s2padded_cell.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2shapeutil_contains_brute_force.h"
+#include "s2//base/casts.h"
+#include "s2//base/commandlineflags.h"
+#include "s2//base/spinlock.h"
+#include "s2//encoded_s2cell_id_vector.h"
+#include "s2//encoded_string_vector.h"
+#include "s2//r1interval.h"
+#include "s2//r2.h"
+#include "s2//r2rect.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2cell_union.h"
+#include "s2//s2coords.h"
+#include "s2//s2edge_clipping.h"
+#include "s2//s2edge_crosser.h"
+#include "s2//s2metrics.h"
+#include "s2//s2padded_cell.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2shapeutil_contains_brute_force.h"
 
 using std::fabs;
 using std::max;

@@ -15,18 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_crosser.h"
+#include "s2//s2edge_crosser.h"
 
 #include <limits>
 #include <string>
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
+#include "s2//base/logging.h"
 #include "gtest/gtest.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
+#include "s2//s2edge_crossings.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2testing.h"
 
 using std::vector;
 

@@ -23,7 +23,7 @@
 
 #include <type_traits>
 
-#include "third_party/s2/base/integral_types.h"
+#include "s2//base/integral_types.h"
 
 namespace s2 {
 

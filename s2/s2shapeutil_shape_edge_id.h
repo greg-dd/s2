@@ -19,7 +19,7 @@
 #define S2_S2SHAPEUTIL_SHAPE_EDGE_ID_H_
 
 #include <iostream>
-#include "third_party/s2/base/integral_types.h"
+#include "s2//base/integral_types.h"
 
 namespace s2 {
 namespace s2shapeutil {

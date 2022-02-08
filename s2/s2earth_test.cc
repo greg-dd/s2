@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2earth.h"
+#include "s2//s2earth.h"
 
 #include <cmath>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/util/units/physical-units.h"
+#include "s2//util/units/physical-units.h"
 
 namespace s2 {
 

@@ -15,17 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2testing.h"
+#include "s2//s2testing.h"
 
 #include <algorithm>
 #include <cmath>
 #include <memory>
 
-#include "third_party/s2/base/logging.h"
+#include "s2//base/logging.h"
 #include "gtest/gtest.h"
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2loop.h"
+#include "s2//s1angle.h"
+#include "s2//s2loop.h"
 
 using std::max;
 using std::min;

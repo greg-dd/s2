@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2contains_vertex_query.h"
+#include "s2//s2contains_vertex_query.h"
 
 #include <cmath>
 #include <utility>
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2predicates.h"
 
 using std::abs;
 

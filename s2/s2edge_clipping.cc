@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_clipping.h"
+#include "s2//s2edge_clipping.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2//base/logging.h"
+#include "s2//r1interval.h"
+#include "s2//s2coords.h"
+#include "s2//s2pointutil.h"
+#include "s2//util/math/vector.h"
 
 namespace s2 {
 

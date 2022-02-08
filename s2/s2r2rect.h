@@ -20,13 +20,13 @@
 
 #include <iosfwd>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2region.h"
+#include "s2//base/logging.h"
+#include "s2//_fp_contract_off.h"
+#include "s2//r1interval.h"
+#include "s2//r2.h"
+#include "s2//r2rect.h"
+#include "s2//s1angle.h"
+#include "s2//s2region.h"
 
 namespace s2 {
 class Decoder;

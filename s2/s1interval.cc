@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s1interval.h"
+#include "s2//s1interval.h"
 
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
 
-#include "third_party/s2/base/logging.h"
+#include "s2//base/logging.h"
 
 using std::fabs;
 using std::max;

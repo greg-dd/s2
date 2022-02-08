@@ -52,8 +52,8 @@
 #ifndef S2_S2DEBUG_H_
 #define S2_S2DEBUG_H_
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/integral_types.h"
+#include "s2//base/commandlineflags.h"
+#include "s2//base/integral_types.h"
 
 namespace s2 {
 

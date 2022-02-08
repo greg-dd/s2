@@ -18,7 +18,7 @@
 #ifndef S2_S2BUILDER_LAYER_H_
 #define S2_S2BUILDER_LAYER_H_
 
-#include "third_party/s2/s2builder_graph.h"
+#include "s2//s2builder_graph.h"
 
 namespace s2 {
 

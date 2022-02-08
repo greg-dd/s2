@@ -47,8 +47,8 @@
 #define S2_S2POINT_COMPRESSION_H_
 
 #include "absl/types/span.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s1angle.h"
+#include "s2//_fp_contract_off.h"
+#include "s2//s1angle.h"
 
 namespace s2 {
 class Decoder;

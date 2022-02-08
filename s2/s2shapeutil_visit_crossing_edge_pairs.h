@@ -19,9 +19,9 @@
 #define S2_S2SHAPEUTIL_VISIT_CROSSING_EDGE_PAIRS_H_
 
 #include <functional>
-#include "third_party/s2/s2crossing_edge_query.h"
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/s2shapeutil_shape_edge.h"
+#include "s2//s2crossing_edge_query.h"
+#include "s2//s2shape_index.h"
+#include "s2//s2shapeutil_shape_edge.h"
 
 namespace s2 {
 

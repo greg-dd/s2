@@ -15,9 +15,9 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_s2polyline_layer.h"
+#include "s2//s2builderutil_s2polyline_layer.h"
 
-#include "third_party/s2/s2debug.h"
+#include "s2//s2debug.h"
 
 using std::vector;
 

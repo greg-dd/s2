@@ -22,7 +22,7 @@
 #include <string>
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
-#include "third_party/s2/encoded_uint_vector.h"
+#include "s2//encoded_uint_vector.h"
 
 namespace s2 {
 namespace s2coding {

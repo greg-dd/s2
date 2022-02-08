@@ -22,12 +22,12 @@
 
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2closest_point_query_base.h"
-#include "third_party/s2/s2min_distance_targets.h"
-#include "third_party/s2/s2point_index.h"
+#include "s2//base/logging.h"
+#include "s2//s1angle.h"
+#include "s2//s1chord_angle.h"
+#include "s2//s2closest_point_query_base.h"
+#include "s2//s2min_distance_targets.h"
+#include "s2//s2point_index.h"
 
 namespace s2 {
 

@@ -18,8 +18,8 @@
 #ifndef S2_S2CONTAINS_VERTEX_QUERY_H_
 #define S2_S2CONTAINS_VERTEX_QUERY_H_
 
-#include "third_party/s2/util/gtl/btree_map.h"
-#include "third_party/s2/s2point.h"
+#include "s2//util/gtl/btree_map.h"
+#include "s2//s2point.h"
 
 namespace s2 {
 

@@ -15,22 +15,22 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shapeutil_visit_crossing_edge_pairs.h"
+#include "s2//s2shapeutil_visit_crossing_edge_pairs.h"
 
 #include <memory>
 #include <vector>
 
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2edge_vector_shape.h"
-#include "third_party/s2/s2error.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2shapeutil_contains_brute_force.h"
-#include "third_party/s2/s2shapeutil_edge_iterator.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s2edge_crossings.h"
+#include "s2//s2edge_vector_shape.h"
+#include "s2//s2error.h"
+#include "s2//s2loop.h"
+#include "s2//s2polygon.h"
+#include "s2//s2shapeutil_contains_brute_force.h"
+#include "s2//s2shapeutil_edge_iterator.h"
+#include "s2//s2text_format.h"
 
 using absl::make_unique;
 using std::unique_ptr;

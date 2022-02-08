@@ -22,7 +22,7 @@
 #include <vector>
 #include "absl/base/internal/unaligned_access.h"
 #include "absl/types/span.h"
-#include "third_party/s2/util/coding/coder.h"
+#include "s2//util/coding/coder.h"
 
 namespace s2 {
 namespace s2coding {

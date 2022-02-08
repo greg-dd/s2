@@ -19,16 +19,16 @@
 // and s2polyline_measures_test.  This file only checks the handling of shapes
 // of different dimensions and shapes with multiple edge chains.
 
-#include "third_party/s2/s2shape_measures.h"
+#include "s2//s2shape_measures.h"
 
 #include "gtest/gtest.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2edge_vector_shape.h"
-#include "third_party/s2/s2lax_polygon_shape.h"
-#include "third_party/s2/s2lax_polyline_shape.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s2edge_vector_shape.h"
+#include "s2//s2lax_polygon_shape.h"
+#include "s2//s2lax_polyline_shape.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2polygon.h"
+#include "s2//s2text_format.h"
 
 using s2::s2textformat::MakeIndexOrDie;
 using s2::s2textformat::MakeLaxPolygonOrDie;

@@ -15,14 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2convex_hull_query.h"
+#include "s2//s2convex_hull_query.h"
 
 #include <cmath>
 #include <memory>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 
 using std::fabs;
 using std::unique_ptr;

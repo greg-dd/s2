@@ -17,12 +17,12 @@
 #ifndef S2_S2POLYLINE_ALIGNMENT_INTERNAL_H_
 #define S2_S2POLYLINE_ALIGNMENT_INTERNAL_H_
 
-#include "third_party/s2/s2polyline_alignment.h"
+#include "s2//s2polyline_alignment.h"
 
 #include <limits>
 #include <vector>
 
-#include "third_party/s2/s2polyline.h"
+#include "s2//s2polyline.h"
 
 namespace s2 {
 namespace s2polyline_alignment {

@@ -20,7 +20,7 @@
 #include <memory>
 #include <vector>
 
-#include "third_party/s2/s2polyline.h"
+#include "s2//s2polyline.h"
 
 namespace s2 {
 

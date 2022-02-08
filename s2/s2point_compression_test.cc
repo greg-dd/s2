@@ -14,24 +14,24 @@
 //
 
 
-#include "third_party/s2/s2point_compression.h"
+#include "s2//s2point_compression.h"
 
 #include <cstddef>
 #include <string>
 #include <vector>
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/logging.h"
+#include "s2//base/commandlineflags.h"
+#include "s2//base/logging.h"
 #include "gtest/gtest.h"
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//s1angle.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2coords.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 #include "absl/container/fixed_array.h"
 #include "absl/types/span.h"
-#include "third_party/s2/util/coding/coder.h"
+#include "s2//util/coding/coder.h"
 
 using absl::FixedArray;
 using absl::MakeSpan;

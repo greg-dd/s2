@@ -23,9 +23,9 @@
 #include <iosfwd>
 #include <iostream>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/util/math/vector.h"  // IWYU pragma: export
+#include "s2//base/logging.h"
+#include "s2//_fp_contract_off.h"
+#include "s2//util/math/vector.h"  // IWYU pragma: export
 
 namespace s2 {
 

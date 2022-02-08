@@ -15,31 +15,31 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/encoded_s2shape_index.h"
+#include "s2//encoded_s2shape_index.h"
 
 #include <map>
 #include <vector>
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2builderutil_s2polyline_layer.h"
-#include "third_party/s2/s2builderutil_snap_functions.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2closest_edge_query.h"
-#include "third_party/s2/s2contains_point_query.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2lax_polygon_shape.h"
-#include "third_party/s2/s2lax_polyline_shape.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2point_vector_shape.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2shapeutil_coding.h"
-#include "third_party/s2/s2shapeutil_testing.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s2builder.h"
+#include "s2//s2builderutil_s2polyline_layer.h"
+#include "s2//s2builderutil_snap_functions.h"
+#include "s2//s2cap.h"
+#include "s2//s2closest_edge_query.h"
+#include "s2//s2contains_point_query.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2latlng.h"
+#include "s2//s2lax_polygon_shape.h"
+#include "s2//s2lax_polyline_shape.h"
+#include "s2//s2loop.h"
+#include "s2//s2point_vector_shape.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2shapeutil_coding.h"
+#include "s2//s2shapeutil_testing.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 
 using absl::make_unique;
 using absl::StrCat;

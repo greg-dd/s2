@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2latlng.h"
+#include "s2//s2latlng.h"
 
 #include <algorithm>
 #include <ostream>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/base/stringprintf.h"
+#include "s2//base/logging.h"
+#include "s2//base/stringprintf.h"
 
 using std::max;
 using std::min;

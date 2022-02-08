@@ -65,7 +65,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "third_party/s2/base/integral_types.h"
+#include "s2//base/integral_types.h"
 #include "absl/base/macros.h"
 #include "absl/container/internal/compressed_tuple.h"
 #include "absl/container/internal/container_memory.h"
@@ -73,7 +73,7 @@
 #include "absl/meta/type_traits.h"
 #include "absl/strings/string_view.h"
 #include "absl/utility/utility.h"
-#include "third_party/s2/util/gtl/layout.h"
+#include "s2//util/gtl/layout.h"
 
 namespace s2 {
 namespace gtl {

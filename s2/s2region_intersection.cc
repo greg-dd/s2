@@ -14,10 +14,10 @@
 //
 
 
-#include "third_party/s2/s2region_intersection.h"
+#include "s2//s2region_intersection.h"
 
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2latlng_rect.h"
+#include "s2//s2cap.h"
+#include "s2//s2latlng_rect.h"
 
 using std::vector;
 

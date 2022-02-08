@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2region_coverer.h"
+#include "s2//s2region_coverer.h"
 
 #include <algorithm>
 #include <cmath>
@@ -28,20 +28,20 @@
 
 #include "gtest/gtest.h"
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/base/stringprintf.h"
-#include "third_party/s2/base/strtoint.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2polyline.h"
-#include "third_party/s2/s2region.h"
-#include "third_party/s2/s2testing.h"
+#include "s2//base/commandlineflags.h"
+#include "s2//base/integral_types.h"
+#include "s2//base/logging.h"
+#include "s2//base/stringprintf.h"
+#include "s2//base/strtoint.h"
+#include "s2//s1angle.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2cell_union.h"
+#include "s2//s2latlng.h"
+#include "s2//s2polyline.h"
+#include "s2//s2region.h"
+#include "s2//s2testing.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"

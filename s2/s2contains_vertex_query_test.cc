@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2contains_vertex_query.h"
+#include "s2//s2contains_vertex_query.h"
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//s2loop.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2text_format.h"
 
 using s2::s2textformat::MakePoint;
 

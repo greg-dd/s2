@@ -18,8 +18,8 @@
 #ifndef S2_S2SHAPEUTIL_RANGE_ITERATOR_H_
 #define S2_S2SHAPEUTIL_RANGE_ITERATOR_H_
 
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2shape_index.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2shape_index.h"
 
 namespace s2 {
 

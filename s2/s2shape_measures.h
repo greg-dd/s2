@@ -24,9 +24,9 @@
 
 #include <vector>
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/s2shape.h"
+#include "s2//s1angle.h"
+#include "s2//s2point.h"
+#include "s2//s2shape.h"
 
 namespace s2 {
 

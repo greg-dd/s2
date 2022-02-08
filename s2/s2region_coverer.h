@@ -23,10 +23,10 @@
 #include <vector>
 
 #include "absl/base/macros.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
+#include "s2//_fp_contract_off.h"
+#include "s2//s2cell.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2cell_union.h"
 
 namespace s2 {
 

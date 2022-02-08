@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2cell_union.h"
+#include "s2//s2cell_union.h"
 
 #include <algorithm>
 #include <cmath>
@@ -24,18 +24,18 @@
 
 #include "gtest/gtest.h"
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2metrics.h"
-#include "third_party/s2/s2region_coverer.h"
-#include "third_party/s2/s2testing.h"
+#include "s2//base/integral_types.h"
+#include "s2//base/logging.h"
+#include "s2//s1angle.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2metrics.h"
+#include "s2//s2region_coverer.h"
+#include "s2//s2testing.h"
 #include "absl/strings/str_cat.h"
-#include "third_party/s2/util/coding/coder.h"
+#include "s2//util/coding/coder.h"
 
 DECLARE_bool(s2debug);
 

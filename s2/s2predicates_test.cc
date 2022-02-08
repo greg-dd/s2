@@ -15,23 +15,23 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2predicates_internal.h"
+#include "s2//s2predicates.h"
+#include "s2//s2predicates_internal.h"
 
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/stringprintf.h"
+#include "s2//base/commandlineflags.h"
+#include "s2//base/stringprintf.h"
 #include "gtest/gtest.h"
 #include "absl/base/casts.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/util/math/exactfloat/exactfloat.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2//s1angle.h"
+#include "s2//s1chord_angle.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2testing.h"
+#include "s2//util/math/exactfloat/exactfloat.h"
+#include "s2//util/math/vector.h"
 
 DEFINE_int32(consistency_iters, 5000,
              "Number of iterations for precision consistency tests");

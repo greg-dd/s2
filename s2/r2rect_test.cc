@@ -18,10 +18,10 @@
 // Most of the R2Rect methods have trivial implementations in terms of the
 // R1Interval class, so most of the testing is done in that unit test.
 
-#include "third_party/s2/r2rect.h"
+#include "s2//r2rect.h"
 
 #include "gtest/gtest.h"
-#include "third_party/s2/r2.h"
+#include "s2//r2.h"
 
 namespace s2 {
 

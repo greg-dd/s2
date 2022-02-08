@@ -15,11 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2centroids.h"
+#include "s2//s2centroids.h"
 
 #include <cmath>
 
-#include "third_party/s2/s2pointutil.h"
+#include "s2//s2pointutil.h"
 
 namespace s2 {
 

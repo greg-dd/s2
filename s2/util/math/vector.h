@@ -28,8 +28,8 @@
 #include <limits>
 #include <type_traits>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
+#include "s2//base/integral_types.h"
+#include "s2//base/logging.h"
 #include "absl/base/macros.h"
 #include "absl/utility/utility.h"
 

@@ -19,10 +19,10 @@
 #define S2_S2CELL_INDEX_H_
 
 #include <vector>
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
+#include "s2//base/integral_types.h"
+#include "s2//base/logging.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2cell_union.h"
 
 namespace s2 {
 

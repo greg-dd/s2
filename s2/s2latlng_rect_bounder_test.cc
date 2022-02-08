@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2latlng_rect_bounder.h"
+#include "s2//s2latlng_rect_bounder.h"
 
 #include <cfloat>
 #include <string>
@@ -23,9 +23,9 @@
 
 #include "gtest/gtest.h"
 #include "absl/strings/str_cat.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2testing.h"
 
 using absl::StrCat;
 

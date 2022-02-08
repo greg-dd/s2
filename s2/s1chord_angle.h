@@ -23,9 +23,9 @@
 #include <ostream>
 #include <type_traits>
 
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2pointutil.h"
+#include "s2//_fp_contract_off.h"
+#include "s2//s1angle.h"
+#include "s2//s2pointutil.h"
 
 namespace s2 {
 

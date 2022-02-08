@@ -16,13 +16,13 @@
 //
 //
 
-#include "third_party/s2/util/coding/coder.h"
+#include "s2//util/coding/coder.h"
 
 #include <algorithm>
 #include <cassert>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
+#include "s2//base/integral_types.h"
+#include "s2//base/logging.h"
 
 namespace s2 {
 

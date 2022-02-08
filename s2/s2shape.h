@@ -18,9 +18,9 @@
 #ifndef S2_S2SHAPE_H_
 #define S2_S2SHAPE_H_
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/s2pointutil.h"
+#include "s2//base/integral_types.h"
+#include "s2//s2point.h"
+#include "s2//s2pointutil.h"
 
 namespace s2 {
 

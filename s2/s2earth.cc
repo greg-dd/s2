@@ -13,7 +13,7 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/s2earth.h"
+#include "s2//s2earth.h"
 
 #include <cmath>
 #include <algorithm>

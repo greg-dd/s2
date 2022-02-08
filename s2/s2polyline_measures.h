@@ -26,9 +26,9 @@
 #ifndef S2_S2POLYLINE_MEASURES_H_
 #define S2_S2POLYLINE_MEASURES_H_
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/s2point_span.h"
+#include "s2//s1angle.h"
+#include "s2//s2point.h"
+#include "s2//s2point_span.h"
 
 namespace s2 {
 

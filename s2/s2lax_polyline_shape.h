@@ -20,9 +20,9 @@
 
 #include <memory>
 #include <vector>
-#include "third_party/s2/encoded_s2point_vector.h"
-#include "third_party/s2/s2polyline.h"
-#include "third_party/s2/s2shape.h"
+#include "s2//encoded_s2point_vector.h"
+#include "s2//s2polyline.h"
+#include "s2//s2shape.h"
 
 namespace s2 {
 

@@ -35,10 +35,10 @@
 #include <cstddef>
 #include <string>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/port.h"
+#include "s2//base/integral_types.h"
+#include "s2//base/port.h"
 #include "absl/base/macros.h"
-#include "third_party/s2/util/bits/bits.h"
+#include "s2//util/bits/bits.h"
 
 namespace s2 {
 

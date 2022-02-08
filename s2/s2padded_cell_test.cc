@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2padded_cell.h"
+#include "s2//s2padded_cell.h"
 
 #include <algorithm>
 #include <cmath>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2testing.h"
+#include "s2//r1interval.h"
+#include "s2//r2.h"
+#include "s2//s2cell.h"
+#include "s2//s2testing.h"
 
 using std::min;
 

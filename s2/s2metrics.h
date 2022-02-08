@@ -31,8 +31,8 @@
 #include <algorithm>
 #include <cmath>
 
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/util/math/mathutil.h"
+#include "s2//s2coords.h"
+#include "s2//util/math/mathutil.h"
 
 namespace s2 {
 

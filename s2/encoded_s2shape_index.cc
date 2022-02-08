@@ -15,11 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/encoded_s2shape_index.h"
+#include "s2//encoded_s2shape_index.h"
 
 #include <memory>
 #include "absl/memory/memory.h"
-#include "third_party/s2/mutable_s2shape_index.h"
+#include "s2//mutable_s2shape_index.h"
 
 using absl::make_unique;
 using std::unique_ptr;

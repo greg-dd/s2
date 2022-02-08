@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_testing.h"
+#include "s2//s2builderutil_testing.h"
 
 #include <memory>
 #include <vector>

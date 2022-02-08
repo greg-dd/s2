@@ -15,20 +15,20 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2lax_polygon_shape.h"
+#include "s2//s2lax_polygon_shape.h"
 
 #include <vector>
 
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2contains_point_query.h"
-#include "third_party/s2/s2lax_loop_shape.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2shapeutil_contains_brute_force.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s2cap.h"
+#include "s2//s2contains_point_query.h"
+#include "s2//s2lax_loop_shape.h"
+#include "s2//s2polygon.h"
+#include "s2//s2shapeutil_contains_brute_force.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 
 using absl::make_unique;
 using s2::s2textformat::MakePolygonOrDie;

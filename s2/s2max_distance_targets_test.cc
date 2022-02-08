@@ -13,23 +13,23 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/s2max_distance_targets.h"
+#include "s2//s2max_distance_targets.h"
 
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/util/gtl/btree_set.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2lax_polygon_shape.h"
-#include "third_party/s2/s2point_vector_shape.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//util/gtl/btree_set.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s1angle.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2lax_polygon_shape.h"
+#include "s2//s2point_vector_shape.h"
+#include "s2//s2polygon.h"
+#include "s2//s2shape_index.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 
 using absl::make_unique;
 using s2::s2textformat::MakeIndexOrDie;

@@ -18,9 +18,9 @@
 #ifndef S2_S2DISTANCE_TARGET_H_
 #define S2_S2DISTANCE_TARGET_H_
 
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2shape_index.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2shape_index.h"
 
 namespace s2 {
 

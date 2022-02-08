@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2latlng.h"
+#include "s2//s2latlng.h"
 
 #include <cmath>
 #include <cstdio>
@@ -23,9 +23,9 @@
 
 #include "gtest/gtest.h"
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
+#include "s2//base/logging.h"
+#include "s2//s2pointutil.h"
+#include "s2//s2testing.h"
 #include "absl/base/macros.h"
 #include "absl/strings/str_cat.h"
 

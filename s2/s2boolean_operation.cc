@@ -62,26 +62,26 @@
 //  - GraphEdgeClipper: a helper class that does the actual work of the
 //                      EdgeClippingLayer.
 
-#include "third_party/s2/s2boolean_operation.h"
+#include "s2//s2boolean_operation.h"
 
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <utility>
 
-#include "third_party/s2/util/gtl/btree_map.h"
+#include "s2//util/gtl/btree_map.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2builder_layer.h"
-#include "third_party/s2/s2builderutil_snap_functions.h"
-#include "third_party/s2/s2contains_point_query.h"
-#include "third_party/s2/s2crossing_edge_query.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2measures.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2shape_index_measures.h"
-#include "third_party/s2/s2shapeutil_visit_crossing_edge_pairs.h"
+#include "s2//s2builder.h"
+#include "s2//s2builder_layer.h"
+#include "s2//s2builderutil_snap_functions.h"
+#include "s2//s2contains_point_query.h"
+#include "s2//s2crossing_edge_query.h"
+#include "s2//s2edge_crosser.h"
+#include "s2//s2edge_crossings.h"
+#include "s2//s2measures.h"
+#include "s2//s2predicates.h"
+#include "s2//s2shape_index_measures.h"
+#include "s2//s2shapeutil_visit_crossing_edge_pairs.h"
 
 namespace s2 {
 

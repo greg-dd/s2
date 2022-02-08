@@ -42,7 +42,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "third_party/s2/base/integral_types.h"
+#include "s2//base/integral_types.h"
 #include "absl/base/config.h"
 #include "absl/base/port.h"
 

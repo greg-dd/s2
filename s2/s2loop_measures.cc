@@ -15,18 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2loop_measures.h"
+#include "s2//s2loop_measures.h"
 
 #include <cfloat>
 #include <cmath>
 #include <vector>
-#include "third_party/s2/base/logging.h"
+#include "s2//base/logging.h"
 #include "absl/container/inlined_vector.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2centroids.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2measures.h"
-#include "third_party/s2/s2pointutil.h"
+#include "s2//s1angle.h"
+#include "s2//s2centroids.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2measures.h"
+#include "s2//s2pointutil.h"
 
 using std::fabs;
 using std::max;

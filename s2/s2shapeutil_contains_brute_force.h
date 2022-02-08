@@ -18,8 +18,8 @@
 #ifndef S2_S2SHAPEUTIL_CONTAINS_BRUTE_FORCE_H_
 #define S2_S2SHAPEUTIL_CONTAINS_BRUTE_FORCE_H_
 
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/s2shape_index.h"
+#include "s2//s2point.h"
+#include "s2//s2shape_index.h"
 
 namespace s2 {
 namespace s2shapeutil {

@@ -20,8 +20,8 @@
 
 #include <vector>
 
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s1angle.h"
+#include "s2//_fp_contract_off.h"
+#include "s2//s1angle.h"
 
 namespace s2 {
 

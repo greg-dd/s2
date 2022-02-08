@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_s2polyline_vector_layer.h"
+#include "s2//s2builderutil_s2polyline_vector_layer.h"
 
 #include <memory>
 

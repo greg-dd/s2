@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shapeutil_contains_brute_force.h"
+#include "s2//s2shapeutil_contains_brute_force.h"
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2lax_polygon_shape.h"
-#include "third_party/s2/s2lax_polyline_shape.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//s2lax_polygon_shape.h"
+#include "s2//s2lax_polyline_shape.h"
+#include "s2//s2text_format.h"
 
 using s2::s2textformat::MakeLaxPolygon;
 using s2::s2textformat::MakeLaxPolyline;

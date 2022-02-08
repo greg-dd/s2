@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2latlng_rect_bounder.h"
+#include "s2//s2latlng_rect_bounder.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2pointutil.h"
+#include "s2//base/logging.h"
+#include "s2//r1interval.h"
+#include "s2//s1chord_angle.h"
+#include "s2//s1interval.h"
+#include "s2//s2pointutil.h"
 
 using std::fabs;
 using std::max;

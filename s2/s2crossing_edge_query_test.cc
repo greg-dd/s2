@@ -15,29 +15,29 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2crossing_edge_query.h"
+#include "s2//s2crossing_edge_query.h"
 
 #include <algorithm>
 #include <utility>
 #include <vector>
 
-#include "third_party/s2/base/casts.h"
+#include "s2//base/casts.h"
 #include "gtest/gtest.h"
 
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2edge_clipping.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2edge_vector_shape.h"
-#include "third_party/s2/s2metrics.h"
-#include "third_party/s2/s2polyline.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s1angle.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2cell_id.h"
+#include "s2//s2coords.h"
+#include "s2//s2edge_clipping.h"
+#include "s2//s2edge_crossings.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2edge_vector_shape.h"
+#include "s2//s2metrics.h"
+#include "s2//s2polyline.h"
+#include "s2//s2testing.h"
+#include "s2//s2text_format.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 

@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/encoded_uint_vector.h"
+#include "s2//encoded_uint_vector.h"
 
 #include <vector>
 #include "gtest/gtest.h"

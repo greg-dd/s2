@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shapeutil_range_iterator.h"
+#include "s2//s2shapeutil_range_iterator.h"
 
 namespace s2 {
 namespace s2shapeutil {

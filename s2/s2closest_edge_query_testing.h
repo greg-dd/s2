@@ -20,19 +20,19 @@
 
 #include <vector>
 
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2edge_vector_shape.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2metrics.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/s2point_vector_shape.h"
-#include "third_party/s2/s2shapeutil_count_edges.h"
-#include "third_party/s2/s2shapeutil_shape_edge_id.h"
-#include "third_party/s2/s2testing.h"
+#include "s2//mutable_s2shape_index.h"
+#include "s2//s1angle.h"
+#include "s2//s2cap.h"
+#include "s2//s2cell.h"
+#include "s2//s2edge_distances.h"
+#include "s2//s2edge_vector_shape.h"
+#include "s2//s2loop.h"
+#include "s2//s2metrics.h"
+#include "s2//s2point.h"
+#include "s2//s2point_vector_shape.h"
+#include "s2//s2shapeutil_count_edges.h"
+#include "s2//s2shapeutil_shape_edge_id.h"
+#include "s2//s2testing.h"
 
 namespace s2 {
 namespace s2testing {
