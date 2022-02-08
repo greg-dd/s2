@@ -1,5 +1,5 @@
 #
-# Copyright 2020 greg-dd
+# Copyright 2022 greg-dd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
 # limitations under the License.
 #
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "com_google_absl",
-    strip_prefix = "abseil-cpp-732b5580f089101ce4b8cdff55bb6461c59a6720",
-    urls = ["https://github.com/abseil/abseil-cpp/archive/732b5580f089101ce4b8cdff55bb6461c59a6720.tar.gz"],
+    strip_prefix = "abseil-cpp-df3ea785d8c30a9503321a3d35ee7d35808f190d",
+    urls = ["https://github.com/abseil/abseil-cpp/archive/df3ea785d8c30a9503321a3d35ee7d35808f190d.tar.gz"],
 )
 
 http_archive(
@@ -43,8 +42,8 @@ http_archive(
     urls = ["https://github.com/google/glog/archive/v0.5.0.tar.gz"],
 )
 
-git_repository(
+http_archive(
     name = "boringssl",
-    commit = "123eaaef26abc278f53ae338e9c758eb01c70b08",
-    remote = "https://boringssl.googlesource.com/boringssl",
+    strip_prefix = "boringssl-80ca9f9f6ece29ab132cce4cf807a9465a18cfac",
+    urls = ["https://github.com/google/boringssl/archive/80ca9f9f6ece29ab132cce4cf807a9465a18cfac.tar.gz"],
 )
