@@ -759,7 +759,7 @@ class S2Polygon final : public S2Region {
     // edge() method.  This is used as a hint to speed up edge location when
     // there are many loops.  Note that this field does not take up any space
     // due to field packing with S2Shape::id_.
-    mutable std::atomic<int> prev_loop_ = 0;
+    mutable std::atomic<int> prev_loop_ = {0};
 
     const S2Polygon* polygon_;
 

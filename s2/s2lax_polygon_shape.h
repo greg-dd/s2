@@ -149,7 +149,7 @@ class S2LaxPolygonShape : public S2Shape {
   // The loop that contained the edge returned by the previous call to the
   // edge() method.  This is used as a hint to speed up edge location when
   // there are many loops.
-  mutable std::atomic<int> prev_loop_ = 0;
+  mutable std::atomic<int> prev_loop_ = {0};
 
   int32 num_vertices_;
   std::unique_ptr<S2Point[]> vertices_;
@@ -206,7 +206,7 @@ class EncodedS2LaxPolygonShape : public S2Shape {
   // The loop that contained the edge returned by the previous call to the
   // edge() method.  This is used as a hint to speed up edge location when
   // there are many loops.
-  mutable std::atomic<int> prev_loop_ = 0;
+  mutable std::atomic<int> prev_loop_ = {0};
 
   s2coding::EncodedS2PointVector vertices_;
   s2coding::EncodedUintVector<uint32> loop_starts_;
