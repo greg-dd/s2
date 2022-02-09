@@ -15,9 +15,9 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_s2point_vector_layer.h"
+#include "s2/s2builderutil_s2point_vector_layer.h"
 
-#include "third_party/s2/s2builder_graph.h"
+#include "s2/s2builder_graph.h"
 
 using std::vector;
 

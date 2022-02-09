@@ -18,11 +18,11 @@
 // This file contains some basic tests of the templating support.  Testing of
 // the actual algorithms is in s2closest_point_query_test.cc.
 
-#include "third_party/s2/s2closest_point_query_base.h"
+#include "s2/s2closest_point_query_base.h"
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2max_distance_targets.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/s2max_distance_targets.h"
+#include "s2/s2text_format.h"
 
 namespace s2 {
 

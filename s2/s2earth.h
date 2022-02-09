@@ -22,11 +22,11 @@
 #ifndef S2_S2EARTH_H_
 #define S2_S2EARTH_H_
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/util/units/length-units.h"
+#include "s2/s1angle.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2latlng.h"
+#include "s2/s2point.h"
+#include "s2/util/units/length-units.h"
 
 namespace s2 {
 class S2Earth {

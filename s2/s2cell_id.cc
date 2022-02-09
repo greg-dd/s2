@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2cell_id.h"
+#include "s2/s2cell_id.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -25,11 +25,11 @@
 #include <mutex>
 #include <vector>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2latlng.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/r1interval.h"
+#include "s2/s2coords.h"
+#include "s2/s2latlng.h"
 #include "absl/base/casts.h"
 #include "absl/strings/str_cat.h"
 

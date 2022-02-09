@@ -15,11 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2region.h"
+#include "s2/s2region.h"
 
 #include <vector>
 
-#include "third_party/s2/s2cap.h"
+#include "s2/s2cap.h"
 
 namespace s2 {
 

@@ -23,13 +23,13 @@
 
 #include "absl/base/macros.h"
 #include "absl/container/inlined_vector.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s2padded_cell.h"
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/s2shapeutil_shape_edge.h"
-#include "third_party/s2/s2shapeutil_shape_edge_id.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s2padded_cell.h"
+#include "s2/s2shape_index.h"
+#include "s2/s2shapeutil_shape_edge.h"
+#include "s2/s2shapeutil_shape_edge_id.h"
 
 namespace s2 {
 

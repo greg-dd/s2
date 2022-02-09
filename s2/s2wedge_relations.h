@@ -21,7 +21,7 @@
 #ifndef S2_S2WEDGE_RELATIONS_H_
 #define S2_S2WEDGE_RELATIONS_H_
 
-#include "third_party/s2/s2point.h"
+#include "s2/s2point.h"
 
 namespace s2 {
 

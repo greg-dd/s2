@@ -15,10 +15,10 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shapeutil_contains_brute_force.h"
+#include "s2/s2shapeutil_contains_brute_force.h"
 
 #include <utility>
-#include "third_party/s2/s2edge_crosser.h"
+#include "s2/s2edge_crosser.h"
 
 namespace s2 {
 namespace s2shapeutil {

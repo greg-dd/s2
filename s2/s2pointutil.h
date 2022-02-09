@@ -21,10 +21,10 @@
 #ifndef S2_S2POINTUTIL_H_
 #define S2_S2POINTUTIL_H_
 
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/util/math/matrix3x3.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s1angle.h"
+#include "s2/s2point.h"
+#include "s2/util/math/matrix3x3.h"
 
 // S2 is a namespace for constants and simple utility functions that are used
 // throughout the S2 library.  The name "S2" is derived from the mathematical

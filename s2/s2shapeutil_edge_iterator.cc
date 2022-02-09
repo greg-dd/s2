@@ -13,7 +13,7 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/s2shapeutil_edge_iterator.h"
+#include "s2/s2shapeutil_edge_iterator.h"
 
 #include "absl/strings/str_cat.h"
 

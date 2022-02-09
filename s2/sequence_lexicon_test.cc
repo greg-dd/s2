@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/sequence_lexicon.h"
+#include "s2/sequence_lexicon.h"
 
 #include <array>
 #include <memory>
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
 

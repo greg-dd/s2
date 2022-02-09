@@ -15,17 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_tessellator.h"
+#include "s2/s2edge_tessellator.h"
 
 #include <iostream>
 #include "gtest/gtest.h"
 #include "absl/strings/str_cat.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2projections.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2loop.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2projections.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
 using absl::StrCat;
 using s2::s2textformat::ParsePointsOrDie;

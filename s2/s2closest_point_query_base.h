@@ -22,16 +22,16 @@
 
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/container/inlined_vector.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2distance_target.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2point_index.h"
-#include "third_party/s2/s2region_coverer.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2distance_target.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2point_index.h"
+#include "s2/s2region_coverer.h"
 
 namespace s2 {
 

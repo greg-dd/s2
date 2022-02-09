@@ -20,9 +20,9 @@
 
 #include <atomic>
 #include "absl/types/span.h"
-#include "third_party/s2/encoded_string_vector.h"
-#include "third_party/s2/encoded_uint_vector.h"
-#include "third_party/s2/s2point.h"
+#include "s2/encoded_string_vector.h"
+#include "s2/encoded_uint_vector.h"
+#include "s2/s2point.h"
 
 namespace s2 {
 namespace s2coding {

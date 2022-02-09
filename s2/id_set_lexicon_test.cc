@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/id_set_lexicon.h"
+#include "s2/id_set_lexicon.h"
 
 #include <vector>
 

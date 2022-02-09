@@ -20,8 +20,8 @@
 
 #include <tuple>
 #include <type_traits>
-#include "third_party/s2/util/gtl/btree_map.h"
-#include "third_party/s2/s2cell_id.h"
+#include "s2/util/gtl/btree_map.h"
+#include "s2/s2cell_id.h"
 
 namespace s2 {
 

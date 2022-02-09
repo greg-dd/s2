@@ -15,11 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2polyline_measures.h"
+#include "s2/s2polyline_measures.h"
 
 #include <cmath>
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s2centroids.h"
+#include "s2/base/logging.h"
+#include "s2/s2centroids.h"
 
 namespace s2 {
 

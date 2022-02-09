@@ -13,7 +13,7 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/strings/serialize.h"
+#include "s2/strings/serialize.h"
 
 #include <string>
 #include <vector>

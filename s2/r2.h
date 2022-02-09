@@ -18,8 +18,8 @@
 #ifndef S2_R2_H_
 #define S2_R2_H_
 
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/util/math/vector.h"  // IWYU pragma: export
+#include "s2/_fp_contract_off.h"
+#include "s2/util/math/vector.h"  // IWYU pragma: export
 
 namespace s2 {
 

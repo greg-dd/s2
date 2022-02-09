@@ -20,8 +20,8 @@
 #include <functional>
 #include <type_traits>
 
-#include "third_party/s2/util/hash/mix.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/util/hash/mix.h"
+#include "s2/util/math/vector.h"
 
 namespace s2 {
 

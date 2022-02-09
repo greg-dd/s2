@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shapeutil_testing.h"
+#include "s2/s2shapeutil_testing.h"
 
 #include "gtest/gtest.h"
 

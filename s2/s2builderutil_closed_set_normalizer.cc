@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_closed_set_normalizer.h"
+#include "s2/s2builderutil_closed_set_normalizer.h"
 
 #include <memory>
 
 #include "absl/memory/memory.h"
-#include "third_party/s2/s2builder_layer.h"
+#include "s2/s2builder_layer.h"
 
 using absl::make_unique;
 using std::shared_ptr;

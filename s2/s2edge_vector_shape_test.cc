@@ -15,10 +15,10 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_vector_shape.h"
+#include "s2/s2edge_vector_shape.h"
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s2testing.h"
 
 namespace s2 {
 

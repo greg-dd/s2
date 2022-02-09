@@ -13,13 +13,13 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/s2shapeutil_edge_iterator.h"
+#include "s2/s2shapeutil_edge_iterator.h"
 
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2text_format.h"
 
 namespace s2 {
 namespace s2shapeutil {

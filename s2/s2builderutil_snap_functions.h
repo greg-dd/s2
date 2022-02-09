@@ -19,9 +19,9 @@
 #define S2_S2BUILDERUTIL_SNAP_FUNCTIONS_H_
 
 #include <memory>
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2cell_id.h"
+#include "s2/s1angle.h"
+#include "s2/s2builder.h"
+#include "s2/s2cell_id.h"
 
 namespace s2 {
 namespace s2builderutil {

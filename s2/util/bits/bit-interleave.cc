@@ -25,9 +25,9 @@
 //     TODO(user): Inlining InterleaveUint32 yields a measurable speedup (5
 //     ns vs. 8 ns). Consider cost/benefit of moving implementations inline.
 
-#include "third_party/s2/util/bits/bit-interleave.h"
+#include "s2/util/bits/bit-interleave.h"
 
-#include "third_party/s2/base/integral_types.h"
+#include "s2/base/integral_types.h"
 
 namespace s2 {
 namespace util_bits {

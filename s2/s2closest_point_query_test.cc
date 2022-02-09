@@ -15,21 +15,21 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2closest_point_query.h"
+#include "s2/s2closest_point_query.h"
 
 #include <memory>
 #include <vector>
 
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2closest_edge_query_testing.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s1angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2closest_edge_query_testing.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2loop.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
 
 using absl::make_unique;
 using std::pair;

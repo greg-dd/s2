@@ -19,16 +19,16 @@
 // and s2polyline_measures_test.  This file only checks the handling of
 // multiple shapes and shapes of different dimensions.
 
-#include "third_party/s2/s2shape_index_measures.h"
+#include "s2/s2shape_index_measures.h"
 
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2lax_polygon_shape.h"
-#include "third_party/s2/s2lax_polyline_shape.h"
-#include "third_party/s2/s2point_vector_shape.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2lax_polygon_shape.h"
+#include "s2/s2lax_polyline_shape.h"
+#include "s2/s2point_vector_shape.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2text_format.h"
 
 using absl::make_unique;
 using s2::s2textformat::MakeIndexOrDie;

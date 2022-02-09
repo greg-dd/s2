@@ -15,23 +15,23 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_clipping.h"
+#include "s2/s2edge_clipping.h"
 
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <string>
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 #include "gtest/gtest.h"
 #include "absl/strings/str_cat.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/r1interval.h"
+#include "s2/r2rect.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s1interval.h"
+#include "s2/s2coords.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
 
 using absl::StrCat;
 using std::fabs;

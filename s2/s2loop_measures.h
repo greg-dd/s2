@@ -30,10 +30,10 @@
 #include <ostream>
 #include <vector>
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/s2point_span.h"
-#include "third_party/s2/s2pointutil.h"
+#include "s2/s1angle.h"
+#include "s2/s2point.h"
+#include "s2/s2point_span.h"
+#include "s2/s2pointutil.h"
 
 namespace s2 {
 

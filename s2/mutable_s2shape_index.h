@@ -26,19 +26,19 @@
 #include <vector>
 
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/base/mutex.h"
-#include "third_party/s2/base/spinlock.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2shape.h"
-#include "third_party/s2/s2shape_index.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/base/mutex.h"
+#include "s2/base/spinlock.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2shape.h"
+#include "s2/s2shape_index.h"
 #include "absl/base/macros.h"
 #include "absl/base/thread_annotations.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/util/gtl/btree_map.h"
+#include "s2/util/gtl/btree_map.h"
 
 namespace s2 {
 

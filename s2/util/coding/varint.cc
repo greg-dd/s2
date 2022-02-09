@@ -14,11 +14,11 @@
 //
 
 
-#include "third_party/s2/util/coding/varint.h"
+#include "s2/util/coding/varint.h"
 
 #include <string>
 
-#include "third_party/s2/base/integral_types.h"
+#include "s2/base/integral_types.h"
 
 namespace s2 {
 #ifndef _MSC_VER

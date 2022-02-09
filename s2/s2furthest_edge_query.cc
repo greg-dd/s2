@@ -13,11 +13,11 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/s2furthest_edge_query.h"
+#include "s2/s2furthest_edge_query.h"
 
 #include <vector>
 
-#include "third_party/s2/s2edge_distances.h"
+#include "s2/s2edge_distances.h"
 
 namespace s2 {
 

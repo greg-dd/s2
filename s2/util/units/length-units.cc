@@ -16,7 +16,7 @@
 
 // Provide definitions for length unit constants
 
-#include "third_party/s2/util/units/length-units.h"
+#include "s2/util/units/length-units.h"
 
 namespace s2 {
 const char * const util::units::LengthBase::output_suffix = "m";

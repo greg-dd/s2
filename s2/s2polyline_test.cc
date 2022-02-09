@@ -15,26 +15,26 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2polyline.h"
+#include "s2/s2polyline.h"
 
 #include <cmath>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "third_party/s2/base/commandlineflags.h"
+#include "s2/base/commandlineflags.h"
 #include "gtest/gtest.h"
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/s1angle.h"
+#include "s2/s2cell.h"
+#include "s2/s2debug.h"
+#include "s2/s2latlng.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
-#include "third_party/s2/util/coding/coder.h"
+#include "s2/util/coding/coder.h"
 
 using absl::StrCat;
 using absl::make_unique;

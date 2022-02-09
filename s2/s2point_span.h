@@ -18,9 +18,9 @@
 #ifndef S2_S2POINT_SPAN_H_
 #define S2_S2POINT_SPAN_H_
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/types/span.h"
-#include "third_party/s2/s2point.h"
+#include "s2/s2point.h"
 
 namespace s2 {
 

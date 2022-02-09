@@ -13,26 +13,26 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/s2text_format.h"
+#include "s2/s2text_format.h"
 
 #include <string>
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/base/stringprintf.h"
-#include "third_party/s2/strings/serialize.h"
+#include "s2/base/logging.h"
+#include "s2/base/stringprintf.h"
+#include "s2/strings/serialize.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_split.h"
 #include "absl/strings/string_view.h"
 #include "absl/strings/strip.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2lax_polygon_shape.h"
-#include "third_party/s2/s2lax_polyline_shape.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2point_vector_shape.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2polyline.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2latlng.h"
+#include "s2/s2lax_polygon_shape.h"
+#include "s2/s2lax_polyline_shape.h"
+#include "s2/s2loop.h"
+#include "s2/s2point_vector_shape.h"
+#include "s2/s2polygon.h"
+#include "s2/s2polyline.h"
 
 using absl::make_unique;
 using absl::string_view;

@@ -28,7 +28,7 @@
 // S2_TAN_PROJECTION allows cell metrics to be bounded in terms of (u,v)
 // coordinate changes when they are measured as distances on the unit sphere.
 
-#include "third_party/s2/s2metrics.h"
+#include "s2/s2metrics.h"
 
 namespace s2 {
 

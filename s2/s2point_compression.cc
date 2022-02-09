@@ -14,24 +14,24 @@
 //
 
 
-#include "third_party/s2/s2point_compression.h"
+#include "s2/s2point_compression.h"
 
 #include <utility>
 #include <vector>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2coords.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2coords.h"
 #include "absl/base/casts.h"
 #include "absl/base/macros.h"
 #include "absl/container/fixed_array.h"
 #include "absl/types/span.h"
-#include "third_party/s2/util/bits/bit-interleave.h"
-#include "third_party/s2/util/coding/coder.h"
-#include "third_party/s2/util/coding/nth-derivative.h"
-#include "third_party/s2/util/coding/transforms.h"
-#include "third_party/s2/util/endian/endian.h"
+#include "s2/util/bits/bit-interleave.h"
+#include "s2/util/coding/coder.h"
+#include "s2/util/coding/nth-derivative.h"
+#include "s2/util/coding/transforms.h"
+#include "s2/util/endian/endian.h"
 
 using absl::Span;
 using std::pair;

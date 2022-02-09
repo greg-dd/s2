@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_tessellator.h"
+#include "s2/s2edge_tessellator.h"
 
 #include <cmath>
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2pointutil.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2latlng.h"
+#include "s2/s2pointutil.h"
 
 using std::vector;
 

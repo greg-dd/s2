@@ -22,9 +22,9 @@
 #ifndef S2_S2PROJECTIONS_H_
 #define S2_S2PROJECTIONS_H_
 
-#include "third_party/s2/r2.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2point.h"
+#include "s2/r2.h"
+#include "s2/s2latlng.h"
+#include "s2/s2point.h"
 
 namespace s2 {
 

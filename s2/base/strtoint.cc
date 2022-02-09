@@ -22,9 +22,9 @@
 #include <climits>
 #include <limits>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/port.h"
-#include "third_party/s2/base/strtoint.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/port.h"
+#include "s2/base/strtoint.h"
 
 namespace s2 {
 

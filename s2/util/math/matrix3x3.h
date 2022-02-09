@@ -35,9 +35,9 @@
 #include <iosfwd>
 #include <type_traits>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/util/math/mathutil.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/base/logging.h"
+#include "s2/util/math/mathutil.h"
+#include "s2/util/math/vector.h"
 
 namespace s2 {
 

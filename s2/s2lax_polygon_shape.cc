@@ -15,9 +15,9 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2lax_polygon_shape.h"
+#include "s2/s2lax_polygon_shape.h"
 
-#include "third_party/s2/s2shapeutil_get_reference_point.h"
+#include "s2/s2shapeutil_get_reference_point.h"
 
 using absl::make_unique;
 using absl::MakeSpan;

@@ -14,7 +14,7 @@
 //
 
 
-#include "third_party/s2/util/math/mathutil.h"
+#include "s2/util/math/mathutil.h"
 
 #include <cmath>
 #include <cstdlib>

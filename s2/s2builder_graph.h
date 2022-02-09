@@ -23,10 +23,10 @@
 #include <iterator>
 #include <utility>
 #include <vector>
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/id_set_lexicon.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2error.h"
+#include "s2/base/integral_types.h"
+#include "s2/id_set_lexicon.h"
+#include "s2/s2builder.h"
+#include "s2/s2error.h"
 
 namespace s2 {
 

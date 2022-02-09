@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shapeutil_get_reference_point.h"
+#include "s2/s2shapeutil_get_reference_point.h"
 
 #include <algorithm>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s2contains_vertex_query.h"
+#include "s2/base/logging.h"
+#include "s2/s2contains_vertex_query.h"
 
 using std::vector;
 namespace s2 {

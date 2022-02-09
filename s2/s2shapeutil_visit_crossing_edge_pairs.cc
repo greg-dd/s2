@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shapeutil_visit_crossing_edge_pairs.h"
+#include "s2/s2shapeutil_visit_crossing_edge_pairs.h"
 
-#include "third_party/s2/s2crossing_edge_query.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2error.h"
-#include "third_party/s2/s2shapeutil_range_iterator.h"
-#include "third_party/s2/s2wedge_relations.h"
+#include "s2/s2crossing_edge_query.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2error.h"
+#include "s2/s2shapeutil_range_iterator.h"
+#include "s2/s2wedge_relations.h"
 
 using std::vector;
 

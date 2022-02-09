@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/encoded_s2cell_id_vector.h"
+#include "s2/encoded_s2cell_id_vector.h"
 
 using absl::Span;
 using std::max;

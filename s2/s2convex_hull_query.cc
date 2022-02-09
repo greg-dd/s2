@@ -23,11 +23,11 @@
 // Demonstration of the algorithm and code:
 // en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
 
-#include "third_party/s2/s2convex_hull_query.h"
+#include "s2/s2convex_hull_query.h"
 
 #include "absl/memory/memory.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
 
 using absl::make_unique;
 using std::unique_ptr;

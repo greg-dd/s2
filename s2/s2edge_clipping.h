@@ -30,12 +30,12 @@
 
 #include <cmath>
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/container/inlined_vector.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s2point.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s2point.h"
 
 namespace s2 {
 

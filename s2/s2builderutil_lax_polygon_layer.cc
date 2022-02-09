@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_lax_polygon_layer.h"
+#include "s2/s2builderutil_lax_polygon_layer.h"
 
 #include <algorithm>
 #include <memory>
 #include "absl/memory/memory.h"
-#include "third_party/s2/s2builderutil_find_polygon_degeneracies.h"
-#include "third_party/s2/s2debug.h"
+#include "s2/s2builderutil_find_polygon_degeneracies.h"
+#include "s2/s2debug.h"
 
 using std::vector;
 

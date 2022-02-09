@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2cell_index.h"
+#include "s2/s2cell_index.h"
 
 using std::vector;
 

@@ -15,10 +15,10 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2wedge_relations.h"
+#include "s2/s2wedge_relations.h"
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2point.h"
+#include "s2/s2point.h"
 
 namespace s2 {
 

@@ -15,18 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2edge_crossings_internal.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2edge_crossings_internal.h"
 
 #include <cmath>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2predicates_internal.h"
-#include "third_party/s2/util/math/exactfloat/exactfloat.h"
+#include "s2/base/logging.h"
+#include "s2/s1angle.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
+#include "s2/s2predicates_internal.h"
+#include "s2/util/math/exactfloat/exactfloat.h"
 
 namespace s2 {
 

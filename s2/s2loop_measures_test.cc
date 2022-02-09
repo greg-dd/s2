@@ -15,18 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2loop_measures.h"
+#include "s2/s2loop_measures.h"
 
 #include <cmath>
 #include <string>
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2measures.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/s2latlng.h"
+#include "s2/s2loop.h"
+#include "s2/s2measures.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
 using s2::s2textformat::ParsePointsOrDie;
 using std::fabs;

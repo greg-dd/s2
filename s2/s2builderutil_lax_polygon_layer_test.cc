@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_lax_polygon_layer.h"
+#include "s2/s2builderutil_lax_polygon_layer.h"
 
 #include <algorithm>
 #include <map>
@@ -23,12 +23,12 @@
 #include <set>
 #include <string>
 #include "gtest/gtest.h"
-#include "third_party/s2/base/integral_types.h"
+#include "s2/base/integral_types.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2debug.h"
+#include "s2/s2text_format.h"
 
 using absl::make_unique;
 using absl::string_view;

@@ -15,24 +15,24 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2closest_cell_query.h"
+#include "s2/s2closest_cell_query.h"
 
 #include <memory>
 #include <set>
 #include <vector>
 
-#include "third_party/s2/base/stringprintf.h"
+#include "s2/base/stringprintf.h"
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2closest_edge_query_testing.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s1angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2closest_edge_query_testing.h"
+#include "s2/s2loop.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
 using absl::make_unique;
 using s2::s2testing::FractalLoopShapeIndexFactory;

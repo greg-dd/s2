@@ -90,7 +90,7 @@
 #include <string>
 #include <type_traits>
 
-#include "third_party/s2/base/integral_types.h"
+#include "s2/base/integral_types.h"
 #include "absl/base/macros.h"
 
 namespace s2 {

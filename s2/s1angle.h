@@ -23,11 +23,11 @@
 #include <ostream>
 #include <type_traits>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/util/math/mathutil.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/base/integral_types.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s2point.h"
+#include "s2/util/math/mathutil.h"
+#include "s2/util/math/vector.h"
 
 namespace s2 {
 

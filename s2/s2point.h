@@ -18,9 +18,9 @@
 #ifndef S2_S2POINT_H_
 #define S2_S2POINT_H_
 
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/util/math/vector.h"  // IWYU pragma: export
-#include "third_party/s2/util/math/vector3_hash.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/util/math/vector.h"  // IWYU pragma: export
+#include "s2/util/math/vector3_hash.h"
 
 namespace s2 {
 

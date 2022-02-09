@@ -18,9 +18,9 @@
 #ifndef S2_S2PADDED_CELL_H_
 #define S2_S2PADDED_CELL_H_
 
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s2cell_id.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r2rect.h"
+#include "s2/s2cell_id.h"
 
 namespace s2 {
 

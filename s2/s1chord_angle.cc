@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s1chord_angle.h"
+#include "s2/s1chord_angle.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2pointutil.h"
+#include "s2/s1angle.h"
+#include "s2/s2pointutil.h"
 
 using std::max;
 using std::min;

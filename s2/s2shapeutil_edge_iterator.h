@@ -16,8 +16,8 @@
 #ifndef S2_S2SHAPEUTIL_EDGE_ITERATOR_H_
 #define S2_S2SHAPEUTIL_EDGE_ITERATOR_H_
 
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/s2shapeutil_shape_edge_id.h"
+#include "s2/s2shape_index.h"
+#include "s2/s2shapeutil_shape_edge_id.h"
 
 namespace s2 {
 namespace s2shapeutil {

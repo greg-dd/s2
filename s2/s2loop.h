@@ -25,21 +25,21 @@
 #include <map>
 #include <vector>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2loop_measures.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2region.h"
-#include "third_party/s2/s2shape_index.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s1angle.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2debug.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2loop_measures.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2region.h"
+#include "s2/s2shape_index.h"
 #include "absl/base/macros.h"
-#include "third_party/s2/util/math/matrix3x3.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/util/math/matrix3x3.h"
+#include "s2/util/math/vector.h"
 
 namespace s2 {
 

@@ -15,14 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s1angle.h"
+#include "s2/s1angle.h"
 
 #include "gtest/gtest.h"
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/s2latlng.h"
+#include "s2/s2testing.h"
 
 namespace s2 {
 

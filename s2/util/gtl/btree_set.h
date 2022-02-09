@@ -27,8 +27,8 @@
 #include <memory>
 #include <string>
 
-#include "third_party/s2/util/gtl/btree.h"            // IWYU pragma: export
-#include "third_party/s2/util/gtl/btree_container.h"  // IWYU pragma: export
+#include "s2/util/gtl/btree.h"            // IWYU pragma: export
+#include "s2/util/gtl/btree_container.h"  // IWYU pragma: export
 
 namespace s2 {
 namespace gtl {

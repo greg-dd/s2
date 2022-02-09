@@ -21,18 +21,18 @@
 #include <type_traits>
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/base/macros.h"
 #include "absl/container/inlined_vector.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2closest_edge_query_base.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2max_distance_targets.h"
-#include "third_party/s2/s2shape_index.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s1angle.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2closest_edge_query_base.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2max_distance_targets.h"
+#include "s2/s2shape_index.h"
 
 namespace s2 {
 

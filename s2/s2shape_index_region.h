@@ -18,15 +18,15 @@
 #define S2_S2SHAPE_INDEX_REGION_H_
 
 #include <vector>
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2contains_point_query.h"
-#include "third_party/s2/s2edge_clipping.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2region.h"
-#include "third_party/s2/s2shape_index.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2contains_point_query.h"
+#include "s2/s2edge_clipping.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2region.h"
+#include "s2/s2shape_index.h"
 
 namespace s2 {
 

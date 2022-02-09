@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2cell.h"
+#include "s2/s2cell.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -27,25 +27,25 @@
 
 #include "gtest/gtest.h"
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2crossing_edge_query.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2latlng_rect_bounder.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2metrics.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/base/logging.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s1angle.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s1interval.h"
+#include "s2/s2cap.h"
+#include "s2/s2crossing_edge_query.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2latlng_rect_bounder.h"
+#include "s2/s2loop.h"
+#include "s2/s2metrics.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 #include "absl/base/macros.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"

@@ -15,7 +15,7 @@
 
 #include <cassert>
 
-#include "third_party/s2/strings/ostringstream.h"
+#include "s2/strings/ostringstream.h"
 
 namespace s2 {
 namespace strings {

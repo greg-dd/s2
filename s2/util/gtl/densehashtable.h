@@ -119,8 +119,8 @@
 #include <vector>
 #include <type_traits>
 
-#include "third_party/s2/util/gtl/hashtable_common.h"
-#include "third_party/s2/base/port.h"
+#include "s2/util/gtl/hashtable_common.h"
+#include "s2/base/port.h"
 #include <stdexcept>                 // For length_error
 
 namespace s2 {

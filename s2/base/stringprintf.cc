@@ -14,14 +14,14 @@
 //
 
 
-#include "third_party/s2/base/stringprintf.h"
+#include "s2/base/stringprintf.h"
 
 #include <cerrno>
 #include <cstdarg> // For va_list and related operations
 #include <cstdio> // MSVC requires this for _vsnprintf
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 
 namespace s2 {
 

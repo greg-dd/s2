@@ -15,10 +15,10 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2projections.h"
+#include "s2/s2projections.h"
 
 #include <cmath>
-#include "third_party/s2/s2latlng.h"
+#include "s2/s2latlng.h"
 
 using std::fabs;
 

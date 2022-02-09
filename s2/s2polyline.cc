@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2polyline.h"
+#include "s2/s2polyline.h"
 
 #include <algorithm>
 #include <cmath>
@@ -24,23 +24,23 @@
 #include <utility>
 #include <vector>
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/logging.h"
+#include "s2/base/commandlineflags.h"
+#include "s2/base/logging.h"
 #include "absl/utility/utility.h"
-#include "third_party/s2/util/coding/coder.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2error.h"
-#include "third_party/s2/s2latlng_rect_bounder.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2polyline_measures.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/util/math/matrix3x3.h"
+#include "s2/util/coding/coder.h"
+#include "s2/s1angle.h"
+#include "s2/s1interval.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2debug.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2error.h"
+#include "s2/s2latlng_rect_bounder.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2polyline_measures.h"
+#include "s2/s2predicates.h"
+#include "s2/util/math/matrix3x3.h"
 
 using std::max;
 using std::min;

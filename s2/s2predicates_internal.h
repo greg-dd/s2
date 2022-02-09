@@ -24,10 +24,10 @@
 #include <limits>
 
 #include "absl/base/casts.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/util/math/exactfloat/exactfloat.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2predicates.h"
+#include "s2/util/math/exactfloat/exactfloat.h"
+#include "s2/util/math/vector.h"
 
 namespace s2 {
 namespace s2pred {

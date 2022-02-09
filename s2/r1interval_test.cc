@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/r1interval.h"
+#include "s2/r1interval.h"
 
 #include <cfloat>
 

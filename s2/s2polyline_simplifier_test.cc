@@ -15,18 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2polyline_simplifier.h"
+#include "s2/s2polyline_simplifier.h"
 
 #include <cfloat>
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/s1angle.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
 namespace s2 {
 

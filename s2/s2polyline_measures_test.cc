@@ -15,14 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2polyline_measures.h"
+#include "s2/s2polyline_measures.h"
 
 #include <cmath>
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s1angle.h"
+#include "s2/s2testing.h"
 
 using std::fabs;
 using std::vector;

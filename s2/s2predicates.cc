@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2predicates_internal.h"
+#include "s2/s2predicates.h"
+#include "s2/s2predicates_internal.h"
 
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <ostream>
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/util/math/exactfloat/exactfloat.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/s1chord_angle.h"
+#include "s2/util/math/exactfloat/exactfloat.h"
+#include "s2/util/math/vector.h"
 
 using std::fabs;
 using std::max;

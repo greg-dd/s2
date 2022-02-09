@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2error.h"
+#include "s2/s2error.h"
 
 #include "gtest/gtest.h"
 

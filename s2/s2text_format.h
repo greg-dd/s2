@@ -29,11 +29,11 @@
 
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2point_span.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2debug.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2point_span.h"
 
 namespace s2 {
 

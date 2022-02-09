@@ -15,17 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2r2rect.h"
+#include "s2/s2r2rect.h"
 
 #include <iosfwd>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2latlng_rect.h"
+#include "s2/base/logging.h"
+#include "s2/r1interval.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2coords.h"
+#include "s2/s2latlng_rect.h"
 
 namespace s2 {
 

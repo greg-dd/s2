@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2shapeutil_build_polygon_boundaries.h"
+#include "s2/s2shapeutil_build_polygon_boundaries.h"
 
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2lax_loop_shape.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/s2lax_loop_shape.h"
+#include "s2/s2text_format.h"
 
 using std::vector;
 

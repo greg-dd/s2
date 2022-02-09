@@ -20,9 +20,9 @@
 
 #include <vector>
 
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/s2shapeutil_shape_edge.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2shape_index.h"
+#include "s2/s2shapeutil_shape_edge.h"
 
 namespace s2 {
 // Defines whether shapes are considered to contain their vertices.  Note that

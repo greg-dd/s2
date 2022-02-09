@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2measures.h"
+#include "s2/s2measures.h"
 
 #include <algorithm>
 #include <cmath>
 
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
 
 // TODO(ericv): Convert to using s2pred::Sign().
 //#include "util/geometry/s2predicates.h"

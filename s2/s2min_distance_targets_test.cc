@@ -15,19 +15,19 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2min_distance_targets.h"
+#include "s2/s2min_distance_targets.h"
 
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/util/gtl/btree_set.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2shape_index.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/util/gtl/btree_set.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s1angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2shape_index.h"
+#include "s2/s2text_format.h"
 
 using s2::s2textformat::MakeIndexOrDie;
 using s2::s2textformat::MakePointOrDie;

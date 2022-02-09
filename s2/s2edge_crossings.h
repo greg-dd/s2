@@ -31,20 +31,20 @@
 
 #include <cmath>
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 #include "absl/base/macros.h"
 #include "absl/container/inlined_vector.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s1angle.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s1interval.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
+#include "s2/util/math/vector.h"
 
 namespace s2 {
 

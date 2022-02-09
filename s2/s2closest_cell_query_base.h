@@ -22,18 +22,18 @@
 
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/util/gtl/btree_set.h"
+#include "s2/base/logging.h"
+#include "s2/util/gtl/btree_set.h"
 #include "absl/container/inlined_vector.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_index.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2distance_target.h"
-#include "third_party/s2/s2region_coverer.h"
-#include "third_party/s2/util/gtl/dense_hash_set.h"
-#include "third_party/s2/util/hash/mix.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_index.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2distance_target.h"
+#include "s2/s2region_coverer.h"
+#include "s2/util/gtl/dense_hash_set.h"
+#include "s2/util/hash/mix.h"
 
 namespace s2 {
 

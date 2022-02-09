@@ -15,11 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_crosser.h"
+#include "s2/s2edge_crosser.h"
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
+#include "s2/base/logging.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
 
 namespace s2 {
 

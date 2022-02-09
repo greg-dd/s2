@@ -20,14 +20,14 @@
 
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2closest_cell_query_base.h"
-#include "third_party/s2/s2min_distance_targets.h"
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s1angle.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2closest_cell_query_base.h"
+#include "s2/s2min_distance_targets.h"
 
 namespace s2 {
 

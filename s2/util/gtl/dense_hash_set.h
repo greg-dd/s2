@@ -123,9 +123,9 @@
 #include <utility>
 #include <vector>
 
-#include "third_party/s2/base/port.h"
+#include "s2/base/port.h"
 #include "absl/base/macros.h"
-#include "third_party/s2/util/gtl/densehashtable.h"  // IWYU pragma: export
+#include "s2/util/gtl/densehashtable.h"  // IWYU pragma: export
 
 // Some files test for this symbol.
 #define S2__DENSE_HASH_SET_H_

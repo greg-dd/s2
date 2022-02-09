@@ -19,9 +19,9 @@
 #define S2_S2BUILDERUTIL_CLOSED_SET_NORMALIZER_H_
 
 #include <vector>
-#include "third_party/s2/id_set_lexicon.h"
-#include "third_party/s2/s2builder_graph.h"
-#include "third_party/s2/s2builderutil_find_polygon_degeneracies.h"
+#include "s2/id_set_lexicon.h"
+#include "s2/s2builder_graph.h"
+#include "s2/s2builderutil_find_polygon_degeneracies.h"
 
 namespace s2 {
 namespace s2builderutil {

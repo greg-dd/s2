@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_distances.h"
+#include "s2/s2edge_distances.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
+#include "s2/base/logging.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
 
 using std::max;
 using std::min;

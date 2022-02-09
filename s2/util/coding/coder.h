@@ -23,14 +23,14 @@
 #include <cstring>
 
 // Avoid adding expensive includes here.
-#include "third_party/s2/base/casts.h"
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/base/port.h"
+#include "s2/base/casts.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/base/port.h"
 #include "absl/base/macros.h"
 #include "absl/meta/type_traits.h"
-#include "third_party/s2/util/coding/varint.h"
-#include "third_party/s2/util/endian/endian.h"
+#include "s2/util/coding/varint.h"
+#include "s2/util/endian/endian.h"
 
 namespace s2 {
 

@@ -15,26 +15,26 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2cell.h"
+#include "s2/s2cell.h"
 
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <iomanip>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2measures.h"
-#include "third_party/s2/s2metrics.h"
+#include "s2/base/logging.h"
+#include "s2/r1interval.h"
+#include "s2/r2.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s1interval.h"
+#include "s2/s2cap.h"
+#include "s2/s2coords.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2measures.h"
+#include "s2/s2metrics.h"
 
 using s2::internal::kPosToIJ;
 using s2::internal::kPosToOrientation;

@@ -100,9 +100,9 @@
 #include <string>
 #include <vector>
 
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2region.h"
-#include "third_party/s2/s2region_coverer.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2region.h"
+#include "s2/s2region_coverer.h"
 #include "absl/strings/string_view.h"
 
 namespace s2 {

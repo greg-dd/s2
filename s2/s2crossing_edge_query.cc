@@ -15,17 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2crossing_edge_query.h"
+#include "s2/s2crossing_edge_query.h"
 
 #include <algorithm>
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2edge_clipping.h"
-#include "third_party/s2/s2edge_crosser.h"
-#include "third_party/s2/s2shapeutil_count_edges.h"
+#include "s2/base/logging.h"
+#include "s2/r1interval.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2edge_clipping.h"
+#include "s2/s2edge_crosser.h"
+#include "s2/s2shapeutil_count_edges.h"
 
 using s2::s2shapeutil::ShapeEdge;
 using s2::s2shapeutil::ShapeEdgeId;

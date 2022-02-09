@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2closest_point_query.h"
+#include "s2/s2closest_point_query.h"
 
 namespace s2 {
 

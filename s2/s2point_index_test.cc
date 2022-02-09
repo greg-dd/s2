@@ -15,14 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2point_index.h"
+#include "s2/s2point_index.h"
 
 #include <set>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2testing.h"
 
 namespace s2 {
 

@@ -23,20 +23,20 @@
 #include <map>
 #include <vector>
 
-#include "third_party/s2/base/integral_types.h"
+#include "s2/base/integral_types.h"
 #include "absl/base/macros.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2boolean_operation.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2polyline.h"
-#include "third_party/s2/s2region.h"
-#include "third_party/s2/s2shape_index.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s1angle.h"
+#include "s2/s2boolean_operation.h"
+#include "s2/s2builder.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2debug.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2loop.h"
+#include "s2/s2polyline.h"
+#include "s2/s2region.h"
+#include "s2/s2shape_index.h"
 
 namespace s2 {
 

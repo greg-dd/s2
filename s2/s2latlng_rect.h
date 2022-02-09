@@ -22,13 +22,13 @@
 #include <iosfwd>
 #include <iostream>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2region.h"
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r1interval.h"
+#include "s2/s1angle.h"
+#include "s2/s1interval.h"
+#include "s2/s2latlng.h"
+#include "s2/s2region.h"
 
 namespace s2 {
 

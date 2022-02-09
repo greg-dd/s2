@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2projections.h"
+#include "s2/s2projections.h"
 
 #include <limits>
 #include "gtest/gtest.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s2latlng.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2testing.h"
 
 namespace s2 {
 

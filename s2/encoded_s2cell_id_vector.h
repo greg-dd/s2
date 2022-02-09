@@ -19,8 +19,8 @@
 #define S2_ENCODED_S2CELL_ID_VECTOR_H_
 
 #include "absl/types/span.h"
-#include "third_party/s2/encoded_uint_vector.h"
-#include "third_party/s2/s2cell_id.h"
+#include "s2/encoded_uint_vector.h"
+#include "s2/s2cell_id.h"
 
 namespace s2 {
 namespace s2coding {

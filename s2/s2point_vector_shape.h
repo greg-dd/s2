@@ -19,8 +19,8 @@
 #define S2_S2POINT_VECTOR_SHAPE_H_
 
 #include <vector>
-#include "third_party/s2/encoded_s2point_vector.h"
-#include "third_party/s2/s2shape.h"
+#include "s2/encoded_s2point_vector.h"
+#include "s2/s2shape.h"
 
 namespace s2 {
 

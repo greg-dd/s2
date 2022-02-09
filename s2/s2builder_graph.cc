@@ -15,19 +15,19 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builder_graph.h"
+#include "s2/s2builder_graph.h"
 
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <numeric>
 #include <vector>
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/util/gtl/btree_map.h"
-#include "third_party/s2/id_set_lexicon.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2error.h"
-#include "third_party/s2/s2predicates.h"
+#include "s2/base/logging.h"
+#include "s2/util/gtl/btree_map.h"
+#include "s2/id_set_lexicon.h"
+#include "s2/s2builder.h"
+#include "s2/s2error.h"
+#include "s2/s2predicates.h"
 
 using std::make_pair;
 using std::max;

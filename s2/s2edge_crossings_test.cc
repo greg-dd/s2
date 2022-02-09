@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2edge_crossings_internal.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2edge_crossings_internal.h"
 
 #include <vector>
 
-#include "third_party/s2/base/logging.h"
+#include "s2/base/logging.h"
 #include "gtest/gtest.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2predicates.h"
+#include "s2/s2testing.h"
 
 // CrossingSign, VertexCrossing, and EdgeOrVertexCrossing are tested in
 // s2edge_crosser_test.cc.

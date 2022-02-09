@@ -46,8 +46,8 @@
 
 #include <cstdlib> // For strtol* functions.
 #include <string>
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/port.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/port.h"
 #include "absl/base/macros.h"
 
 namespace s2 {

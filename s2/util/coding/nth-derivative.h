@@ -57,8 +57,8 @@
 #ifndef S2_UTIL_CODING_NTH_DERIVATIVE_H_
 #define S2_UTIL_CODING_NTH_DERIVATIVE_H_
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
 
 namespace s2 {
 

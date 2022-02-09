@@ -27,9 +27,9 @@
 #include <string>
 #include <type_traits>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/port.h"
-#include "third_party/s2/strings/ostringstream.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/port.h"
+#include "s2/strings/ostringstream.h"
 
 namespace s2 {
 namespace gtl {

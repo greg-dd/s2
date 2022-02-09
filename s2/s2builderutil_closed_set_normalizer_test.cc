@@ -15,23 +15,23 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builderutil_closed_set_normalizer.h"
+#include "s2/s2builderutil_closed_set_normalizer.h"
 
 #include <memory>
 #include <vector>
 
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2boolean_operation.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2builder_graph.h"
-#include "third_party/s2/s2builder_layer.h"
-#include "third_party/s2/s2builderutil_s2point_vector_layer.h"
-#include "third_party/s2/s2builderutil_s2polygon_layer.h"
-#include "third_party/s2/s2builderutil_s2polyline_vector_layer.h"
-#include "third_party/s2/s2builderutil_testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2boolean_operation.h"
+#include "s2/s2builder.h"
+#include "s2/s2builder_graph.h"
+#include "s2/s2builder_layer.h"
+#include "s2/s2builderutil_s2point_vector_layer.h"
+#include "s2/s2builderutil_s2polygon_layer.h"
+#include "s2/s2builderutil_s2polyline_vector_layer.h"
+#include "s2/s2builderutil_testing.h"
+#include "s2/s2text_format.h"
 
 using absl::make_unique;
 using std::unique_ptr;

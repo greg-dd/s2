@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2pointutil.h"
+#include "s2/s2pointutil.h"
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2measures.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s2cell.h"
+#include "s2/s2coords.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2latlng.h"
+#include "s2/s2measures.h"
+#include "s2/s2predicates.h"
+#include "s2/s2testing.h"
 
 namespace s2 {
 

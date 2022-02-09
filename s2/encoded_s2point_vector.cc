@@ -15,12 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/encoded_s2point_vector.h"
+#include "s2/encoded_s2point_vector.h"
 
 #include "absl/base/internal/unaligned_access.h"
-#include "third_party/s2/util/bits/bits.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2coords.h"
+#include "s2/util/bits/bits.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2coords.h"
 
 using absl::MakeSpan;
 using absl::Span;

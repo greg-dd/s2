@@ -15,20 +15,20 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2cap.h"
+#include "s2/s2cap.h"
 
 #include <cfloat>
 #include "gtest/gtest.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2coords.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2metrics.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/r1interval.h"
+#include "s2/s1interval.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2coords.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2metrics.h"
+#include "s2/s2testing.h"
+#include "s2/util/math/vector.h"
 
 using std::vector;
 

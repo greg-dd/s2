@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2builder.h"
+#include "s2/s2builder.h"
 
 #include <algorithm>
 #include <cinttypes>
@@ -26,31 +26,31 @@
 #include <string>
 #include <vector>
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/log_severity.h"
-#include "third_party/s2/base/timer.h"
+#include "s2/base/commandlineflags.h"
+#include "s2/base/log_severity.h"
+#include "s2/base/timer.h"
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
-#include "third_party/s2/s2builder_layer.h"
-#include "third_party/s2/s2builderutil_s2polygon_layer.h"
-#include "third_party/s2/s2builderutil_s2polyline_layer.h"
-#include "third_party/s2/s2builderutil_s2polyline_vector_layer.h"
-#include "third_party/s2/s2builderutil_snap_functions.h"
-#include "third_party/s2/s2builderutil_testing.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2debug.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2polyline.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2testing.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/s2builder_layer.h"
+#include "s2/s2builderutil_s2polygon_layer.h"
+#include "s2/s2builderutil_s2polyline_layer.h"
+#include "s2/s2builderutil_s2polyline_vector_layer.h"
+#include "s2/s2builderutil_snap_functions.h"
+#include "s2/s2builderutil_testing.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2debug.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2latlng.h"
+#include "s2/s2loop.h"
+#include "s2/s2polygon.h"
+#include "s2/s2polyline.h"
+#include "s2/s2predicates.h"
+#include "s2/s2testing.h"
+#include "s2/s2text_format.h"
 
 using absl::StrAppend;
 using absl::StrCat;

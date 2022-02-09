@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2testing.h"
+#include "s2/s2testing.h"
 
 #include <algorithm>
 #include <cmath>
@@ -25,27 +25,27 @@
 #include <utility>
 #include <vector>
 
-#include "third_party/s2/base/commandlineflags.h"
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s1interval.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2cell_union.h"
-#include "third_party/s2/s2latlng.h"
-#include "third_party/s2/s2latlng_rect.h"
-#include "third_party/s2/s2loop.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2polyline.h"
-#include "third_party/s2/s2region.h"
-#include "third_party/s2/s2text_format.h"
-#include "third_party/s2/strings/serialize.h"
+#include "s2/base/commandlineflags.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/r1interval.h"
+#include "s2/s1angle.h"
+#include "s2/s1interval.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2cell_union.h"
+#include "s2/s2latlng.h"
+#include "s2/s2latlng_rect.h"
+#include "s2/s2loop.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2polygon.h"
+#include "s2/s2polyline.h"
+#include "s2/s2region.h"
+#include "s2/s2text_format.h"
+#include "s2/strings/serialize.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_split.h"
-#include "third_party/s2/util/math/matrix3x3.h"
+#include "s2/util/math/matrix3x3.h"
 
 using absl::make_unique;
 using std::max;

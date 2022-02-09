@@ -15,17 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2min_distance_targets.h"
+#include "s2/s2min_distance_targets.h"
 
 #include <memory>
 #include "absl/memory/memory.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2cap.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2closest_cell_query.h"
-#include "third_party/s2/s2closest_edge_query.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2shape_index_region.h"
+#include "s2/s1angle.h"
+#include "s2/s2cap.h"
+#include "s2/s2cell.h"
+#include "s2/s2closest_cell_query.h"
+#include "s2/s2closest_edge_query.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2shape_index_region.h"
 
 namespace s2 {
 

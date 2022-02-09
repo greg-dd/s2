@@ -21,9 +21,9 @@
 #include <vector>
 
 #include "absl/memory/memory.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2builder_graph.h"
-#include "third_party/s2/s2builder_layer.h"
+#include "s2/s2builder.h"
+#include "s2/s2builder_graph.h"
+#include "s2/s2builder_layer.h"
 
 namespace s2 {
 namespace s2builderutil {

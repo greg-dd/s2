@@ -18,11 +18,11 @@
 #ifndef S2_S2EDGE_CROSSER_H_
 #define S2_S2EDGE_CROSSER_H_
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/s2edge_crossings.h"
-#include "third_party/s2/s2pointutil.h"
-#include "third_party/s2/s2predicates.h"
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/s2edge_crossings.h"
+#include "s2/s2pointutil.h"
+#include "s2/s2predicates.h"
 
 namespace s2 {
 

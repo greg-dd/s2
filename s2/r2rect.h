@@ -20,10 +20,10 @@
 
 #include <iosfwd>
 
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/r1interval.h"
-#include "third_party/s2/r2.h"
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r1interval.h"
+#include "s2/r2.h"
 
 namespace s2 {
 

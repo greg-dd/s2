@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s1angle.h"
+#include "s2/s1angle.h"
 
 #include <cmath>
 #include <cstdio>
 #include <ostream>
 
-#include "third_party/s2/s2latlng.h"
+#include "s2/s2latlng.h"
 
 namespace s2 {
 

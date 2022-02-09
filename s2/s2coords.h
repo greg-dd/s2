@@ -100,12 +100,12 @@
 #include <algorithm>
 #include <cmath>
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/r2.h"
-#include "third_party/s2/s2coords_internal.h"
-#include "third_party/s2/s2point.h"
-#include "third_party/s2/util/math/mathutil.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/r2.h"
+#include "s2/s2coords_internal.h"
+#include "s2/s2point.h"
+#include "s2/util/math/mathutil.h"
 
 // S2 is a namespace for constants and simple utility functions that are used
 // throughout the S2 library.  The name "S2" is derived from the mathematical

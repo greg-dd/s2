@@ -13,16 +13,16 @@
 // limitations under the License.
 //
 
-#include "third_party/s2/s1chord_angle.h"
+#include "s2/s1chord_angle.h"
 
 #include <cfloat>
 #include <limits>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s1angle.h"
-#include "third_party/s2/s2edge_distances.h"
-#include "third_party/s2/s2predicates.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s1angle.h"
+#include "s2/s2edge_distances.h"
+#include "s2/s2predicates.h"
+#include "s2/s2testing.h"
 
 using std::numeric_limits;
 

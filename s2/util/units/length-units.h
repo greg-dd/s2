@@ -25,7 +25,7 @@
 #ifndef S2_UTIL_UNITS_LENGTH_UNITS_H_
 #define S2_UTIL_UNITS_LENGTH_UNITS_H_
 
-#include "third_party/s2/util/units/physical-units.h"
+#include "s2/util/units/physical-units.h"
 
 namespace s2 {
 namespace util {

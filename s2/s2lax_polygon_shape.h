@@ -22,10 +22,10 @@
 #include <vector>
 
 #include "absl/types/span.h"
-#include "third_party/s2/encoded_s2point_vector.h"
-#include "third_party/s2/encoded_uint_vector.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2shape.h"
+#include "s2/encoded_s2point_vector.h"
+#include "s2/encoded_uint_vector.h"
+#include "s2/s2polygon.h"
+#include "s2/s2shape.h"
 
 namespace s2 {
 

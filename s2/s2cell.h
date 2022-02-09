@@ -18,14 +18,14 @@
 #ifndef S2_S2CELL_H_
 #define S2_S2CELL_H_
 
-#include "third_party/s2/base/integral_types.h"
-#include "third_party/s2/base/logging.h"
-#include "third_party/s2/_fp_contract_off.h"
-#include "third_party/s2/r2rect.h"
-#include "third_party/s2/s1chord_angle.h"
-#include "third_party/s2/s2cell_id.h"
-#include "third_party/s2/s2region.h"
-#include "third_party/s2/util/math/vector.h"
+#include "s2/base/integral_types.h"
+#include "s2/base/logging.h"
+#include "s2/_fp_contract_off.h"
+#include "s2/r2rect.h"
+#include "s2/s1chord_angle.h"
+#include "s2/s2cell_id.h"
+#include "s2/s2region.h"
+#include "s2/util/math/vector.h"
 
 namespace s2 {
 

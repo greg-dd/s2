@@ -15,14 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2point.h"
+#include "s2/s2point.h"
 
 #include <cstddef>
 #include <unordered_set>
 
 #include "gtest/gtest.h"
-#include "third_party/s2/s2cell.h"
-#include "third_party/s2/s2testing.h"
+#include "s2/s2cell.h"
+#include "s2/s2testing.h"
 
 using std::unordered_set;
 

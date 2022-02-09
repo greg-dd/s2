@@ -15,23 +15,23 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "third_party/s2/s2boolean_operation.h"
+#include "s2/s2boolean_operation.h"
 
 #include <memory>
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_split.h"
 #include "absl/strings/strip.h"
-#include "third_party/s2/mutable_s2shape_index.h"
-#include "third_party/s2/s2builder.h"
-#include "third_party/s2/s2builder_graph.h"
-#include "third_party/s2/s2builder_layer.h"
-#include "third_party/s2/s2builderutil_lax_polygon_layer.h"
-#include "third_party/s2/s2builderutil_s2point_vector_layer.h"
-#include "third_party/s2/s2builderutil_s2polyline_vector_layer.h"
-#include "third_party/s2/s2builderutil_snap_functions.h"
-#include "third_party/s2/s2polygon.h"
-#include "third_party/s2/s2text_format.h"
+#include "s2/mutable_s2shape_index.h"
+#include "s2/s2builder.h"
+#include "s2/s2builder_graph.h"
+#include "s2/s2builder_layer.h"
+#include "s2/s2builderutil_lax_polygon_layer.h"
+#include "s2/s2builderutil_s2point_vector_layer.h"
+#include "s2/s2builderutil_s2polyline_vector_layer.h"
+#include "s2/s2builderutil_snap_functions.h"
+#include "s2/s2polygon.h"
+#include "s2/s2text_format.h"
 
 namespace s2 {
 namespace {
