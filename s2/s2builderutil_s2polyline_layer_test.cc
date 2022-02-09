@@ -15,23 +15,24 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2builderutil_s2polyline_layer.h"
+#include "third_party/s2/s2builderutil_s2polyline_layer.h"
 
 #include <string>
-#include "s2/base/casts.h"
-#include "s2/base/integral_types.h"
-#include <gtest/gtest.h>
+#include "third_party/s2/base/casts.h"
+#include "third_party/s2/base/integral_types.h"
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "s2/s2builderutil_snap_functions.h"
-#include "s2/s2debug.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/s2builderutil_snap_functions.h"
+#include "third_party/s2/s2debug.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2builderutil::IndexedS2PolylineLayer;
-using s2builderutil::S2PolylineLayer;
-using s2textformat::MakePolylineOrDie;
-using std::string;
+using s2::s2builderutil::IndexedS2PolylineLayer;
+using s2::s2builderutil::S2PolylineLayer;
+using s2::s2textformat::MakePolylineOrDie;
 using std::vector;
+
+namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 
@@ -197,7 +198,7 @@ TEST(IndexedS2PolylineLayer, AddsShape) {
   S2Builder builder{S2Builder::Options()};
   MutableS2ShapeIndex index;
   builder.StartLayer(make_unique<IndexedS2PolylineLayer>(&index));
-  const string& polyline_str = "0:0, 0:10";
+  const std::string& polyline_str = "0:0, 0:10";
   builder.AddPolyline(*MakePolylineOrDie(polyline_str));
   S2Error error;
   ASSERT_TRUE(builder.Build(&error));
@@ -219,3 +220,4 @@ TEST(IndexedS2PolylineLayer, AddsEmptyShape) {
 }
 
 }  // namespace
+}  // namespace s2

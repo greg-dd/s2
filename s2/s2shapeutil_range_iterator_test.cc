@@ -15,12 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2shapeutil_range_iterator.h"
+#include "third_party/s2/s2shapeutil_range_iterator.h"
 
-#include <gtest/gtest.h>
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2text_format.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2text_format.h"
 
+namespace s2 {
 namespace s2shapeutil {
 
 TEST(RangeIterator, Next) {
@@ -59,3 +60,4 @@ TEST(RangeIterator, EmptyIndex) {
 }
 
 }  // namespace s2shapeutil
+}  // namespace s2

@@ -15,14 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/encoded_string_vector.h"
+#include "third_party/s2/encoded_string_vector.h"
 
 using absl::MakeSpan;
 using absl::Span;
 using absl::string_view;
-using std::string;
 using std::vector;
 
+namespace s2 {
 namespace s2coding {
 
 StringVectorEncoder::StringVectorEncoder() {
@@ -38,7 +38,7 @@ void StringVectorEncoder::Encode(Encoder* encoder) {
   encoder->putn(data_.base(), data_.length());
 }
 
-void StringVectorEncoder::Encode(Span<const string> v, Encoder* encoder) {
+void StringVectorEncoder::Encode(Span<const std::string> v, Encoder* encoder) {
   StringVectorEncoder string_vector;
   for (const auto& str : v) string_vector.Add(str);
   string_vector.Encode(encoder);
@@ -46,7 +46,7 @@ void StringVectorEncoder::Encode(Span<const string> v, Encoder* encoder) {
 
 bool EncodedStringVector::Init(Decoder* decoder) {
   if (!offsets_.Init(decoder)) return false;
-  data_ = decoder->skip(0);
+  data_ = reinterpret_cast<const char*>(decoder->ptr());
   if (offsets_.size() > 0) {
     uint64 length = offsets_[offsets_.size() - 1];
     if (decoder->avail() < length) return false;
@@ -64,15 +64,5 @@ vector<string_view> EncodedStringVector::Decode() const {
   return result;
 }
 
-// The encoding must be identical to StringVectorEncoder::Encode().
-void EncodedStringVector::Encode(Encoder* encoder) const {
-  offsets_.Encode(encoder);
-
-  if (offsets_.size() > 0) {
-    const uint64 length = offsets_[offsets_.size() - 1];
-    encoder->Ensure(length);
-    encoder->putn(data_, length);
-  }
-}
-
 }  // namespace s2coding
+}  // namespace s2

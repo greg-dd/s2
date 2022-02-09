@@ -60,7 +60,7 @@
 //   // This class is intended to be used with an external key-value store,
 //   // but for this example will we use an unordered_map.  The key is an
 //   // index term, and the value is a set of document ids.
-//   std::unordered_map<string, std::vector<int>> index;
+//   std::unordered_map<std::string, std::vector<int>> index;
 //
 //   // Create an indexer that uses up to 10 cells to approximate each region.
 //   S2RegionTermIndexer::Options options;
@@ -100,11 +100,12 @@
 #include <string>
 #include <vector>
 
+#include "third_party/s2/s2cell_union.h"
+#include "third_party/s2/s2region.h"
+#include "third_party/s2/s2region_coverer.h"
 #include "absl/strings/string_view.h"
 
-#include "s2/s2cell_union.h"
-#include "s2/s2region.h"
-#include "s2/s2region_coverer.h"
+namespace s2 {
 
 class S2RegionTermIndexer {
  public:
@@ -145,7 +146,7 @@ class S2RegionTermIndexer {
     // your query regions will rarely be less than 100 meters in width, then
     // you could set max_level() as follows:
     //
-    //   options.set_max_level(S2::kAvgEdge.GetClosestLevel(
+    //   options.set_max_level(s2::kAvgEdge.GetClosestLevel(
     //       S2Earth::MetersToRadians(100)));
     //
     // This restricts the index to S2Cells that are approximately 100 meters
@@ -159,7 +160,7 @@ class S2RegionTermIndexer {
     //
     // If you have no idea about the scale of the regions being queried,
     // it is perfectly fine to set min_level() == 0 and max_level() == 30
-    // (== S2::kMaxLevel).  The only drawback is that may result in a larger
+    // (== s2::kMaxLevel).  The only drawback is that may result in a larger
     // index and slower queries.
     //
     // The default parameter values are suitable for query regions ranging
@@ -252,7 +253,7 @@ class S2RegionTermIndexer {
   // parking lots, etc).  The prefix should be kept short since it is
   // prepended to every term.
   std::vector<std::string> GetIndexTerms(const S2Region& region,
-                                         absl::string_view prefix);
+                                    absl::string_view prefix);
 
   // Converts a given query region into a set of terms.  If you compute the
   // union of all the documents associated with these terms, the result will
@@ -260,7 +261,7 @@ class S2RegionTermIndexer {
   //
   // "prefix" should match the corresponding value used when indexing.
   std::vector<std::string> GetQueryTerms(const S2Region& region,
-                                         absl::string_view prefix);
+                                    absl::string_view prefix);
 
   // Convenience methods that accept an S2Point rather than S2Region.  (These
   // methods are also faster.)
@@ -268,9 +269,9 @@ class S2RegionTermIndexer {
   // Note that you can index an S2LatLng by converting it to an S2Point first:
   //     auto terms = GetIndexTerms(S2Point(latlng), ...);
   std::vector<std::string> GetIndexTerms(const S2Point& point,
-                                         absl::string_view prefix);
+                                    absl::string_view prefix);
   std::vector<std::string> GetQueryTerms(const S2Point& point,
-                                         absl::string_view prefix);
+                                    absl::string_view prefix);
 
   // Low-level methods that accept an S2CellUnion covering of the region to be
   // indexed or queried.
@@ -291,10 +292,12 @@ class S2RegionTermIndexer {
   enum TermType { ANCESTOR, COVERING };
 
   std::string GetTerm(TermType term_type, const S2CellId& id,
-                      absl::string_view prefix) const;
+                 absl::string_view prefix) const;
 
   Options options_;
   S2RegionCoverer coverer_;
 };
+
+}  // namespace s2
 
 #endif  // S2_S2REGION_TERM_INDEXER_H_

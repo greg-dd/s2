@@ -18,8 +18,9 @@
 #ifndef S2_S2SHAPEUTIL_COUNT_EDGES_H_
 #define S2_S2SHAPEUTIL_COUNT_EDGES_H_
 
-#include "s2/s2shape_index.h"
+#include "third_party/s2/s2shape_index.h"
 
+namespace s2 {
 namespace s2shapeutil {
 
 // Returns the total number of edges in all indexed shapes.  This method takes
@@ -53,5 +54,6 @@ int CountEdgesUpTo(const S2ShapeIndexType& index, int max_edges) {
 }
 
 }  // namespace s2shapeutil
+}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_COUNT_EDGES_H_

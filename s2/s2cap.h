@@ -23,12 +23,14 @@
 #include <iosfwd>
 #include <vector>
 
-#include "s2/base/logging.h"
-#include "s2/_fp_contract_off.h"
-#include "s2/s1angle.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2region.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2region.h"
+
+namespace s2 {
 
 class Decoder;
 class Encoder;
@@ -205,9 +207,6 @@ class S2Cap final : public S2Region {
   // Return true if two caps are identical.
   bool operator==(const S2Cap& other) const;
 
-  // Return true if two caps are not identical.
-  bool operator!=(const S2Cap& other) const;
-
   // Return true if the cap center and height differ by at most "max_error"
   // from the given cap "other".
   bool ApproxEquals(const S2Cap& other,
@@ -275,7 +274,7 @@ inline S1Angle S2Cap::GetRadius() const {
 }
 
 inline bool S2Cap::is_valid() const {
-  return S2::IsUnitLength(center_) && radius_.length2() <= 4;
+  return IsUnitLength(center_) && radius_.length2() <= 4;
 }
 
 inline bool S2Cap::is_empty() const {
@@ -286,8 +285,6 @@ inline bool S2Cap::is_full() const {
   return radius_.length2() == 4;
 }
 
-inline bool S2Cap::operator!=(const S2Cap& other) const {
-  return !operator==(other);
-}
+}  // namespace s2
 
 #endif  // S2_S2CAP_H_

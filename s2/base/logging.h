@@ -24,7 +24,6 @@
 
 #define S2_LOG LOG
 #define S2_LOG_IF LOG_IF
-#define S2_DLOG DLOG
 #define S2_DLOG_IF DLOG_IF
 
 #define S2_CHECK CHECK
@@ -46,6 +45,7 @@
 #define S2_VLOG VLOG
 #define S2_VLOG_IS_ON VLOG_IS_ON
 
+
 #if 0
 #ifdef S2_USE_GLOG
 
@@ -57,7 +57,6 @@
 
 #define S2_LOG LOG
 #define S2_LOG_IF LOG_IF
-#define S2_DLOG DLOG
 #define S2_DLOG_IF DLOG_IF
 
 #define S2_CHECK CHECK
@@ -83,8 +82,11 @@
 
 #include <iostream>
 
+#include "third_party/s2/base/log_severity.h"
 #include "absl/base/attributes.h"
-#include "s2/base/log_severity.h"
+#include "absl/base/log_severity.h"
+
+namespace s2 {
 
 class S2LogMessage {
  public:
@@ -167,14 +169,11 @@ struct S2LogMessageVoidify {
 
 #ifndef NDEBUG
 
-#define S2_DLOG S2_LOG
 #define S2_DLOG_IF S2_LOG_IF
 #define S2_DCHECK S2_CHECK
 
 #else  // defined(NDEBUG)
 
-#define S2_DLOG(severity) \
-  while (false) S2NullStream()
 #define S2_DLOG_IF(severity, condition) \
     while (false && (condition)) S2NullStream()
 #define S2_DCHECK(condition) \
@@ -202,7 +201,10 @@ struct S2LogMessageVoidify {
 #define S2_VLOG(verbose_level) S2NullStream()
 #define S2_VLOG_IS_ON(verbose_level) (false)
 
+}  // namespace s2
+
 #endif  // !defined(S2_USE_GLOG)
 #endif
+
 
 #endif  // S2_BASE_LOGGING_H_

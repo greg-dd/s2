@@ -15,14 +15,15 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2edge_crosser.h"
+#include "third_party/s2/s2edge_crosser.h"
 
-#include "s2/base/logging.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2predicates.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2predicates.h"
 
-template <class PointRep>
-int S2EdgeCrosserBase<PointRep>::CrossingSignInternal(PointRep d) {
+namespace s2 {
+
+int S2EdgeCrosser::CrossingSignInternal(const S2Point* d) {
   // Compute the actual result, and then save the current vertex D as the next
   // vertex C, and save the orientation of the next triangle ACB (which is
   // opposite to the current triangle BDA).
@@ -32,23 +33,17 @@ int S2EdgeCrosserBase<PointRep>::CrossingSignInternal(PointRep d) {
   return result;
 }
 
-template <class PointRep>
-inline int S2EdgeCrosserBase<PointRep>::CrossingSignInternal2(
-    const S2Point& d) {
-  // At this point it is still very likely that CD does not cross AB.  Two
-  // common situations are (1) CD crosses the great circle through AB but does
-  // not cross AB itself, or (2) A,B,C,D are four points on a line such that
-  // AB does not overlap CD.  For example, the latter happens when a line or
-  // curve is sampled finely, or when geometry is constructed by computing the
-  // union of S2CellIds.
-  //
-  // Most of the time, we can determine that AB and CD do not intersect by
-  // computing the two outward-facing tangents at A and B (parallel to AB) and
-  // testing whether AB and CD are on opposite sides of the plane perpendicular
-  // to one of these tangents.  This is somewhat expensive but still much
-  // cheaper than s2pred::ExpensiveSign.
+inline int S2EdgeCrosser::CrossingSignInternal2(const S2Point& d) {
+  // At this point, a very common situation is that A,B,C,D are four points on
+  // a line such that AB does not overlap CD.  (For example, this happens when
+  // a line or curve is sampled finely, or when geometry is constructed by
+  // computing the union of S2CellIds.)  Most of the time, we can determine
+  // that AB and CD do not intersect by computing the two outward-facing
+  // tangents at A and B (parallel to AB) and testing whether AB and CD are on
+  // opposite sides of the plane perpendicular to one of these tangents.  This
+  // is moderately expensive but still much cheaper than s2pred::ExpensiveSign.
   if (!have_tangents_) {
-    S2Point norm = S2::RobustCrossProd(*a_, *b_);
+    S2Point norm = s2::RobustCrossProd(*a_, *b_).Normalize();
     a_tangent_ = a_->CrossProd(norm);
     b_tangent_ = norm.CrossProd(*b_);
     have_tangents_ = true;
@@ -91,7 +86,4 @@ inline int S2EdgeCrosserBase<PointRep>::CrossingSignInternal2(
   return (dac != acb_) ? -1 : 1;
 }
 
-// Explicitly instantiate the classes we need so that the methods above can be
-// omitted from the .h file (and to reduce compilation time).
-template class S2EdgeCrosserBase<S2::internal::S2Point_PointerRep>;
-template class S2EdgeCrosserBase<S2::internal::S2Point_ValueRep>;
+}  // namespace s2

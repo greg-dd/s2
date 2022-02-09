@@ -15,26 +15,27 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2latlng_rect.h"
+#include "third_party/s2/s2latlng_rect.h"
 
 #include <algorithm>
 #include <cmath>
 #include <iosfwd>
 #include <iostream>
 
-#include "s2/base/logging.h"
-#include "absl/flags/flag.h"
-#include "s2/util/coding/coder.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2debug.h"
-#include "s2/s2edge_crossings.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2pointutil.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/util/coding/coder.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2debug.h"
+#include "third_party/s2/s2edge_crossings.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2pointutil.h"
 
 using std::fabs;
 using std::max;
 using std::min;
+
+namespace s2 {
 
 static const unsigned char kCurrentLosslessEncodingVersionNumber = 1;
 
@@ -134,10 +135,10 @@ S2Point S2LatLngRect::GetCentroid() const {
   double z1 = sin(lat_lo()), z2 = sin(lat_hi());
   double r1 = cos(lat_lo()), r2 = cos(lat_hi());
   double alpha = 0.5 * lng_.GetLength();
-  double r = sin(alpha) * (r2 * z2 - r1 * z1 + lat_.GetLength());
+  double r = std::sin(alpha) * (r2 * z2 - r1 * z1 + lat_.GetLength());
   double lng = lng_.GetCenter();
   double z = alpha * (z2 + z1) * (z2 - z1);  // scaled by the area
-  return S2Point(r * cos(lng), r * sin(lng), z);
+  return S2Point(r * std::cos(lng), r * std::sin(lng), z);
 }
 
 bool S2LatLngRect::Contains(const S2LatLng& ll) const {
@@ -270,9 +271,9 @@ S2LatLngRect S2LatLngRect::ExpandedByDistance(S1Angle distance) const {
     // S2Cap::GetRectBound().
     //
     // When sin_a >= sin_c, the cap covers all the latitude.
-    double sin_a = sin(-distance.radians());
-    double sin_c = cos(max_abs_lat);
-    double max_lng_margin = sin_a < sin_c ? asin(sin_a / sin_c) : M_PI_2;
+    double sin_a = std::sin(-distance.radians());
+    double sin_c = std::cos(max_abs_lat);
+    double max_lng_margin = sin_a < sin_c ? std::asin(sin_a / sin_c) : M_PI_2;
 
     S1Interval lng_result = lng().Expanded(-max_lng_margin);
     if (lng_result.is_empty()) {
@@ -298,17 +299,15 @@ S2Cap S2LatLngRect::GetCapBound() const {
     pole_z = 1;
     pole_angle = M_PI_2 - lat_.lo();
   }
-  // Ensure that the bounding cap is conservative taking into account errors
-  // in the arithmetic above and the S1Angle/S1ChordAngle conversion.
-  S2Cap pole_cap(S2Point(0, 0, pole_z),
-                 S1Angle::Radians((1 + 2 * DBL_EPSILON) * pole_angle));
+  S2Cap pole_cap(S2Point(0, 0, pole_z), S1Angle::Radians(pole_angle));
 
   // For bounding rectangles that span 180 degrees or less in longitude, the
   // maximum cap size is achieved at one of the rectangle vertices.  For
   // rectangles that are larger than 180 degrees, we punt and always return a
   // bounding cap centered at one of the two poles.
-  if (lng_.GetLength() < 2 * M_PI) {
-    S2Cap mid_cap(GetCenter().ToPoint(), S1Angle::Zero());
+  double lng_span = lng_.hi() - lng_.lo();
+  if (remainder(lng_span, 2 * M_PI) >= 0 && lng_span < 2 * M_PI) {
+    S2Cap mid_cap(GetCenter().ToPoint(), S1Angle::Radians(0));
     for (int k = 0; k < 4; ++k) {
       mid_cap.AddPoint(GetVertex(k).ToPoint());
     }
@@ -366,7 +365,7 @@ bool S2LatLngRect::Decode(Decoder* decoder) {
   lng_ = S1Interval(lng_lo, lng_hi);
 
   if (!is_valid()) {
-    S2_DLOG_IF(ERROR, absl::GetFlag(FLAGS_s2debug))
+    S2_DLOG_IF(ERROR, FLAGS_s2debug)
         << "Invalid result in S2LatLngRect::Decode: " << *this;
     return false;
   }
@@ -380,7 +379,7 @@ bool S2LatLngRect::IntersectsLngEdge(const S2Point& a, const S2Point& b,
   // longitude.  The nice thing about edges of constant longitude is that
   // they are straight lines on the sphere (geodesics).
 
-  return S2::CrossingSign(
+  return s2::CrossingSign(
       a, b, S2LatLng::FromRadians(lat.lo(), lng).ToPoint(),
       S2LatLng::FromRadians(lat.hi(), lng).ToPoint()) > 0;
 }
@@ -390,30 +389,30 @@ bool S2LatLngRect::IntersectsLatEdge(const S2Point& a, const S2Point& b,
   // Return true if the segment AB intersects the given edge of constant
   // latitude.  Unfortunately, lines of constant latitude are curves on
   // the sphere.  They can intersect a straight edge in 0, 1, or 2 points.
-  S2_DCHECK(S2::IsUnitLength(a));
-  S2_DCHECK(S2::IsUnitLength(b));
+  S2_DCHECK(s2::IsUnitLength(a));
+  S2_DCHECK(s2::IsUnitLength(b));
 
   // First, compute the normal to the plane AB that points vaguely north.
-  Vector3_d z = S2::RobustCrossProd(a, b).Normalize();
+  Vector3_d z = s2::RobustCrossProd(a, b).Normalize();
   if (z[2] < 0) z = -z;
 
   // Extend this to an orthonormal frame (x,y,z) where x is the direction
   // where the great circle through AB achieves its maximium latitude.
-  Vector3_d y = S2::RobustCrossProd(z, S2Point(0, 0, 1)).Normalize();
+  Vector3_d y = s2::RobustCrossProd(z, S2Point(0, 0, 1)).Normalize();
   Vector3_d x = y.CrossProd(z);
-  S2_DCHECK(S2::IsUnitLength(x));
+  S2_DCHECK(s2::IsUnitLength(x));
   S2_DCHECK_GE(x[2], 0);
 
   // Compute the angle "theta" from the x-axis (in the x-y plane defined
   // above) where the great circle intersects the given line of latitude.
-  double sin_lat = sin(lat);
+  double sin_lat = std::sin(lat);
   if (fabs(sin_lat) >= x[2]) {
     return false;  // The great circle does not reach the given latitude.
   }
   S2_DCHECK_GT(x[2], 0);
   double cos_theta = sin_lat / x[2];
   double sin_theta = sqrt(1 - cos_theta * cos_theta);
-  double theta = atan2(sin_theta, cos_theta);
+  double theta = std::atan2(sin_theta, cos_theta);
 
   // The candidate intersection points are located +/- theta in the x-y
   // plane.  For an intersection to be valid, we need to check that the
@@ -535,10 +534,10 @@ S1Angle S2LatLngRect::GetDistance(const S2LatLngRect& other) const {
   S2Point a_hi = S2LatLng(a.lat_hi(), a_lng).ToPoint();
   S2Point b_lo = S2LatLng(b.lat_lo(), b_lng).ToPoint();
   S2Point b_hi = S2LatLng(b.lat_hi(), b_lng).ToPoint();
-  return min(S2::GetDistance(a_lo, b_lo, b_hi),
-         min(S2::GetDistance(a_hi, b_lo, b_hi),
-         min(S2::GetDistance(b_lo, a_lo, a_hi),
-             S2::GetDistance(b_hi, a_lo, a_hi))));
+  return min(s2::GetDistance(a_lo, b_lo, b_hi),
+         min(s2::GetDistance(a_hi, b_lo, b_hi),
+         min(s2::GetDistance(b_lo, a_lo, a_hi),
+             s2::GetDistance(b_hi, a_lo, a_hi))));
 }
 
 S1Angle S2LatLngRect::GetDistance(const S2LatLng& p) const {
@@ -565,7 +564,7 @@ S1Angle S2LatLngRect::GetDistance(const S2LatLng& p) const {
   }
   S2Point lo = S2LatLng::FromRadians(a.lat().lo(), a_lng).ToPoint();
   S2Point hi = S2LatLng::FromRadians(a.lat().hi(), a_lng).ToPoint();
-  return S2::GetDistance(p.ToPoint(), lo, hi);
+  return s2::GetDistance(p.ToPoint(), lo, hi);
 }
 
 S1Angle S2LatLngRect::GetHausdorffDistance(const S2LatLngRect& other) const {
@@ -639,9 +638,9 @@ S1Angle S2LatLngRect::GetDirectedHausdorffDistance(
   // Cases A1 and B1.
   S2Point a_lo = S2LatLng::FromRadians(a.lo(), 0).ToPoint();
   S2Point a_hi = S2LatLng::FromRadians(a.hi(), 0).ToPoint();
-  max_distance = S2::GetDistance(a_lo, b_lo, b_hi);
+  max_distance = s2::GetDistance(a_lo, b_lo, b_hi);
   max_distance = max(
-      max_distance, S2::GetDistance(a_hi, b_lo, b_hi));
+      max_distance, s2::GetDistance(a_hi, b_lo, b_hi));
 
   if (lng_diff <= M_PI_2) {
     // Case A2.
@@ -685,7 +684,7 @@ S2Point S2LatLngRect::GetBisectorIntersection(const R1Interval& lat,
   }
   // A vector orthogonal to longitude 0.
   static const S2Point ortho_lng = S2Point(0, -1, 0);
-  return S2::RobustCrossProd(ortho_lng, ortho_bisector.ToPoint());
+  return s2::RobustCrossProd(ortho_lng, ortho_bisector.ToPoint());
 }
 
 // Return max distance from a point b to the segment spanning latitude range
@@ -728,3 +727,5 @@ bool S2LatLngRect::ApproxEquals(const S2LatLngRect& other,
 std::ostream& operator<<(std::ostream& os, const S2LatLngRect& r) {
   return os << "[Lo" << r.lo() << ", Hi" << r.hi() << "]";
 }
+
+}  // namespace s2

@@ -18,9 +18,10 @@
 #ifndef S2_S2SHAPEUTIL_CONTAINS_BRUTE_FORCE_H_
 #define S2_S2SHAPEUTIL_CONTAINS_BRUTE_FORCE_H_
 
-#include "s2/s2point.h"
-#include "s2/s2shape_index.h"
+#include "third_party/s2/s2point.h"
+#include "third_party/s2/s2shape_index.h"
 
+namespace s2 {
 namespace s2shapeutil {
 
 // Returns true if the given shape contains the given point.  Most clients
@@ -37,5 +38,6 @@ namespace s2shapeutil {
 bool ContainsBruteForce(const S2Shape& shape, const S2Point& point);
 
 }  // namespace s2shapeutil
+}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_CONTAINS_BRUTE_FORCE_H_

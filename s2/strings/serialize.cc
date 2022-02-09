@@ -13,7 +13,7 @@
 // limitations under the License.
 //
 
-#include "s2/strings/serialize.h"
+#include "third_party/s2/strings/serialize.h"
 
 #include <string>
 #include <vector>
@@ -27,10 +27,11 @@ using std::pair;
 using std::string;
 using std::vector;
 
+namespace s2 {
 namespace strings {
 
 bool DictionaryParse(string_view encoded_str,
-                     vector<pair<string, string>>* items) {
+                     vector<pair<std::string, std::string>>* items) {
   if (encoded_str.empty())
     return true;
   vector<string_view> const entries = StrSplit(encoded_str, ',');
@@ -38,9 +39,10 @@ bool DictionaryParse(string_view encoded_str,
     vector<string_view> const fields = StrSplit(entries[i], ':');
     if (fields.size() != 2)  // parsing error
       return false;
-    items->push_back(std::make_pair(string(fields[0]), string(fields[1])));
+    items->push_back(std::make_pair(std::string(fields[0]), std::string(fields[1])));
   }
   return true;
 }
 
 }  // namespace strings
+}  // namespace s2

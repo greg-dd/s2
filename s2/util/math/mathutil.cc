@@ -14,10 +14,22 @@
 //
 
 
-#include "s2/util/math/mathutil.h"
+#include "third_party/s2/util/math/mathutil.h"
 
 #include <cmath>
 #include <cstdlib>
+
+namespace s2 {
+namespace {
+// Returns the sign of x:
+//   -1 if x < 0,
+//   +1 if x > 0,
+//    0 if x = 0.
+template <class T>
+inline T sgn(const T x) {
+  return (x == 0 ? 0 : (x < 0 ? -1 : 1));
+}
+}  // namespace
 
 bool MathUtil::RealRootsForCubic(long double const a,
                                  long double const b,
@@ -62,3 +74,4 @@ bool MathUtil::RealRootsForCubic(long double const a,
   *r1 = *r2 = *r3 = -a_third;
   return true;
 }
+}  // namespace

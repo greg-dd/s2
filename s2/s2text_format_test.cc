@@ -13,43 +13,37 @@
 // limitations under the License.
 //
 
-#include "s2/s2text_format.h"
+#include "third_party/s2/s2text_format.h"
 
 #include <vector>
-
-#include <gtest/gtest.h>
-
-#include "absl/strings/match.h"
+#include "gtest/gtest.h"
 #include "absl/strings/str_split.h"
-#include "absl/strings/string_view.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2lax_polygon_shape.h"
+#include "third_party/s2/s2lax_polyline_shape.h"
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2polygon.h"
+#include "third_party/s2/s2polyline.h"
+#include "third_party/s2/s2testing.h"
 
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s1angle.h"
-#include "s2/s2latlng.h"
-#include "s2/s2lax_polygon_shape.h"
-#include "s2/s2lax_polyline_shape.h"
-#include "s2/s2loop.h"
-#include "s2/s2polygon.h"
-#include "s2/s2polyline.h"
-#include "s2/s2testing.h"
-
-using std::string;
 using std::unique_ptr;
 using std::vector;
 
-namespace {
+namespace s2 {
 
 static const int kIters = 10000;
 
 // Verify that s2textformat::ToString() formats the given lat/lng with at most
 // "max_digits" after the decimal point and has no trailing zeros.
 void ExpectMaxDigits(const S2LatLng& ll, int max_digits) {
-  string result = s2textformat::ToString(ll);
-  vector<string> values = absl::StrSplit(result, ':', absl::SkipEmpty());
+  std::string result = s2textformat::ToString(ll.ToPoint());
+  vector<std::string> values = absl::StrSplit(result, ':', absl::SkipEmpty());
   EXPECT_EQ(2, values.size()) << result;
   for (const auto& value : values) {
     int num_digits = 0;
-    if (absl::StrContains(value, '.')) {
+    if (value.find('.') != std::string::npos) {
       num_digits = value.size() - value.find('.') - 1;
       EXPECT_NE('0', value.back());
     }
@@ -57,33 +51,13 @@ void ExpectMaxDigits(const S2LatLng& ll, int max_digits) {
   }
 }
 
-void ExpectString(absl::string_view expected, const S2LatLng& ll) {
-  EXPECT_EQ(expected, s2textformat::ToString(ll));
+void ExpectString(const std::string& expected, const S2LatLng& ll) {
+  EXPECT_EQ(expected, s2textformat::ToString(ll.ToPoint()));
 }
 
 TEST(ToString, SpecialCases) {
   ExpectString("0:0", S2LatLng::FromDegrees(0, 0));
-  ExpectString("90:0", S2LatLng(S2Point(0, 0, 1)));
   ExpectString("1e-20:1e-30", S2LatLng::FromDegrees(1e-20, 1e-30));
-}
-
-TEST(ToString, NegativeZeros) {
-  // Verify that negative zero coordinates in S2Points are formatted identically
-  // to positive zeros.  This ensure that whenever two S2Points compare equal to
-  // each other, their string representations do as well.
-  //
-  // Note that we do not require that negative zero coordinates in S2LatLngs are
-  // formatted identically to positive zeros, since this can result from
-  // legitimate differences between S2Points.
-  EXPECT_EQ("0:0", s2textformat::ToString(S2Point(1., -0., 0.)));
-  EXPECT_EQ("0:0", s2textformat::ToString(S2Point(1., 0, -0.)));
-  EXPECT_EQ("0:0", s2textformat::ToString(S2Point(1., -0., -0.)));
-  EXPECT_EQ("0:180", s2textformat::ToString(S2Point(-1., -0., 0.)));
-  EXPECT_EQ("0:180", s2textformat::ToString(S2Point(-1., 0., -0.)));
-  EXPECT_EQ("0:180", s2textformat::ToString(S2Point(-1., -0., -0.)));
-  EXPECT_EQ("90:0", s2textformat::ToString(S2Point(-0., 0., 1.)));
-  EXPECT_EQ("90:0", s2textformat::ToString(S2Point(0., -0., 1.)));
-  EXPECT_EQ("90:0", s2textformat::ToString(S2Point(-0., -0., 1.)));
 }
 
 TEST(ToString, MinimalDigitsE5) {
@@ -143,6 +117,11 @@ TEST(ToString, FullLoop) {
   EXPECT_EQ("full", s2textformat::ToString(full));
 }
 
+TEST(ToString, FullLoopSpan) {
+  vector<S2Point> points;
+  EXPECT_EQ("full", s2textformat::ToString(S2PointLoopSpan(points)));
+}
+
 TEST(ToString, EmptyPolyline) {
   S2Polyline polyline;
   EXPECT_EQ("", s2textformat::ToString(polyline));
@@ -164,16 +143,16 @@ TEST(ToString, FullPolygon) {
 }
 
 TEST(ToString, S2PolygonLoopSeparator) {
-  const string kLoop1 = "0:0, 0:5, 5:0";
-  const string kLoop2 = "1:1, 1:4, 4:1";  // Shells and holes same direction.
+  const std::string kLoop1 = "0:0, 0:5, 5:0";
+  const std::string kLoop2 = "1:1, 1:4, 4:1";  // Shells and holes same direction.
   auto polygon = s2textformat::MakePolygonOrDie(kLoop1 + "; " + kLoop2);
   EXPECT_EQ(kLoop1 + ";\n" + kLoop2, s2textformat::ToString(*polygon));
   EXPECT_EQ(kLoop1 + "; " + kLoop2, s2textformat::ToString(*polygon, "; "));
 }
 
 TEST(ToString, LaxPolygonLoopSeparator) {
-  const string kLoop1 = "0:0, 0:5, 5:0";
-  const string kLoop2 = "1:1, 4:1, 1:4";  // Interior on left of all loops.
+  const std::string kLoop1 = "0:0, 0:5, 5:0";
+  const std::string kLoop2 = "1:1, 4:1, 1:4";  // Interior on left of all loops.
   auto polygon = s2textformat::MakeLaxPolygonOrDie(kLoop1 + "; " + kLoop2);
   EXPECT_EQ(kLoop1 + ";\n" + kLoop2, s2textformat::ToString(*polygon));
   EXPECT_EQ(kLoop1 + "; " + kLoop2, s2textformat::ToString(*polygon, "; "));
@@ -201,7 +180,7 @@ TEST(MakeLaxPolygon, FullWithHole) {
   EXPECT_EQ(1, shape->num_edges());
 }
 
-void TestS2ShapeIndex(absl::string_view str) {
+void TestS2ShapeIndex(const std::string& str) {
   EXPECT_EQ(str, s2textformat::ToString(*s2textformat::MakeIndexOrDie(str)));
 }
 
@@ -323,20 +302,6 @@ TEST(SafeMakeLoop, InvalidInput) {
   EXPECT_FALSE(s2textformat::MakeLoop("blah", &loop));
 }
 
-TEST(SafeMakeLoop, Empty) {
-  // Verify that "empty" creates an empty loop.
-  std::unique_ptr<S2Loop> loop;
-  EXPECT_TRUE(s2textformat::MakeLoop("empty", &loop));
-  EXPECT_TRUE(loop->is_empty());
-}
-
-TEST(SafeMakeLoop, Full) {
-  // Verify that "full" creates a full loop.
-  std::unique_ptr<S2Loop> loop;
-  EXPECT_TRUE(s2textformat::MakeLoop("full", &loop));
-  EXPECT_TRUE(loop->is_full());
-}
-
 TEST(SafeMakePolyline, ValidInput) {
   std::unique_ptr<S2Polyline> polyline;
   EXPECT_TRUE(
@@ -422,20 +387,15 @@ TEST(SafeMakeLaxPolygon, ValidInput) {
   std::unique_ptr<S2LaxPolygonShape> lax_polygon;
   EXPECT_TRUE(
       s2textformat::MakeLaxPolygon("-20:150, -20:151, -19:150", &lax_polygon));
-
-  // One loop of three verticies & three edges, in one chain starting at edge 0
-  // and three edges long.
+  // No easy equality check for LaxPolygons; check vertices instead.
   ASSERT_EQ(1, lax_polygon->num_loops());
   ASSERT_EQ(3, lax_polygon->num_vertices());
-  ASSERT_EQ(3, lax_polygon->num_edges());
-  ASSERT_EQ(1, lax_polygon->num_chains());
-  S2Shape::Chain expected_chain(0, 3);
-  ASSERT_EQ(expected_chain, lax_polygon->chain(0));
-
-  // No easy equality check for LaxPolygons, but checking ToString() is a
-  // concise test that s2textformat called the constructor correctly. The tests
-  // for S2LaxPolygonShape have more checks on constructor consistency.
-  EXPECT_EQ("-20:150, -20:151, -19:150", s2textformat::ToString(*lax_polygon));
+  EXPECT_TRUE(S2LatLng(lax_polygon->loop_vertex(0, 0))
+                  .ApproxEquals(S2LatLng::FromDegrees(-20, 150)));
+  EXPECT_TRUE(S2LatLng(lax_polygon->loop_vertex(0, 1))
+                  .ApproxEquals(S2LatLng::FromDegrees(-20, 151)));
+  EXPECT_TRUE(S2LatLng(lax_polygon->loop_vertex(0, 2))
+                  .ApproxEquals(S2LatLng::FromDegrees(-19, 150)));
 }
 
 TEST(SafeMakeLaxPolygon, InvalidInput) {
@@ -454,4 +414,4 @@ TEST(SafeMakeIndex, InvalidInput) {
   EXPECT_FALSE(s2textformat::MakeIndex("# blah #", &index));
 }
 
-}  // namespace
+}  // namespace s2

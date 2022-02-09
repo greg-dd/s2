@@ -18,25 +18,26 @@
 // Most of S2Builder::Graph is tested by the S2Builder::Layer implementations
 // rather than here.
 
-#include "s2/s2builder_graph.h"
+#include "third_party/s2/s2builder_graph.h"
 
 #include <iosfwd>
 #include <memory>
 #include <vector>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "s2/id_set_lexicon.h"
-#include "s2/s2builderutil_testing.h"
-#include "s2/s2lax_polyline_shape.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/id_set_lexicon.h"
+#include "third_party/s2/s2builderutil_testing.h"
+#include "third_party/s2/s2lax_polyline_shape.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2builderutil::GraphClone;
-using s2builderutil::GraphCloningLayer;
-using s2textformat::MakeLaxPolylineOrDie;
-using s2textformat::ParsePointsOrDie;
+using s2::s2builderutil::GraphClone;
+using s2::s2builderutil::GraphCloningLayer;
+using s2::s2textformat::MakeLaxPolylineOrDie;
 using std::vector;
+
+namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
@@ -51,33 +52,11 @@ using Edge = Graph::Edge;
 using EdgeId = Graph::EdgeId;
 using InputEdgeId = Graph::InputEdgeId;
 using InputEdgeIdSetId = Graph::InputEdgeIdSetId;
-using LabelSetId = Graph::LabelSetId;
 using LoopType = Graph::LoopType;
 using PolylineType = Graph::PolylineType;
 using VertexId = Graph::VertexId;
 
 namespace s2builder {
-
-TEST(Graph, LabelsRequestedButNotProvided) {
-  // Tests the situation where labels are requested but none were provided.
-  GraphOptions options(EdgeType::DIRECTED, DegenerateEdges::KEEP,
-                       DuplicateEdges::KEEP, SiblingPairs::KEEP);
-  vector<S2Point> vertices{S2Point(1, 0, 0)};
-  vector<Edge> edges{{0, 0}};
-  vector<InputEdgeIdSetId> input_edge_id_set_ids{0};
-  IdSetLexicon input_edge_id_set_lexicon, label_set_lexicon;;
-  vector<LabelSetId> label_set_ids;  // Empty means no labels are present.
-  Graph g{
-    options, &vertices, &edges, &input_edge_id_set_ids,
-    &input_edge_id_set_lexicon, &label_set_ids, &label_set_lexicon, nullptr};
-  EXPECT_TRUE(g.label_set_ids().empty());
-  EXPECT_EQ(g.label_set_id(0), IdSetLexicon::EmptySetId());
-  EXPECT_EQ(g.labels(0).size(), 0);  // Labels for input edge 0.
-  Graph::LabelFetcher fetcher(g, EdgeType::DIRECTED);
-  vector<S2Builder::Label> labels;
-  fetcher.Fetch(0, &labels);         // Labels for graph edge 0.
-  EXPECT_TRUE(labels.empty());
-}
 
 TEST(GetDirectedLoops, DegenerateEdges) {
   GraphClone gc;
@@ -105,7 +84,7 @@ TEST(GetDirectedComponents, DegenerateEdges) {
   S2Builder builder{S2Builder::Options()};
   GraphOptions graph_options(
       EdgeType::DIRECTED, DegenerateEdges::DISCARD_EXCESS,
-      DuplicateEdges::KEEP, SiblingPairs::CREATE);
+      DuplicateEdges::MERGE, SiblingPairs::CREATE);
   builder.StartLayer(make_unique<GraphCloningLayer>(graph_options, &gc));
   builder.AddShape(*MakeLaxPolylineOrDie("1:1, 1:1"));
   builder.AddShape(*MakeLaxPolylineOrDie("0:0, 0:2, 2:2, 2:0, 0:0"));
@@ -300,27 +279,28 @@ TEST(ProcessEdges, DiscardExcessConnectedDegenerateEdges) {
 TEST(ProcessEdges, DiscardExcessIsolatedDegenerateEdges) {
   GraphOptions options(EdgeType::DIRECTED, DegenerateEdges::DISCARD_EXCESS,
                        DuplicateEdges::KEEP, SiblingPairs::KEEP);
-  // Test that DISCARD_EXCESS merges any duplicate degenerate edges together.
+  // Test that DISCARD_EXCESS does not merge any remaining duplicate
+  // degenerate edges together.
   TestProcessEdges({{0, 0, {1}}, {0, 0, {2}}},
-                   {{0, 0, {1, 2}}}, &options);
+                   {{0, 0, {1}}, {0, 0, {2}}}, &options);
 }
 
 TEST(ProcessEdges, DiscardExcessUndirectedIsolatedDegenerateEdges) {
   GraphOptions options(EdgeType::UNDIRECTED, DegenerateEdges::DISCARD_EXCESS,
                        DuplicateEdges::KEEP, SiblingPairs::KEEP);
-  // Test that DISCARD_EXCESS merges any duplicate undirected degenerate edges
-  // together.
+  // Test that DISCARD_EXCESS does not merge any remaining duplicate
+  // undirected degenerate edges together.
   TestProcessEdges({{0, 0, {1}}, {0, 0}, {0, 0, {2}}, {0, 0}},
-                   {{0, 0, {1, 2}}, {0, 0, {1, 2}}}, &options);
+                   {{0, 0, {1}}, {0, 0}, {0, 0, {2}}, {0, 0}}, &options);
 }
 
 TEST(ProcessEdges, DiscardExcessConvertedUndirectedIsolatedDegenerateEdges) {
   GraphOptions options(EdgeType::UNDIRECTED, DegenerateEdges::DISCARD_EXCESS,
                        DuplicateEdges::KEEP, SiblingPairs::REQUIRE);
-  // Test that DISCARD_EXCESS with SiblingPairs::REQUIRE merges any duplicate
-  // edges together and converts the edges from UNDIRECTED to DIRECTED.
+  // Converting from UNDIRECTED to DIRECTED cuts the edge count in half and
+  // merges edge labels.
   TestProcessEdges({{0, 0, {1}}, {0, 0, {2}}, {0, 0, {3}}, {0, 0}},
-                   {{0, 0, {1, 2, 3}}}, &options);
+                   {{0, 0, {1, 2, 3}}, {0, 0, {1, 2, 3}}}, &options);
   EXPECT_EQ(EdgeType::DIRECTED, options.edge_type());
 }
 
@@ -481,100 +461,5 @@ TEST(ProcessEdges, CreateUndirectedSiblingPairsMergeDuplicates) {
   EXPECT_EQ(EdgeType::DIRECTED, options.edge_type());
 }
 
-void TestMakeSubgraph(
-    const Graph& g,
-    IdSetLexicon new_input_edge_id_set_lexicon,
-    GraphOptions new_options,
-    vector<Edge> new_edges,
-    vector<InputEdgeIdSetId> new_input_edge_id_set_ids,
-    const GraphOptions& expected_options,
-    const vector<Edge>& expected_edges,
-    const vector<InputEdgeIdSetId>& expected_input_edge_id_set_ids) {
-  S2Error error;
-  Graph new_g = g.MakeSubgraph(
-      new_options, &new_edges, &new_input_edge_id_set_ids,
-      &new_input_edge_id_set_lexicon, nullptr, &error);
-
-  // Some parts of the graph should be the same.
-  EXPECT_TRUE(&new_g.vertices() == &g.vertices());
-  EXPECT_EQ(&new_g.label_set_ids(), &g.label_set_ids());
-  EXPECT_EQ(&new_g.label_set_lexicon(), &g.label_set_lexicon());
-
-  // Some parts of the graph should use the provided underlying storage.
-  EXPECT_TRUE(&new_g.edges() == &new_edges);
-  EXPECT_TRUE(&new_g.input_edge_id_set_ids() == &new_input_edge_id_set_ids);
-  EXPECT_TRUE(&new_g.input_edge_id_set_lexicon() ==
-              &new_input_edge_id_set_lexicon);
-
-  // The new graph should have the expected options.
-  EXPECT_EQ(new_g.options().edge_type(), expected_options.edge_type());
-  EXPECT_EQ(new_g.options().degenerate_edges(),
-            expected_options.degenerate_edges());
-  EXPECT_EQ(new_g.options().duplicate_edges(),
-            expected_options.duplicate_edges());
-  EXPECT_EQ(new_g.options().sibling_pairs(), expected_options.sibling_pairs());
-
-  // The edges should be updated according to the requested options.
-  EXPECT_EQ(new_g.edges(), expected_edges);
-  EXPECT_EQ(new_g.input_edge_id_set_ids(), expected_input_edge_id_set_ids);
-  EXPECT_EQ(&new_g.input_edge_id_set_lexicon(),
-            &new_input_edge_id_set_lexicon);
-}
-
-TEST(MakeSubgraph, UndirectedToUndirected) {
-  // Test that MakeSubgraph() doesn't transform edges into edge pairs when
-  // creating an undirected subgraph of an undirected graph.
-  GraphOptions options(EdgeType::UNDIRECTED, DegenerateEdges::KEEP,
-                       DuplicateEdges::KEEP, SiblingPairs::KEEP);
-  auto vertices = ParsePointsOrDie("0:0, 0:1, 1:1");
-  vector<Edge> edges{{0, 0}, {0, 0}, {1, 2}, {2, 1}};
-  vector<InputEdgeIdSetId> input_edge_id_set_ids{0, 0, 1, 1};
-  vector<LabelSetId> label_set_ids;
-  IdSetLexicon input_edge_id_set_lexicon, label_set_lexicon;
-  Graph graph{
-    options, &vertices, &edges, &input_edge_id_set_ids,
-    &input_edge_id_set_lexicon, &label_set_ids, &label_set_lexicon, nullptr};
-
-  // Now create a subgraph with undirected edges but different options.
-  GraphOptions new_options(EdgeType::UNDIRECTED, DegenerateEdges::DISCARD,
-                           DuplicateEdges::KEEP, SiblingPairs::KEEP);
-  vector<Edge> expected_edges{{1, 2}, {2, 1}};
-  vector<InputEdgeIdSetId> expected_input_edge_id_set_ids{1, 1};
-  TestMakeSubgraph(
-      graph, input_edge_id_set_lexicon,
-      new_options, edges, input_edge_id_set_ids,
-      new_options, expected_edges, expected_input_edge_id_set_ids);
-}
-
-TEST(MakeSubgraph, DirectedToUndirected) {
-  // Test transforming directed edges into undirected edges (which doubles the
-  // number of edges).
-  GraphOptions options(EdgeType::DIRECTED, DegenerateEdges::KEEP,
-                       DuplicateEdges::KEEP, SiblingPairs::KEEP);
-  auto vertices = ParsePointsOrDie("0:0, 0:1, 1:1");
-  vector<Edge> edges{{0, 0}, {0, 1}, {1, 2}, {1, 2}, {2, 1}};
-  vector<InputEdgeIdSetId> input_edge_id_set_ids{1, 2, 3, 3, 3};
-  vector<LabelSetId> label_set_ids;
-  IdSetLexicon input_edge_id_set_lexicon, label_set_lexicon;
-  Graph graph{
-    options, &vertices, &edges, &input_edge_id_set_ids,
-    &input_edge_id_set_lexicon, &label_set_ids, &label_set_lexicon, nullptr};
-
-  // Now create a subgraph with undirected edges and different options.
-  GraphOptions new_options(EdgeType::UNDIRECTED, DegenerateEdges::KEEP,
-                           DuplicateEdges::KEEP, SiblingPairs::DISCARD_EXCESS);
-  vector<Edge> expected_edges{
-    {0, 0}, {0, 0},  // Undirected degenerate edge.
-    {0, 1}, {1, 0},  // Undirected edge.
-    {1, 2}, {2, 1}   // Undirected edge after discarding sibling pair.
-  };
-  vector<InputEdgeIdSetId> expected_input_edge_id_set_ids{
-    1, 1, 2, IdSetLexicon::EmptySetId(), 3, 3
-  };
-  TestMakeSubgraph(
-      graph, input_edge_id_set_lexicon,
-      new_options, edges, input_edge_id_set_ids,
-      new_options, expected_edges, expected_input_edge_id_set_ids);
-}
-
 }  // namespace s2builder
+}  // namespace s2

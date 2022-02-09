@@ -13,17 +13,19 @@
 // limitations under the License.
 //
 
-#include "s2/s2max_distance_targets.h"
+#include "third_party/s2/s2max_distance_targets.h"
 
 #include <memory>
 #include "absl/memory/memory.h"
-#include "s2/s1angle.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2furthest_edge_query.h"
-#include "s2/s2shape_index_region.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2furthest_edge_query.h"
+#include "third_party/s2/s2shape_index_region.h"
+#include "third_party/s2/s2text_format.h"
+
+namespace s2 {
 
 //////////////////   Point Target   ////////////////////
 
@@ -42,7 +44,7 @@ bool S2MaxDistancePointTarget::UpdateMinDistance(
 bool S2MaxDistancePointTarget::UpdateMinDistance(
     const S2Point& v0, const S2Point& v1, S2MaxDistance* min_dist) {
   S1ChordAngle dist(*min_dist);
-  if (S2::UpdateMaxDistance(point_, v0, v1, &dist)) {
+  if (s2::UpdateMaxDistance(point_, v0, v1, &dist)) {
     min_dist->UpdateMin(S2MaxDistance(dist));
     return true;
   }
@@ -81,7 +83,7 @@ S2Cap S2MaxDistanceEdgeTarget::GetCapBound() {
 bool S2MaxDistanceEdgeTarget::UpdateMinDistance(
     const S2Point& p, S2MaxDistance* min_dist) {
   S1ChordAngle dist(*min_dist);
-  if (S2::UpdateMaxDistance(p, a_, b_, &dist)) {
+  if (s2::UpdateMaxDistance(p, a_, b_, &dist)) {
     min_dist->UpdateMin(S2MaxDistance(dist));
     return true;
   }
@@ -91,7 +93,7 @@ bool S2MaxDistanceEdgeTarget::UpdateMinDistance(
 bool S2MaxDistanceEdgeTarget::UpdateMinDistance(
     const S2Point& v0, const S2Point& v1, S2MaxDistance* min_dist) {
   S1ChordAngle dist(*min_dist);
-  if (S2::UpdateEdgePairMaxDistance(a_, b_, v0, v1, &dist)) {
+  if (s2::UpdateEdgePairMaxDistance(a_, b_, v0, v1, &dist)) {
     min_dist->UpdateMin(S2MaxDistance(dist));
     return true;
   }
@@ -196,7 +198,9 @@ bool S2MaxDistanceShapeIndexTarget::UpdateMinDistance(
   query_->mutable_options()->set_min_distance(S1ChordAngle(*min_dist));
   S2FurthestEdgeQuery::PointTarget target(p);
   S2FurthestEdgeQuery::Result r = query_->FindFurthestEdge(&target);
-  if (r.is_empty()) return false;
+  if (r.shape_id() < 0) {
+    return false;
+  }
   *min_dist = S2MaxDistance(r.distance());
   return true;
 }
@@ -206,7 +210,7 @@ bool S2MaxDistanceShapeIndexTarget::UpdateMinDistance(
   query_->mutable_options()->set_min_distance(S1ChordAngle(*min_dist));
   S2FurthestEdgeQuery::EdgeTarget target(v0, v1);
   S2FurthestEdgeQuery::Result r = query_->FindFurthestEdge(&target);
-  if (r.is_empty()) return false;
+  if (r.shape_id() < 0) return false;
   *min_dist = S2MaxDistance(r.distance());
   return true;
 }
@@ -216,7 +220,7 @@ bool S2MaxDistanceShapeIndexTarget::UpdateMinDistance(
   query_->mutable_options()->set_min_distance(S1ChordAngle(*min_dist));
   S2FurthestEdgeQuery::CellTarget target(cell);
   S2FurthestEdgeQuery::Result r = query_->FindFurthestEdge(&target);
-  if (r.is_empty()) return false;
+  if (r.shape_id() < 0) return false;
   *min_dist = S2MaxDistance(r.distance());
   return true;
 }
@@ -261,3 +265,5 @@ bool S2MaxDistanceShapeIndexTarget::VisitContainingShapes(
   }
   return true;
 }
+
+}  // namespace s2

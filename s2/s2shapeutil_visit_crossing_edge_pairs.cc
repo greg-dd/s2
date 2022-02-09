@@ -15,15 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2shapeutil_visit_crossing_edge_pairs.h"
+#include "third_party/s2/s2shapeutil_visit_crossing_edge_pairs.h"
 
-#include "s2/s2crossing_edge_query.h"
-#include "s2/s2edge_crosser.h"
-#include "s2/s2error.h"
-#include "s2/s2shapeutil_range_iterator.h"
-#include "s2/s2wedge_relations.h"
+#include "third_party/s2/s2crossing_edge_query.h"
+#include "third_party/s2/s2edge_crosser.h"
+#include "third_party/s2/s2error.h"
+#include "third_party/s2/s2shapeutil_range_iterator.h"
+#include "third_party/s2/s2wedge_relations.h"
 
 using std::vector;
+
+namespace s2 {
 using ChainPosition = S2Shape::ChainPosition;
 
 namespace s2shapeutil {
@@ -351,8 +353,7 @@ bool VisitCrossingEdgePairs(const S2ShapeIndex& a_index,
 
 // Helper function that formats a loop error message.  If the loop belongs to
 // a multi-loop polygon, adds a prefix indicating which loop is affected.
-static void InitLoopError(S2Error::Code code,
-                          const absl::FormatSpec<int, int>& format,
+static void InitLoopError(S2Error::Code code, const char* format,
                           ChainPosition ap, ChainPosition bp,
                           bool is_polygon, S2Error* error) {
   error->Init(code, format, ap.offset, bp.offset);
@@ -411,10 +412,10 @@ static bool FindCrossingError(const S2Shape& shape,
   //
   // Note that we don't need to maintain any state regarding loop crossings
   // because duplicate edges are detected and rejected above.
-  if (S2::GetWedgeRelation(a.v0(), a.v1(), a2, b.v0(), b2) ==
-      S2::WEDGE_PROPERLY_OVERLAPS &&
-      S2::GetWedgeRelation(a.v0(), a.v1(), a2, b2, b.v0()) ==
-      S2::WEDGE_PROPERLY_OVERLAPS) {
+  if (s2::GetWedgeRelation(a.v0(), a.v1(), a2, b.v0(), b2) ==
+      s2::WEDGE_PROPERLY_OVERLAPS &&
+      s2::GetWedgeRelation(a.v0(), a.v1(), a2, b2, b.v0()) ==
+      s2::WEDGE_PROPERLY_OVERLAPS) {
     error->Init(S2Error::POLYGON_LOOPS_CROSS,
                 "Loop %d edge %d crosses loop %d edge %d",
                 ap.chain_id, ap.offset, bp.chain_id, bp.offset);
@@ -439,3 +440,4 @@ bool FindSelfIntersection(const S2ShapeIndex& index, S2Error* error) {
 }
 
 }  // namespace s2shapeutil
+}  // namespace s2

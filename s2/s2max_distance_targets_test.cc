@@ -13,29 +13,31 @@
 // limitations under the License.
 //
 
-#include "s2/s2max_distance_targets.h"
+#include "third_party/s2/s2max_distance_targets.h"
 
 #include <vector>
 
-#include <gtest/gtest.h>
-#include "absl/container/btree_set.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s1angle.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2lax_polygon_shape.h"
-#include "s2/s2point_vector_shape.h"
-#include "s2/s2polygon.h"
-#include "s2/s2shape_index.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/util/gtl/btree_set.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2lax_polygon_shape.h"
+#include "third_party/s2/s2point_vector_shape.h"
+#include "third_party/s2/s2polygon.h"
+#include "third_party/s2/s2shape_index.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2textformat::MakeIndexOrDie;
-using s2textformat::MakePointOrDie;
-using s2textformat::ParsePointsOrDie;
+using s2::s2textformat::MakeIndexOrDie;
+using s2::s2textformat::MakePointOrDie;
+using s2::s2textformat::ParsePointsOrDie;
 using std::vector;
+
+namespace s2 {
 
 TEST(CellTarget, GetCapBound) {
   for (int i = 0; i < 100; i++) {
@@ -95,7 +97,7 @@ TEST(PointTarget, UpdateMaxDistance) {
   auto edge = ParsePointsOrDie("0:-1, 0:1");
   EXPECT_TRUE(target.UpdateMinDistance(edge[0], edge[1], &dist0));
   EXPECT_NEAR(1.0, S1ChordAngle(dist0).degrees(), 1e-15);
-  EXPECT_FALSE(target.UpdateMinDistance(edge[0], edge[1], &dist10));
+  EXPECT_FALSE(target.UpdateMinDistance(p, &dist10));
 
   // Reset dist0 which was updated.
   dist0 = S2MaxDistance(S1ChordAngle::Degrees(0));
@@ -142,7 +144,7 @@ TEST(EdgeTarget, UpdateMaxDistance) {
   auto test_edge = ParsePointsOrDie("0:2, 0:3");
   EXPECT_TRUE(target.UpdateMinDistance(test_edge[0], test_edge[1], &dist0));
   EXPECT_NEAR(4.0, S1ChordAngle(dist0).degrees(), 1e-15);
-  EXPECT_FALSE(target.UpdateMinDistance(test_edge[0], test_edge[1], &dist10));
+  EXPECT_FALSE(target.UpdateMinDistance(p, &dist10));
 
   // Reset dist0 which was updated.
   dist0 = S2MaxDistance(S1ChordAngle::Degrees(0));
@@ -193,7 +195,7 @@ TEST(CellTarget, UpdateMaxDistance) {
   // Test for edges.
   auto test_edge = ParsePointsOrDie("0:2, 0:3");
   EXPECT_TRUE(target.UpdateMinDistance(test_edge[0], test_edge[1], &dist0));
-  EXPECT_FALSE(target.UpdateMinDistance(test_edge[0], test_edge[1], &dist10));
+  EXPECT_FALSE(target.UpdateMinDistance(p, &dist10));
 
   // Reset dist0 which was updated.
   dist0 = S2MaxDistance(S1ChordAngle::Degrees(0));
@@ -251,8 +253,8 @@ TEST(CellTarget, UpdateMaxDistanceToCellAntipodal) {
 
 vector<int> GetContainingShapes(S2MaxDistanceTarget* target,
                                 const S2ShapeIndex& index, int max_shapes) {
-  absl::btree_set<int32> shape_ids;
-  (void)target->VisitContainingShapes(
+  gtl::btree_set<int32> shape_ids;
+  (void) target->VisitContainingShapes(
       index, [&shape_ids, max_shapes](S2Shape* containing_shape,
                                       const S2Point& target_point) {
         shape_ids.insert(containing_shape->id());
@@ -273,7 +275,7 @@ TEST(PointTarget, VisitContainingShapes) {
 }
 
 TEST(EdgeTarget, VisitContainingShapes) {
-  // Only shapes 2 and 4 should contain the target edge.
+  // Only shapes 2 and 4 should contain the target point.
   auto index = MakeIndexOrDie(
       "1:1 # 1:1, 2:2 # 0:0, 0:3, 3:0 | 6:6, 6:9, 9:6 | 0:0, 0:4, 4:0");
   // Test against antipodal edge.
@@ -365,3 +367,5 @@ TEST(ShapeIndexTarget, VisitContainingShapesEmptyAndFull) {
   S2MaxDistanceShapeIndexTarget empty_target(empty_polygon_index.get());
   EXPECT_EQ((vector<int>{}), GetContainingShapes(&empty_target, *index, 5));
 }
+
+}  // namespace s2

@@ -18,20 +18,11 @@
 #ifndef S2_S2SHAPE_H_
 #define S2_S2SHAPE_H_
 
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-#include "s2/s2point.h"
-#include "s2/s2pointutil.h"
-#include "s2/util/coding/coder.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/s2point.h"
+#include "third_party/s2/s2pointutil.h"
 
-namespace s2coding {
-
-// Controls whether to optimize for speed or size when encoding shapes.  (Note
-// that encoding is always lossless, and that compact encodings are currently
-// only possible when points have been snapped to S2CellId centers.)
-enum class CodingHint : uint8 { FAST, COMPACT };
-
-}  // namespace s2coding
+namespace s2 {
 
 // The purpose of S2Shape is to represent polygonal geometry in a flexible
 // way.  It is organized as a collection of edges that optionally defines an
@@ -119,7 +110,7 @@ class S2Shape {
     // Returns a ReferencePoint with the given "contained" value and a default
     // "point".  It should be used when all points or no points are contained.
     static ReferencePoint Contained(bool _contained) {
-      return ReferencePoint(S2::Origin(), _contained);
+      return ReferencePoint(Origin(), _contained);
     }
 
     friend bool operator==(const ReferencePoint& x, const ReferencePoint& y) {
@@ -137,9 +128,6 @@ class S2Shape {
 
   // Indicates that a given S2Shape type cannot be encoded.
   static constexpr TypeTag kNoTypeTag = 0;
-
-  // The following constant should be updated whenever new types are added.
-  static constexpr TypeTag kNextAvailableTypeTag = 6;
 
   // The minimum allowable tag for user-defined S2Shape types.
   static constexpr TypeTag kMinUserTypeTag = 8192;
@@ -243,26 +231,6 @@ class S2Shape {
   // S2Shape (see TypeTag above).
   virtual TypeTag type_tag() const { return kNoTypeTag; }
 
-  // Appends an encoded representation of the S2Shape to "encoder".  Note that
-  // the encoding does *not* include the type_tag(), so the tag will need to
-  // be encoded separately if the shape type will be unknown at decoding time
-  // (see s2shapeutil::EncodeTaggedShapes() and related functions).
-  //
-  // The encoded representation should satisfy the following:
-  //
-  //  - It should include a version number, so that the encoding may be changed
-  //    or improved in the future.
-  //
-  //  - If "hint" is CodingHint::FAST, the encoding should be optimized for
-  //    decoding performance.  If "hint" is CodingHint::COMPACT, the encoding
-  //    should be optimized for space.
-  //
-  // REQUIRES: "encoder" uses the default constructor, so that its buffer
-  //           can be enlarged as necessary by calling Ensure(int).
-  virtual void Encode(Encoder* encoder, s2coding::CodingHint hint) const {
-    S2_DLOG(FATAL) << "Encoding not implemented for this S2Shape type";
-  }
-
   // Virtual methods that return pointers of your choice.  These methods are
   // intended to help with the problem of attaching additional data to S2Shape
   // objects.  For example, you could return a pointer to a source object, or
@@ -303,6 +271,8 @@ class S2Shape {
   virtual void* mutable_user_data() { return nullptr; }
 
  private:
+  // Next available type tag available for use within the S2 library: 6.
+
   friend class EncodedS2ShapeIndex;
   friend class MutableS2ShapeIndex;
 
@@ -311,5 +281,7 @@ class S2Shape {
   S2Shape(const S2Shape&) = delete;
   void operator=(const S2Shape&) = delete;
 };
+
+}  // namespace s2
 
 #endif  // S2_S2SHAPE_H_

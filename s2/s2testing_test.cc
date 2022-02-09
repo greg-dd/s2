@@ -15,23 +15,23 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2testing.h"
+#include "third_party/s2/s2testing.h"
 
 #include <algorithm>
 #include <cmath>
 #include <memory>
 
-#include "s2/base/logging.h"
-#include <gtest/gtest.h>
+#include "third_party/s2/base/logging.h"
+#include "gtest/gtest.h"
 
-#include "s2/s1angle.h"
-#include "s2/s2loop.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2loop.h"
 
 using std::max;
 using std::min;
 using std::unique_ptr;
 
-namespace {
+namespace s2 {
 
 int NumVerticesAtLevel(int level) {
   S2_DCHECK(level >= 0 && level <= 14);  // Sanity / overflow check
@@ -85,7 +85,7 @@ void TestFractal(int min_level, int max_level, double dimension) {
 
   // "triangle_perim" is the perimeter of the original equilateral triangle
   // before any subdivision occurs.
-  double triangle_perim = 3 * sqrt(3) * tan(nominal_radius);
+  double triangle_perim = 3 * sqrt(3) * std::tan(nominal_radius);
   double min_length_sum = triangle_perim * pow(expansion_factor, min_level);
   for (int level = min_level; level <= max_level; ++level) {
     expected_num_vertices += NumVerticesAtLevel(level);
@@ -105,13 +105,13 @@ void TestFractal(int min_level, int max_level, double dimension) {
   double length_sum = 0;
   for (int i = 0; i < loop->num_vertices(); ++i) {
     // Measure the radius of the fractal in the tangent plane at "center".
-    double r = tan(center.Angle(loop->vertex(i)));
+    double r = std::tan(center.Angle(loop->vertex(i)));
     min_radius = min(min_radius, r);
     max_radius = max(max_radius, r);
     length_sum += loop->vertex(i).Angle(loop->vertex(i+1));
   }
   // kVertexError is an approximate bound on the error when computing vertex
-  // positions of the fractal (due to S2::FromFrame, trig calculations, etc).
+  // positions of the fractal (due to FromFrame, trig calculations, etc).
   const double kVertexError = 1e-14;
 
   // Although min_radius_factor() is only a lower bound in general, it happens
@@ -163,4 +163,4 @@ TEST(S2Testing, CesaroMultiFractal) {
   TestFractal(3, 6, 1.8);
 }
 
-}  // namespace
+}  // namespace s2

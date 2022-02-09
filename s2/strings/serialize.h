@@ -21,6 +21,7 @@
 
 #include "absl/strings/string_view.h"
 
+namespace s2 {
 namespace strings {
 
 // -------------------------------------------------------------------------
@@ -36,5 +37,6 @@ bool DictionaryParse(absl::string_view encoded_str,
                      std::vector<std::pair<std::string, std::string>>* items);
 
 }  // namespace strings
+}  // namespace s2
 
 #endif  // S2_STRINGS_SERIALIZE_H_

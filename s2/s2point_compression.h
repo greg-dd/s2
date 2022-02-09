@@ -31,7 +31,7 @@
 //     derivative encoding should make the values small.
 // In addition, provides a lossless method to compress a sequence of points even
 // if some points are not the center of level-k cells. These points are stored
-// exactly, using 3 double precision values, after the above encoded string,
+// exactly, using 3 double precision values, after the above encoded std::string,
 // together with their index in the sequence (this leads to some redundancy - it
 // is expected that only a small fraction of the points are not cell centers).
 //
@@ -47,9 +47,10 @@
 #define S2_S2POINT_COMPRESSION_H_
 
 #include "absl/types/span.h"
-#include "s2/_fp_contract_off.h"
-#include "s2/s1angle.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/s1angle.h"
 
+namespace s2 {
 class Decoder;
 class Encoder;
 
@@ -75,4 +76,5 @@ void S2EncodePointsCompressed(absl::Span<const S2XYZFaceSiTi> points,
 bool S2DecodePointsCompressed(Decoder* decoder, int level,
                               absl::Span<S2Point> points);
 
+}  // namespace s2
 #endif  // S2_S2POINT_COMPRESSION_H_

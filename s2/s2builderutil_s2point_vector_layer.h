@@ -20,16 +20,17 @@
 
 #include <memory>
 #include <vector>
-#include "s2/base/logging.h"
+#include "third_party/s2/base/logging.h"
 #include "absl/memory/memory.h"
-#include "s2/id_set_lexicon.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2builder.h"
-#include "s2/s2builder_graph.h"
-#include "s2/s2builder_layer.h"
-#include "s2/s2error.h"
-#include "s2/s2point_vector_shape.h"
+#include "third_party/s2/id_set_lexicon.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2builder.h"
+#include "third_party/s2/s2builder_graph.h"
+#include "third_party/s2/s2builder_layer.h"
+#include "third_party/s2/s2error.h"
+#include "third_party/s2/s2point_vector_shape.h"
 
+namespace s2 {
 namespace s2builderutil {
 
 // A layer type that collects degenerate edges as points.
@@ -118,5 +119,6 @@ inline void S2PointVectorLayer::Options::set_duplicate_edges(
 }
 
 }  // namespace s2builderutil
+}  // namespace s2
 
 #endif  // S2_S2BUILDERUTIL_S2POINT_VECTOR_LAYER_H_

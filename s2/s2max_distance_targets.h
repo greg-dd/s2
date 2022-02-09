@@ -23,13 +23,15 @@
 
 #include <memory>
 
-#include "s2/_fp_contract_off.h"
-#include "s2/s1angle.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2cell.h"
-#include "s2/s2distance_target.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2shape_index.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2distance_target.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2shape_index.h"
+
+namespace s2 {
 
 class S2FurthestEdgeQuery;
 
@@ -237,5 +239,7 @@ inline S2MaxDistanceEdgeTarget::S2MaxDistanceEdgeTarget(const S2Point& a,
 inline S2MaxDistanceCellTarget::S2MaxDistanceCellTarget(const S2Cell& cell)
     : cell_(cell) {
 }
+
+}  // namespace s2
 
 #endif  // S2_S2MAX_DISTANCE_TARGETS_H_

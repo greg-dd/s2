@@ -25,10 +25,10 @@
 #ifndef S2_UTIL_UNITS_LENGTH_UNITS_H_
 #define S2_UTIL_UNITS_LENGTH_UNITS_H_
 
-#include "s2/util/units/physical-units.h"
+#include "third_party/s2/util/units/physical-units.h"
 
+namespace s2 {
 namespace util {
-
 namespace units {
 
 struct LengthBase {
@@ -129,7 +129,7 @@ inline ValueType GetYards(const PhysicalUnit<ValueType, LengthBase, Unit> u) {
 }
 
 }  // end namespace units
-
 }  // end namespace util
+}  // end namespace s2
 
 #endif  // S2_UTIL_UNITS_LENGTH_UNITS_H_

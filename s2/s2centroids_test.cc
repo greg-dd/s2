@@ -15,11 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2centroids.h"
+#include "third_party/s2/s2centroids.h"
 
-#include <gtest/gtest.h>
-#include "s2/s2testing.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/s2testing.h"
 
+namespace s2 {
 namespace {
 
 TEST(TriangleTrueCentroid, SmallTriangles) {
@@ -32,7 +33,7 @@ TEST(TriangleTrueCentroid, SmallTriangles) {
     S2Point p0 = (p - d * x).Normalize();
     S2Point p1 = (p + d * x).Normalize();
     S2Point p2 = (p + 3 * d * y).Normalize();
-    S2Point centroid = S2::TrueCentroid(p0, p1, p2).Normalize();
+    S2Point centroid = TrueCentroid(p0, p1, p2).Normalize();
 
     // The centroid of a planar triangle is at the intersection of its
     // medians, which is two-thirds of the way along each median.
@@ -47,8 +48,8 @@ TEST(EdgeTrueCentroid, SemiEquator) {
   // length) should point toward B and have a norm of 2.0.  (The centroid
   // itself has a norm of 2/Pi, and the total edge length is Pi.)
   S2Point a(0, -1, 0), b(1, 0, 0), c(0, 1, 0);
-  S2Point centroid = S2::TrueCentroid(a, b) + S2::TrueCentroid(b, c);
-  EXPECT_TRUE(S2::ApproxEquals(b, centroid.Normalize()));
+  S2Point centroid = TrueCentroid(a, b) + TrueCentroid(b, c);
+  EXPECT_TRUE(ApproxEquals(b, centroid.Normalize()));
   EXPECT_DOUBLE_EQ(2.0, centroid.Norm());
 }
 
@@ -69,14 +70,15 @@ TEST(EdgeTrueCentroid, GreatCircles) {
     S2Point v0 = x;
     for (double theta = 0; theta < 2 * M_PI;
          theta += pow(S2Testing::rnd.RandDouble(), 10)) {
-      S2Point v1 = cos(theta) * x + sin(theta) * y;
-      centroid += S2::TrueCentroid(v0, v1);
+      S2Point v1 = std::cos(theta) * x + std::sin(theta) * y;
+      centroid += TrueCentroid(v0, v1);
       v0 = v1;
     }
     // Close the circle.
-    centroid += S2::TrueCentroid(v0, x);
+    centroid += TrueCentroid(v0, x);
     EXPECT_LE(centroid.Norm(), 2e-14);
   }
 }
 
 }  // namespace
+}  // namespace s2

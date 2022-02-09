@@ -15,30 +15,24 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2edge_distances.h"
+#include "third_party/s2/s2edge_distances.h"
 
 #include <memory>
 #include <string>
 
-#include <gtest/gtest.h>
-#include "absl/strings/string_view.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2cap.h"
-#include "s2/s2edge_crossings.h"
-#include "s2/s2measures.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2polyline.h"
-#include "s2/s2predicates.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2polyline.h"
+#include "third_party/s2/s2predicates.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 
-using std::string;
 using std::unique_ptr;
-using std::string;
 
-namespace {
+namespace s2 {
 
-// Checks that the error returned by S2::GetUpdateMinDistanceMaxError() for
+// Checks that the error returned by GetUpdateMinDistanceMaxError() for
 // the distance "input" (measured in radians) corresponds to a distance error
 // of less than "max_error" (measured in radians).
 //
@@ -47,7 +41,7 @@ namespace {
 // the *squared* distance.
 void CheckUpdateMinDistanceMaxError(double actual, double max_error) {
   S1ChordAngle ca(S1Angle::Radians(actual));
-  S1Angle bound = ca.PlusError(S2::GetUpdateMinDistanceMaxError(ca)).ToAngle();
+  S1Angle bound = ca.PlusError(GetUpdateMinDistanceMaxError(ca)).ToAngle();
   EXPECT_LE(bound.radians() - actual,  max_error) << actual;
 }
 
@@ -71,23 +65,23 @@ TEST(S2, GetUpdateMinInteriorDistanceMaxError) {
   for (int iter = 0; iter < 10000; ++iter) {
     S2Point a0 = S2Testing::RandomPoint();
     S1Angle len = S1Angle::Radians(M_PI * pow(1e-20, rnd.RandDouble()));
-    if (rnd.OneIn(4)) len = S1Angle::Radians(M_PI) - len;
-    S2Point a1 = S2::GetPointOnLine(a0, S2Testing::RandomPoint(), len);
-
-    // TODO(ericv): The error bound holds for antipodal points, but the S2
-    // predicates used to test the error do not support antipodal points yet.
-    if (a1 == -a0) continue;
-    S2Point n = S2::RobustCrossProd(a0, a1).Normalize();
+    S2Point a1 = InterpolateAtDistance(len, a0, S2Testing::RandomPoint());
+    // TODO(ericv): If s2pred::RobustCrossProd() is implemented, then we can
+    // also test nearly-antipodal points here.  In theory the error bound can
+    // be exceeded when the edge endpoints are antipodal to within 0.8e-13
+    // radians, but the only examples found in testing require the endpoints
+    // to be nearly-antipodal to within 1e-16 radians.
+    S2Point n = RobustCrossProd(a0, a1).Normalize();
     double f = pow(1e-20, rnd.RandDouble());
     S2Point a = ((1 - f) * a0 + f * a1).Normalize();
     S1Angle r = S1Angle::Radians(M_PI_2 * pow(1e-20, rnd.RandDouble()));
     if (rnd.OneIn(2)) r = S1Angle::Radians(M_PI_2) - r;
-    S2Point x = S2::GetPointOnLine(a, n, r);
+    S2Point x = InterpolateAtDistance(r, a, n);
     S1ChordAngle min_dist = S1ChordAngle::Infinity();
-    if (!S2::UpdateMinInteriorDistance(x, a0, a1, &min_dist)) {
+    if (!UpdateMinInteriorDistance(x, a0, a1, &min_dist)) {
       --iter; continue;
     }
-    double error = S2::GetUpdateMinDistanceMaxError(min_dist);
+    double error = GetUpdateMinDistanceMaxError(min_dist);
     EXPECT_LE(s2pred::CompareEdgeDistance(x, a0, a1,
                                           min_dist.PlusError(error)), 0);
     EXPECT_GE(s2pred::CompareEdgeDistance(x, a0, a1,
@@ -103,24 +97,18 @@ void CheckDistance(S2Point x, S2Point a, S2Point b,
   a = a.Normalize();
   b = b.Normalize();
   expected_closest = expected_closest.Normalize();
-  EXPECT_NEAR(distance_radians, S2::GetDistance(x, a, b).radians(), 1e-15);
-  S2Point closest = S2::Project(x, a, b);
-  EXPECT_LT(s2pred::CompareEdgeDistance(
-      closest, a, b, S1ChordAngle(S2::kProjectPerpendicularError)), 0);
-
-  // If X is perpendicular to AB then there is nothing further we can expect.
-  if (distance_radians != M_PI_2) {
-    if (expected_closest == S2Point()) {
-      // This special value says that the result should be A or B.
-      EXPECT_TRUE(closest == a || closest == b);
-    } else {
-      EXPECT_TRUE(S2::ApproxEquals(closest, expected_closest));
-    }
+  EXPECT_NEAR(distance_radians, GetDistance(x, a, b).radians(), 1e-15);
+  S2Point closest = Project(x, a, b);
+  if (expected_closest == S2Point(0, 0, 0)) {
+    // This special value says that the result should be A or B.
+    EXPECT_TRUE(closest == a || closest == b);
+  } else {
+    EXPECT_TRUE(ApproxEquals(closest, expected_closest));
   }
   S1ChordAngle min_distance = S1ChordAngle::Zero();
-  EXPECT_FALSE(S2::UpdateMinDistance(x, a, b, &min_distance));
+  EXPECT_FALSE(UpdateMinDistance(x, a, b, &min_distance));
   min_distance = S1ChordAngle::Infinity();
-  EXPECT_TRUE(S2::UpdateMinDistance(x, a, b, &min_distance));
+  EXPECT_TRUE(UpdateMinDistance(x, a, b, &min_distance));
   EXPECT_NEAR(distance_radians, min_distance.ToAngle().radians(), 1e-15);
 }
 
@@ -136,7 +124,7 @@ TEST(S2, Distance) {
   CheckDistance(S2Point(0, 0, -1), S2Point(1, 0, 0), S2Point(0, 1, 0),
                 M_PI_2, S2Point(1, 0, 0));
   CheckDistance(S2Point(-1, -1, 0), S2Point(1, 0, 0), S2Point(0, 1, 0),
-                0.75 * M_PI, S2Point());
+                0.75 * M_PI, S2Point(0, 0, 0));
 
   CheckDistance(S2Point(0, 1, 0), S2Point(1, 0, 0), S2Point(1, 1, 0),
                 M_PI_4, S2Point(1, 1, 0));
@@ -161,47 +149,16 @@ TEST(S2, Distance) {
                 M_PI, S2Point(1, 0, 0));
 }
 
-TEST(S2, UpdateMinInteriorDistanceLowerBoundOptimizationIsConservative) {
+TEST(S2, DistanceOptimizationIsConservative) {
   // Verifies that AlwaysUpdateMinInteriorDistance() computes the lower bound
   // on the true distance conservatively.  (This test used to fail.)
   S2Point x(-0.017952729194524016, -0.30232422079175203, 0.95303607751077712);
   S2Point a(-0.017894725505830295, -0.30229974986194175, 0.95304493075220664);
   S2Point b(-0.017986591360900289, -0.30233851195954353, 0.95303090543659963);
   S1ChordAngle min_distance = S1ChordAngle::Infinity();
-  EXPECT_TRUE(S2::UpdateMinDistance(x, a, b, &min_distance));
+  EXPECT_TRUE(UpdateMinDistance(x, a, b, &min_distance));
   min_distance = min_distance.Successor();
-  EXPECT_TRUE(S2::UpdateMinDistance(x, a, b, &min_distance));
-}
-
-TEST(S2, UpdateMinInteriorDistanceRejectionTestIsConservative) {
-  // This test checks several representative cases where previously
-  // UpdateMinInteriorDistance was failing to update the distance because a
-  // rejection test was not being done conservatively.
-  //
-  // Note that all of the edges AB in this test are nearly antipodal.
-  {
-    S2Point x(1, -4.6547732744037044e-11, -5.6374428459823598e-89);
-    S2Point a(1, -8.9031850507928352e-11, 0);
-    S2Point b(-0.99999999999996347, 2.7030110029169596e-07,
-              1.555092348806121e-99);
-    auto min_dist = S1ChordAngle::FromLength2(6.3897233584120815e-26);
-    EXPECT_TRUE(S2::UpdateMinInteriorDistance(x, a, b, &min_dist));
-  }
-  {
-    S2Point x(1, -4.7617930898495072e-13, 0);
-    S2Point a(-1, -1.6065916409055676e-10, 0);
-    S2Point b(1, 0, 9.9964883247706732e-35);
-    auto min_dist = S1ChordAngle::FromLength2(6.3897233584120815e-26);
-    EXPECT_TRUE(S2::UpdateMinInteriorDistance(x, a, b, &min_dist));
-  }
-  {
-    S2Point x(1, 0, 0);
-    S2Point a(1, -8.4965026896454536e-11, 0);
-    S2Point b(-0.99999999999966138, 8.2297529603339328e-07,
-              9.6070344113320997e-21);
-    auto min_dist = S1ChordAngle::FromLength2(6.3897233584120815e-26);
-    EXPECT_TRUE(S2::UpdateMinInteriorDistance(x, a, b, &min_dist));
-  }
+  EXPECT_TRUE(UpdateMinDistance(x, a, b, &min_distance));
 }
 
 void CheckMaxDistance(S2Point x, S2Point a, S2Point b,
@@ -211,9 +168,10 @@ void CheckMaxDistance(S2Point x, S2Point a, S2Point b,
   b = b.Normalize();
 
   S1ChordAngle max_distance = S1ChordAngle::Straight();
-  EXPECT_FALSE(S2::UpdateMaxDistance(x, a, b, &max_distance));
+  EXPECT_FALSE(UpdateMaxDistance(x, a, b, &max_distance));
   max_distance = S1ChordAngle::Negative();
-  EXPECT_TRUE(S2::UpdateMaxDistance(x, a, b, &max_distance));
+  EXPECT_TRUE(UpdateMaxDistance(x, a, b, &max_distance));
+
   EXPECT_NEAR(distance_radians, max_distance.radians(), 1e-15);
 }
 
@@ -248,55 +206,16 @@ TEST(S2, MaxDistance) {
                    M_PI);
 }
 
-// Chooses a random S2Point that is often near the intersection of one of the
-// coodinates planes or coordinate axes with the unit sphere.  (It is possible
-// to represent very small perturbations near such points.)
-S2Point ChoosePoint() {
-  S2Point x = S2Testing::RandomPoint();
-  for (int i = 0; i < 3; ++i) {
-    if (S2Testing::rnd.OneIn(3)) {
-      x[i] *= pow(1e-50, S2Testing::rnd.RandDouble());
-    }
-  }
-  return x.Normalize();
-}
-
-TEST(S2, ProjectError) {
-  for (int iter = 0; iter < 1000; ++iter) {
-    S2Testing::rnd.Reset(iter + 1);  // Easier to reproduce a specific case.
-    S2Point a = ChoosePoint();
-    S2Point b = ChoosePoint();
-    S2Point n = S2::RobustCrossProd(a, b).Normalize();
-    S2Point x = S2Testing::SamplePoint(S2Cap(n, S1Angle::Radians(1e-15)));
-    S2Point p = S2::Project(x, a, b);
-    EXPECT_LT(s2pred::CompareEdgeDistance(
-        p, a, b, S1ChordAngle(S2::kProjectPerpendicularError)), 0);
-  }
-}
-
-void TestInterpolate(S2Point a, S2Point b, double t, S2Point expected) {
+void CheckInterpolate(double t, S2Point a, S2Point b, S2Point expected) {
   a = a.Normalize();
   b = b.Normalize();
   expected = expected.Normalize();
+  S2Point actual = Interpolate(t, a, b);
 
   // We allow a bit more than the usual 1e-15 error tolerance because
-  // interpolation uses trig functions.
-  S1Angle kError = S1Angle::Radians(3e-15);
-  EXPECT_LE(S1Angle(S2::Interpolate(a, b, t), expected), kError);
-
-  // Now test the other interpolation functions.
-  S1Angle r = t * S1Angle(a, b);
-  EXPECT_LE(S1Angle(S2::GetPointOnLine(a, b, r), expected), kError);
-  if (a.DotProd(b) == 0) {  // Common in the test cases below.
-    EXPECT_LE(S1Angle(S2::GetPointOnRay(a, b, r), expected), kError);
-  }
-  if (r.radians() >= 0 && r.radians() < 0.99 * M_PI) {
-    S1ChordAngle r_ca(r);
-    EXPECT_LE(S1Angle(S2::GetPointOnLine(a, b, r_ca), expected), kError);
-    if (a.DotProd(b) == 0) {
-      EXPECT_LE(S1Angle(S2::GetPointOnRay(a, b, r_ca), expected), kError);
-    }
-  }
+  // Interpolate() uses trig functions.
+  EXPECT_TRUE(ApproxEquals(expected, actual, S1Angle::Radians(3e-15)))
+      << "Expected: " << expected << ", actual: " << actual;
 }
 
 TEST(S2, Interpolate) {
@@ -305,19 +224,19 @@ TEST(S2, Interpolate) {
   S2Point p2 = S2Point(-0.7, -0.55, -1e30).Normalize();
 
   // A zero-length edge.
-  TestInterpolate(p1, p1, 0, p1);
-  TestInterpolate(p1, p1, 1, p1);
+  CheckInterpolate(0, p1, p1, p1);
+  CheckInterpolate(1, p1, p1, p1);
 
   // Start, end, and middle of a medium-length edge.
-  TestInterpolate(p1, p2, 0, p1);
-  TestInterpolate(p1, p2, 1, p2);
-  TestInterpolate(p1, p2, 0.5, 0.5 * (p1 + p2));
+  CheckInterpolate(0, p1, p2, p1);
+  CheckInterpolate(1, p1, p2, p2);
+  CheckInterpolate(0.5, p1, p2, 0.5 * (p1 + p2));
 
   // Test that interpolation is done using distances on the sphere rather than
   // linear distances.
-  TestInterpolate(S2Point(1, 0, 0), S2Point(0, 1, 0), 1./3,
+  CheckInterpolate(1./3, S2Point(1, 0, 0), S2Point(0, 1, 0),
                    S2Point(sqrt(3), 1, 0));
-  TestInterpolate(S2Point(1, 0, 0), S2Point(0, 1, 0), 2./3,
+  CheckInterpolate(2./3, S2Point(1, 0, 0), S2Point(0, 1, 0),
                    S2Point(1, sqrt(3), 0));
 
   // Test that interpolation is accurate on a long edge (but not so long that
@@ -327,9 +246,9 @@ TEST(S2, Interpolate) {
     S2Point a = S2LatLng::FromRadians(0, 0).ToPoint();
     S2Point b = S2LatLng::FromRadians(0, kLng).ToPoint();
     for (double f = 0.4; f > 1e-15; f *= 0.1) {
-      TestInterpolate(a, b, f,
+      CheckInterpolate(f, a, b,
                        S2LatLng::FromRadians(0, f * kLng).ToPoint());
-      TestInterpolate(a, b, 1 - f,
+      CheckInterpolate(1 - f, a, b,
                        S2LatLng::FromRadians(0, (1 - f) * kLng).ToPoint());
     }
   }
@@ -337,7 +256,7 @@ TEST(S2, Interpolate) {
   // Test that interpolation on a 180 degree edge (antipodal endpoints) yields
   // a result with the correct distance from each endpoint.
   for (double t = 0; t <= 1; t += 0.125) {
-    S2Point actual = S2::Interpolate(p1, -p1, t);
+    S2Point actual = Interpolate(t, p1, -p1);
     EXPECT_NEAR(S1Angle(actual, p1).radians(), t * M_PI, 3e-15);
   }
 }
@@ -346,31 +265,31 @@ TEST(S2, InterpolateCanExtrapolate) {
   const S2Point i(1, 0, 0);
   const S2Point j(0, 1, 0);
   // Initial vectors at 90 degrees.
-  TestInterpolate(i, j, 0, S2Point(1, 0, 0));
-  TestInterpolate(i, j, 1, S2Point(0, 1, 0));
-  TestInterpolate(i, j, 1.5, S2Point(-1, 1, 0));
-  TestInterpolate(i, j, 2, S2Point(-1, 0, 0));
-  TestInterpolate(i, j, 3, S2Point(0, -1, 0));
-  TestInterpolate(i, j, 4, S2Point(1, 0, 0));
+  CheckInterpolate(0, i, j, S2Point(1, 0, 0));
+  CheckInterpolate(1, i, j, S2Point(0, 1, 0));
+  CheckInterpolate(1.5, i, j, S2Point(-1, 1, 0));
+  CheckInterpolate(2, i, j, S2Point(-1, 0, 0));
+  CheckInterpolate(3, i, j, S2Point(0, -1, 0));
+  CheckInterpolate(4, i, j, S2Point(1, 0, 0));
 
   // Negative values of t.
-  TestInterpolate(i, j, -1, S2Point(0, -1, 0));
-  TestInterpolate(i, j, -2, S2Point(-1, 0, 0));
-  TestInterpolate(i, j, -3, S2Point(0, 1, 0));
-  TestInterpolate(i, j, -4, S2Point(1, 0, 0));
+  CheckInterpolate(-1, i, j, S2Point(0, -1, 0));
+  CheckInterpolate(-2, i, j, S2Point(-1, 0, 0));
+  CheckInterpolate(-3, i, j, S2Point(0, 1, 0));
+  CheckInterpolate(-4, i, j, S2Point(1, 0, 0));
 
   // Initial vectors at 45 degrees.
-  TestInterpolate(i, S2Point(1, 1, 0), 2, S2Point(0, 1, 0));
-  TestInterpolate(i, S2Point(1, 1, 0), 3, S2Point(-1, 1, 0));
-  TestInterpolate(i, S2Point(1, 1, 0), 4, S2Point(-1, 0, 0));
+  CheckInterpolate(2, i, S2Point(1, 1, 0), S2Point(0, 1, 0));
+  CheckInterpolate(3, i, S2Point(1, 1, 0), S2Point(-1, 1, 0));
+  CheckInterpolate(4, i, S2Point(1, 1, 0), S2Point(-1, 0, 0));
 
   // Initial vectors at 135 degrees.
-  TestInterpolate(i, S2Point(-1, 1, 0), 2, S2Point(0, -1, 0));
+  CheckInterpolate(2, i, S2Point(-1, 1, 0), S2Point(0, -1, 0));
 
   // Take a small fraction along the curve.
-  S2Point p(S2::Interpolate(i, j, 0.001));
+  S2Point p(Interpolate(0.001, i, j));
   // We should get back where we started.
-  TestInterpolate(i, p, 1000, j);
+  CheckInterpolate(1000, i, p, j);
 }
 
 
@@ -381,9 +300,9 @@ TEST(S2, RepeatedInterpolation) {
     S2Point a = S2Testing::RandomPoint();
     S2Point b = S2Testing::RandomPoint();
     for (int j = 0; j < 1000; ++j) {
-      a = S2::Interpolate(a, b, 0.01);
+      a = Interpolate(0.01, a, b);
     }
-    EXPECT_TRUE(S2::IsUnitLength(a));
+    EXPECT_TRUE(IsUnitLength(a));
   }
 }
 
@@ -404,25 +323,25 @@ void CheckEdgePairMinDistance(S2Point a0, S2Point a1, S2Point b0, S2Point b1,
   b1 = b1.Normalize();
   expected_a = expected_a.Normalize();
   expected_b = expected_b.Normalize();
-  const auto& closest = S2::GetEdgePairClosestPoints(a0, a1, b0, b1);
+  const auto& closest = GetEdgePairClosestPoints(a0, a1, b0, b1);
   const S2Point& actual_a = closest.first;
   const S2Point& actual_b = closest.second;
   if (expected_a == S2Point(0, 0, 0)) {
     // This special value says that the result should be a0 or a1.
     EXPECT_TRUE(actual_a == a0 || actual_a == a1);
   } else {
-    EXPECT_TRUE(S2::ApproxEquals(expected_a, actual_a));
+    EXPECT_TRUE(ApproxEquals(expected_a, actual_a));
   }
   if (expected_b == S2Point(0, 0, 0)) {
     // This special value says that the result should be b0 or b1.
     EXPECT_TRUE(actual_b == b0 || actual_b == b1);
   } else {
-    EXPECT_TRUE(S2::ApproxEquals(expected_b, actual_b));
+    EXPECT_TRUE(ApproxEquals(expected_b, actual_b));
   }
   S1ChordAngle min_distance = S1ChordAngle::Zero();
-  EXPECT_FALSE(S2::UpdateEdgePairMinDistance(a0, a1, b0, b1, &min_distance));
+  EXPECT_FALSE(UpdateEdgePairMinDistance(a0, a1, b0, b1, &min_distance));
   min_distance = S1ChordAngle::Infinity();
-  EXPECT_TRUE(S2::UpdateEdgePairMinDistance(a0, a1, b0, b1, &min_distance));
+  EXPECT_TRUE(UpdateEdgePairMinDistance(a0, a1, b0, b1, &min_distance));
   EXPECT_NEAR(distance_radians, min_distance.radians(), 1e-15);
 }
 
@@ -498,9 +417,9 @@ void CheckEdgePairMaxDistance(S2Point a0, S2Point a1, S2Point b0, S2Point b1,
   b1 = b1.Normalize();
 
   S1ChordAngle max_distance = S1ChordAngle::Straight();
-  EXPECT_FALSE(S2::UpdateEdgePairMaxDistance(a0, a1, b0, b1, &max_distance));
+  EXPECT_FALSE(UpdateEdgePairMaxDistance(a0, a1, b0, b1, &max_distance));
   max_distance = S1ChordAngle::Negative();
-  EXPECT_TRUE(S2::UpdateEdgePairMaxDistance(a0, a1, b0, b1, &max_distance));
+  EXPECT_TRUE(UpdateEdgePairMaxDistance(a0, a1, b0, b1, &max_distance));
   EXPECT_NEAR(distance_radians, max_distance.radians(), 1e-15);
 }
 
@@ -550,13 +469,13 @@ TEST(S2, EdgePairMaxDistance) {
                            M_PI);
 }
 
-bool IsEdgeBNearEdgeA(absl::string_view a_str, absl::string_view b_str,
+bool IsEdgeBNearEdgeA(const std::string& a_str, const std::string& b_str,
                       double max_error_degrees) {
-  unique_ptr<S2Polyline> a(s2textformat::MakePolylineOrDie(a_str));
+  unique_ptr<S2Polyline> a(s2textformat::MakePolyline(a_str));
   EXPECT_EQ(2, a->num_vertices());
-  unique_ptr<S2Polyline> b(s2textformat::MakePolylineOrDie(b_str));
+  unique_ptr<S2Polyline> b(s2textformat::MakePolyline(b_str));
   EXPECT_EQ(2, b->num_vertices());
-  return S2::IsEdgeBNearEdgeA(a->vertex(0), a->vertex(1),
+  return IsEdgeBNearEdgeA(a->vertex(0), a->vertex(1),
                               b->vertex(0), b->vertex(1),
                               S1Angle::Degrees(max_error_degrees));
 }
@@ -588,22 +507,6 @@ TEST(S2, EdgeBNearEdgeA) {
   // equator they bow apart.
   EXPECT_FALSE(IsEdgeBNearEdgeA("89:1, -89:1", "89:2, -89:2", 0.5));
   EXPECT_TRUE(IsEdgeBNearEdgeA("89:1, -89:1", "89:2, -89:2", 1.5));
-
-  // Make sure that the result is independent of the edge directions.
-  EXPECT_TRUE(IsEdgeBNearEdgeA("89:1, -89:1", "-89:2, 89:2", 1.5));
-
-  // Cases where the point that achieves the maximum distance to A is the
-  // interior point of B that is equidistant from the endpoints of A.  This
-  // requires two long edges A and B whose endpoints are near each other but
-  // where B intersects the perpendicular bisector of the endpoints of A in
-  // the hemisphere opposite A's midpoint.  Furthermore these cases are
-  // constructed so that the points where circ(A) is furthest from circ(B) do
-  // not project onto the interior of B.
-  EXPECT_FALSE(IsEdgeBNearEdgeA("0:-100, 0:100", "5:-80, -5:80", 70.0));
-  EXPECT_FALSE(IsEdgeBNearEdgeA("0:-100, 0:100", "1:-35, 10:35", 70.0));
-
-  // Make sure that the result is independent of the edge directions.
-  EXPECT_FALSE(IsEdgeBNearEdgeA("0:-100, 0:100", "5:80, -5:-80", 70.0));
 
   // The two arcs here are nearly as long as S2 edges can be (just shy of 180
   // degrees), and their endpoints are less than 1 degree apart.  Their
@@ -637,48 +540,4 @@ TEST(S2, EdgeBNearEdgeA) {
   EXPECT_TRUE(IsEdgeBNearEdgeA("0:0, 1:0", "1.2:0, 1.1:0", 0.25));
 }
 
-TEST(S2, GetPointToLeftS1Angle) {
-  S2Point a = S2LatLng::FromDegrees(0, 0).ToPoint();
-  S2Point b = S2LatLng::FromDegrees(0, 5).ToPoint();  // east
-  const S1Angle kDistance = S2Testing::MetersToAngle(10);
-
-  S2Point c = S2::GetPointToLeft(a, b, kDistance);
-  EXPECT_NEAR(S1Angle(a, c).radians(), kDistance.radians(), 1e-15);
-  // CAB must be a right angle with C to the left of AB.
-  EXPECT_NEAR(S2::TurnAngle(c, a, b), M_PI_2 /*radians*/, 1e-15);
-}
-
-TEST(S2, GetPointToLeftS1ChordAngle) {
-  S2Point a = S2LatLng::FromDegrees(0, 0).ToPoint();
-  S2Point b = S2LatLng::FromDegrees(0, 5).ToPoint();  // east
-  const S1Angle kDistance = S2Testing::MetersToAngle(10);
-
-  S2Point c = S2::GetPointToLeft(a, b, S1ChordAngle(kDistance));
-  EXPECT_NEAR(S1Angle(a, c).radians(), kDistance.radians(), 1e-15);
-  // CAB must be a right angle with C to the left of AB.
-  EXPECT_NEAR(S2::TurnAngle(c, a, b),  M_PI_2 /*radians*/, 1e-15);
-}
-
-TEST(S2, GetPointToRightS1Angle) {
-  S2Point a = S2LatLng::FromDegrees(0, 0).ToPoint();
-  S2Point b = S2LatLng::FromDegrees(0, 5).ToPoint();  // east
-  const S1Angle kDistance = S2Testing::MetersToAngle(10);
-
-  S2Point c = S2::GetPointToRight(a, b, kDistance);
-  EXPECT_NEAR(S1Angle(a, c).radians(), kDistance.radians(), 1e-15);
-  // CAB must be a right angle with C to the right of AB.
-  EXPECT_NEAR(S2::TurnAngle(c, a, b),  -M_PI_2 /*radians*/, 1e-15);
-}
-
-TEST(S2, GetPointToRightS1ChordAngle) {
-  S2Point a = S2LatLng::FromDegrees(0, 0).ToPoint();
-  S2Point b = S2LatLng::FromDegrees(0, 5).ToPoint();  // east
-  const S1Angle kDistance = S2Testing::MetersToAngle(10);
-
-  S2Point c = S2::GetPointToRight(a, b, S1ChordAngle(kDistance));
-  EXPECT_NEAR(S1Angle(a, c).radians(), kDistance.radians(), 1e-15);
-  // CAB must be a right angle with C to the right of AB.
-  EXPECT_NEAR(S2::TurnAngle(c, a, b), -M_PI_2 /*radians*/, 1e-15);
-}
-
-}  // namespace
+}  // namespace s2

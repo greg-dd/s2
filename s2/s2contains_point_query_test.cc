@@ -15,24 +15,26 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2contains_point_query.h"
+#include "third_party/s2/s2contains_point_query.h"
 
 #include <memory>
-#include "s2/base/casts.h"
-#include <gtest/gtest.h>
+#include "third_party/s2/base/casts.h"
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2cap.h"
-#include "s2/s2loop.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2shapeutil::ShapeEdge;
-using s2shapeutil::ShapeEdgeId;
-using s2textformat::MakeIndexOrDie;
-using s2textformat::MakePointOrDie;
+using s2::s2shapeutil::ShapeEdge;
+using s2::s2shapeutil::ShapeEdgeId;
+using s2::s2textformat::MakeIndexOrDie;
+using s2::s2textformat::MakePointOrDie;
 using std::vector;
+
+namespace s2 {
 
 TEST(S2ContainsPointQuery, VertexModelOpen) {
   auto index = MakeIndexOrDie("0:0 # -1:1, 1:1 # 0:5, 0:7, 2:6");
@@ -157,3 +159,5 @@ TEST(S2ContainsPointQuery, VisitIncidentEdges) {
   ExpectIncidentEdgeIds({{2, 0}, {2, 1}}, *index, MakePointOrDie("1:3"));
   ExpectIncidentEdgeIds({{2, 1}, {2, 2}}, *index, MakePointOrDie("2:2"));
 }
+
+}  // namespace s2

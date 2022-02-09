@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2polyline.h"
+#include "third_party/s2/s2polyline.h"
 
 #include <algorithm>
 #include <cmath>
@@ -24,40 +24,32 @@
 #include <utility>
 #include <vector>
 
-#include "absl/container/fixed_array.h"
-#include "absl/flags/flag.h"
+#include "third_party/s2/base/commandlineflags.h"
+#include "third_party/s2/base/logging.h"
 #include "absl/utility/utility.h"
+#include "third_party/s2/util/coding/coder.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1interval.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2debug.h"
+#include "third_party/s2/s2edge_crosser.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2error.h"
+#include "third_party/s2/s2latlng_rect_bounder.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2polyline_measures.h"
+#include "third_party/s2/s2predicates.h"
+#include "third_party/s2/util/math/matrix3x3.h"
 
-#include "s2/base/commandlineflags.h"
-#include "s2/base/logging.h"
-#include "s2/s1angle.h"
-#include "s2/s1interval.h"
-#include "s2/s2builderutil_s2polyline_layer.h"
-#include "s2/s2builderutil_snap_functions.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2debug.h"
-#include "s2/s2edge_crosser.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2error.h"
-#include "s2/s2latlng_rect_bounder.h"
-#include "s2/s2point_compression.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2polyline_measures.h"
-#include "s2/s2predicates.h"
-#include "s2/util/coding/coder.h"
-#include "s2/util/math/matrix3x3.h"
-
-using absl::Span;
-using s2builderutil::S2CellIdSnapFunction;
-using s2builderutil::S2PolylineLayer;
 using std::max;
 using std::min;
 using std::set;
 using std::vector;
 
+namespace s2 {
+
 static const unsigned char kCurrentLosslessEncodingVersionNumber = 1;
-static const unsigned char kCurrentCompressedEncodingVersionNumber = 2;
 
 S2Polyline::S2Polyline()
   : s2debug_override_(S2Debug::ALLOW) {}
@@ -75,19 +67,20 @@ S2Polyline& S2Polyline::operator=(S2Polyline&& other) {
   return *this;
 }
 
-S2Polyline::S2Polyline(Span<const S2Point> vertices)
+S2Polyline::S2Polyline(const vector<S2Point>& vertices)
   : S2Polyline(vertices, S2Debug::ALLOW) {}
 
-S2Polyline::S2Polyline(Span<const S2LatLng> vertices)
+S2Polyline::S2Polyline(const vector<S2LatLng>& vertices)
   : S2Polyline(vertices, S2Debug::ALLOW) {}
 
-S2Polyline::S2Polyline(Span<const S2Point> vertices,
+S2Polyline::S2Polyline(const vector<S2Point>& vertices,
                        S2Debug override)
   : s2debug_override_(override) {
   Init(vertices);
 }
 
-S2Polyline::S2Polyline(Span<const S2LatLng> vertices, S2Debug override)
+S2Polyline::S2Polyline(const vector<S2LatLng>& vertices,
+                       S2Debug override)
   : s2debug_override_(override) {
   Init(vertices);
 }
@@ -103,51 +96,30 @@ S2Debug S2Polyline::s2debug_override() const {
   return s2debug_override_;
 }
 
-void S2Polyline::Init(Span<const S2Point> vertices) {
+void S2Polyline::Init(const vector<S2Point>& vertices) {
   num_vertices_ = vertices.size();
   vertices_.reset(new S2Point[num_vertices_]);
   std::copy(vertices.begin(), vertices.end(), &vertices_[0]);
-  if (absl::GetFlag(FLAGS_s2debug) && s2debug_override_ == S2Debug::ALLOW) {
+  if (FLAGS_s2debug && s2debug_override_ == S2Debug::ALLOW) {
     S2_CHECK(IsValid());
   }
 }
 
-void S2Polyline::Init(Span<const S2LatLng> vertices) {
+void S2Polyline::Init(const vector<S2LatLng>& vertices) {
   num_vertices_ = vertices.size();
   vertices_.reset(new S2Point[num_vertices_]);
   for (int i = 0; i < num_vertices_; ++i) {
     vertices_[i] = vertices[i].ToPoint();
   }
-  if (absl::GetFlag(FLAGS_s2debug) && s2debug_override_ == S2Debug::ALLOW) {
+  if (FLAGS_s2debug && s2debug_override_ == S2Debug::ALLOW) {
     S2_CHECK(IsValid());
   }
-}
-
-void S2Polyline::InitToSnapped(const S2Polyline& polyline, int snap_level) {
-  S2Builder builder{S2Builder::Options(S2CellIdSnapFunction(snap_level))};
-  InitFromBuilder(polyline, &builder);
-}
-
-void S2Polyline::InitToSimplified(
-    const S2Polyline& polyline, const S2Builder::SnapFunction& snap_function) {
-  S2Builder::Options options(snap_function);
-  options.set_simplify_edge_chains(true);
-  S2Builder builder(options);
-  InitFromBuilder(polyline, &builder);
-}
-
-void S2Polyline::InitFromBuilder(const S2Polyline& polyline,
-                                 S2Builder* builder) {
-  builder->StartLayer(absl::make_unique<S2PolylineLayer>(this));
-  builder->AddPolyline(polyline);
-  S2Error error;
-  S2_CHECK(builder->Build(&error)) << "Could not build polyline: " << error;
 }
 
 bool S2Polyline::IsValid() const {
   S2Error error;
   if (FindValidationError(&error)) {
-    S2_LOG_IF(ERROR, absl::GetFlag(FLAGS_s2debug)) << error;
+    S2_LOG_IF(ERROR, FLAGS_s2debug) << error;
     return false;
   }
   return true;
@@ -156,7 +128,7 @@ bool S2Polyline::IsValid() const {
 bool S2Polyline::FindValidationError(S2Error* error) const {
   // All vertices must be unit length.
   for (int i = 0; i < num_vertices(); ++i) {
-    if (!S2::IsUnitLength(vertex(i))) {
+    if (!s2::IsUnitLength(vertex(i))) {
       error->Init(S2Error::NOT_UNIT_LENGTH, "Vertex %d is not unit length", i);
       return true;
     }
@@ -180,13 +152,7 @@ bool S2Polyline::FindValidationError(S2Error* error) const {
 S2Polyline::S2Polyline(const S2Polyline& src)
   : num_vertices_(src.num_vertices_),
     vertices_(new S2Point[num_vertices_]) {
-  // TODO(user, ericv): Decide whether to use a canonical empty
-  // representation.
-  // If num_vertices_ == 0, then src.vertices_ will be null if src was default
-  // constructed.
-  if (num_vertices_ != 0) {
-    std::copy(&src.vertices_[0], &src.vertices_[num_vertices_], &vertices_[0]);
-  }
+  std::copy(&src.vertices_[0], &src.vertices_[num_vertices_], &vertices_[0]);
 }
 
 S2Polyline* S2Polyline::Clone() const {
@@ -194,29 +160,11 @@ S2Polyline* S2Polyline::Clone() const {
 }
 
 S1Angle S2Polyline::GetLength() const {
-  return S2::GetLength(S2PointSpan(vertices_.get(), num_vertices_));
+  return s2::GetLength(S2PointSpan(&vertices_[0], num_vertices_));
 }
 
 S2Point S2Polyline::GetCentroid() const {
-  return S2::GetCentroid(S2PointSpan(vertices_.get(), num_vertices_));
-}
-
-int S2Polyline::GetSnapLevel() const {
-  int snap_level = -1;
-  for (int i = 0; i < num_vertices_; ++i) {
-    int face;
-    unsigned int si, ti;
-    const int level = S2::XYZtoFaceSiTi(vertices_[i], &face, &si, &ti);
-    if (level < 0) return level;  // Vertex is not a cell center.
-    if (level != snap_level) {
-      if (snap_level < 0) {
-        snap_level = level;  // First vertex.
-      } else {
-        return -1;  // Vertices at more than one cell level.
-      }
-    }
-  }
-  return snap_level;
+  return s2::GetCentroid(S2PointSpan(&vertices_[0], num_vertices_));
 }
 
 S2Point S2Polyline::GetSuffix(double fraction, int* next_vertex) const {
@@ -238,7 +186,8 @@ S2Point S2Polyline::GetSuffix(double fraction, int* next_vertex) const {
     if (target < length) {
       // This interpolates with respect to arc length rather than
       // straight-line distance, and produces a unit-length result.
-      S2Point result = S2::GetPointOnLine(vertex(i-1), vertex(i), target);
+      S2Point result = s2::InterpolateAtDistance(target, vertex(i-1),
+                                                         vertex(i));
       // It is possible that (result == vertex(i)) due to rounding errors.
       *next_vertex = (result == vertex(i)) ? (i + 1) : i;
       return result;
@@ -287,7 +236,7 @@ S2Point S2Polyline::Project(const S2Point& point, int* next_vertex) const {
 
   // Find the line segment in the polyline that is closest to the point given.
   for (int i = 1; i < num_vertices(); ++i) {
-    S1Angle distance_to_segment = S2::GetDistance(point, vertex(i-1),
+    S1Angle distance_to_segment = s2::GetDistance(point, vertex(i-1),
                                                           vertex(i));
     if (distance_to_segment < min_distance) {
       min_distance = distance_to_segment;
@@ -298,7 +247,7 @@ S2Point S2Polyline::Project(const S2Point& point, int* next_vertex) const {
 
   // Compute the point on the segment found that is closest to the point given.
   S2Point closest_point =
-      S2::Project(point, vertex(min_index - 1), vertex(min_index));
+      s2::Project(point, vertex(min_index - 1), vertex(min_index));
 
   *next_vertex = min_index + (closest_point == vertex(min_index) ? 1 : 0);
   return closest_point;
@@ -355,9 +304,7 @@ bool S2Polyline::Intersects(const S2Polyline* line) const {
 }
 
 void S2Polyline::Reverse() {
-  if (num_vertices_ > 0) {
-    std::reverse(&vertices_[0], &vertices_[num_vertices_]);
-  }
+  std::reverse(&vertices_[0], &vertices_[num_vertices_]);
 }
 
 S2LatLngRect S2Polyline::GetRectBound() const {
@@ -399,125 +346,28 @@ bool S2Polyline::MayIntersect(const S2Cell& cell) const {
 }
 
 void S2Polyline::Encode(Encoder* const encoder) const {
-  EncodeUncompressed(encoder);
-}
-
-void S2Polyline::EncodeUncompressed(Encoder* const encoder) const {
   encoder->Ensure(num_vertices_ * sizeof(vertices_[0]) + 10);  // sufficient
 
   encoder->put8(kCurrentLosslessEncodingVersionNumber);
   encoder->put32(num_vertices_);
-  encoder->putn(vertices_.get(), sizeof(vertices_[0]) * num_vertices_);
+  encoder->putn(&vertices_[0], sizeof(vertices_[0]) * num_vertices_);
 
   S2_DCHECK_GE(encoder->avail(), 0);
 }
 
 bool S2Polyline::Decode(Decoder* const decoder) {
-  if (decoder->avail() < sizeof(unsigned char)) {
-    return false;
-  }
-  const unsigned char version = decoder->get8();
-  switch (version) {
-    case kCurrentLosslessEncodingVersionNumber:
-      return DecodeUncompressed(decoder);
-    case kCurrentCompressedEncodingVersionNumber:
-      return DecodeCompressed(decoder);
-  }
-  return false;
-}
+  if (decoder->avail() < sizeof(unsigned char) + sizeof(uint32)) return false;
+  unsigned char version = decoder->get8();
+  if (version > kCurrentLosslessEncodingVersionNumber) return false;
 
-bool S2Polyline::DecodeUncompressed(Decoder* const decoder) {
-  if (decoder->avail() < sizeof(uint32)) {
-    return false;
-  }
   num_vertices_ = decoder->get32();
   vertices_.reset(new S2Point[num_vertices_]);
   if (decoder->avail() < num_vertices_ * sizeof(vertices_[0])) return false;
   decoder->getn(&vertices_[0], num_vertices_ * sizeof(vertices_[0]));
 
-  if (absl::GetFlag(FLAGS_s2debug) && s2debug_override_ == S2Debug::ALLOW) {
+  if (FLAGS_s2debug && s2debug_override_ == S2Debug::ALLOW) {
     S2_CHECK(IsValid());
   }
-  return true;
-}
-
-void S2Polyline::EncodeMostCompact(Encoder* encoder) const {
-  if (num_vertices_ == 0) {
-    EncodeCompressed(encoder, {}, S2::kMaxCellLevel);
-    return;
-  }
-  // Convert S2Points to (face, si, ti) representation.
-  absl::FixedArray<S2XYZFaceSiTi> all_vertices(num_vertices_);
-  for (int i = 0; i < num_vertices_; ++i) {
-    all_vertices[i].xyz = vertices_[i];
-    all_vertices[i].cell_level =
-        S2::XYZtoFaceSiTi(all_vertices[i].xyz, &all_vertices[i].face,
-                          &all_vertices[i].si, &all_vertices[i].ti);
-  }
-
-  // Computes a histogram of the cell levels at which the vertices are snapped.
-  // cell_level is -1 for unsnapped, or 0 through kMaxCellLevel if snapped,
-  // so we add one to it to get a non-negative index.  (histogram[0] is the
-  // number of unsnapped vertices, histogram[i] the number of vertices
-  // snapped at level i-1).
-  std::array<int, S2::kMaxCellLevel + 2> histogram;
-  histogram.fill(0);
-  for (int i = 0; i < num_vertices_; ++i) {
-    histogram[all_vertices[i].cell_level + 1] += 1;
-  }
-  // Compute the level at which most of the vertices are snapped.
-  // If multiple levels have the same maximum number of vertices
-  // snapped to it, the first one (lowest level number / largest
-  // area / smallest encoding length) will be chosen, so this
-  // is desired.  Start with histogram[1] since histogram[0] is
-  // the number of unsnapped vertices, which we don't care about.
-  const auto max_iter =
-      std::max_element(histogram.begin() + 1, histogram.end());
-  // snap_level will be at position histogram[snap_level + 1], see above.
-  const int snap_level = max_iter - (histogram.begin() + 1);
-  const int num_snapped = *max_iter;
-
-  // The compressed encoding requires approximately 4 bytes per vertex plus
-  // "exact_point_size" for each unsnapped vertex (encoded as an S2Point plus
-  // the index at which it is located).
-  int exact_point_size = sizeof(S2Point) + 2;
-  int num_unsnapped = num_vertices_ - num_snapped;
-  int compressed_size = 4 * num_vertices_ + exact_point_size * num_unsnapped;
-  int lossless_size = sizeof(S2Point) * num_vertices_;
-  if (compressed_size < lossless_size) {
-    EncodeCompressed(encoder, all_vertices, snap_level);
-  } else {
-    EncodeUncompressed(encoder);
-  }
-}
-
-void S2Polyline::EncodeCompressed(Encoder* encoder,
-                                  absl::Span<const S2XYZFaceSiTi> all_vertices,
-                                  int snap_level) const {
-  // Set version number.
-  encoder->Ensure(2 + Encoder::kVarintMax32);
-  encoder->put8(kCurrentCompressedEncodingVersionNumber);
-  encoder->put8(snap_level);
-  encoder->put_varint32(num_vertices_);
-  S2EncodePointsCompressed(all_vertices, snap_level, encoder);
-}
-
-bool S2Polyline::DecodeCompressed(Decoder* decoder) {
-  if (decoder->avail() < sizeof(uint8)) return false;
-  const int snap_level = decoder->get8();
-  vector<S2Point> points;
-  uint32 num_vertices;
-  if (!decoder->get_varint32(&num_vertices)) return false;
-  if (num_vertices == 0) {
-    // Empty polylines are allowed.
-    Init(points);
-    return true;
-  }
-  points.resize(num_vertices);
-  if (!S2DecodePointsCompressed(decoder, snap_level, absl::MakeSpan(points))) {
-    return false;
-  }
-  Init(points);
   return true;
 }
 
@@ -548,7 +398,7 @@ int FindEndVertex(const S2Polyline& polyline,
   // S1Interval, i.e. an interval on the unit circle.
   Matrix3x3_d frame;
   const S2Point& origin = polyline.vertex(index);
-  S2::GetFrame(origin, &frame);
+  s2::GetFrame(origin, &frame);
 
   // As we go along, we keep track of the current wedge of angles and the
   // distance to the last vertex (which must be non-decreasing).
@@ -579,8 +429,8 @@ int FindEndVertex(const S2Polyline& polyline,
     // are willing to backtrack to the last vertex that was contained within
     // the wedge (since we don't create new vertices).  This would be more
     // complicated and also make the worst-case running time more than linear.
-    S2Point direction = S2::ToFrame(frame, candidate);
-    double center = atan2(direction.y(), direction.x());
+    S2Point direction = s2::ToFrame(frame, candidate);
+    double center = std::atan2(direction.y(), direction.x());
     if (!current_wedge.Contains(center)) break;
 
     // To determine how this vertex constrains the possible ray angles,
@@ -592,7 +442,7 @@ int FindEndVertex(const S2Polyline& polyline,
     // 90 degree angle, therefore A = asin(sin(a) / sin(c)).  Angle A is the
     // half-angle of the allowable wedge.
 
-    double half_angle = asin(sin(tolerance.radians()) / sin(distance));
+    double half_angle = asin(std::sin(tolerance.radians()) / std::sin(distance));
     S1Interval target = S1Interval::FromPoint(center).Expanded(half_angle);
     current_wedge = current_wedge.Intersection(target);
     S2_DCHECK(!current_wedge.is_empty());
@@ -631,7 +481,7 @@ bool S2Polyline::Equals(const S2Polyline* b) const {
 bool S2Polyline::ApproxEquals(const S2Polyline& b, S1Angle max_error) const {
   if (num_vertices() != b.num_vertices()) return false;
   for (int offset = 0; offset < num_vertices(); ++offset) {
-    if (!S2::ApproxEquals(vertex(offset), b.vertex(offset), max_error)) {
+    if (!s2::ApproxEquals(vertex(offset), b.vertex(offset), max_error)) {
       return false;
     }
   }
@@ -733,7 +583,7 @@ bool S2Polyline::NearlyCovers(const S2Polyline& covered,
   for (int i = 0, next_i = NextDistinctVertex(*this, 0), next_next_i;
        next_i < this->num_vertices(); i = next_i, next_i = next_next_i) {
     next_next_i = NextDistinctVertex(*this, next_i);
-    S2Point closest_point = S2::Project(
+    S2Point closest_point = s2::Project(
         covered.vertex(0), this->vertex(i), this->vertex(next_i));
 
     // In order to avoid duplicate starting states, we exclude the end vertex
@@ -761,19 +611,19 @@ bool S2Polyline::NearlyCovers(const S2Polyline& covered,
     S2Point i_begin, j_begin;
     if (state.i_in_progress) {
       j_begin = covered.vertex(state.j);
-      i_begin = S2::Project(
+      i_begin = s2::Project(
           j_begin, this->vertex(state.i), this->vertex(next_i));
     } else {
       i_begin = this->vertex(state.i);
-      j_begin = S2::Project(
+      j_begin = s2::Project(
           i_begin, covered.vertex(state.j), covered.vertex(next_j));
     }
 
-    if (S2::IsEdgeBNearEdgeA(j_begin, covered.vertex(next_j),
+    if (s2::IsEdgeBNearEdgeA(j_begin, covered.vertex(next_j),
                              i_begin, this->vertex(next_i), max_error)) {
       pending.push_back(SearchState(next_i, state.j, false));
     }
-    if (S2::IsEdgeBNearEdgeA(i_begin, this->vertex(next_i),
+    if (s2::IsEdgeBNearEdgeA(i_begin, this->vertex(next_i),
                              j_begin, covered.vertex(next_j), max_error)) {
       pending.push_back(SearchState(state.i, next_j, true));
     }
@@ -795,3 +645,5 @@ S2Shape::Chain S2Polyline::Shape::chain(int i) const {
   S2_DCHECK_EQ(i, 0);
   return Chain(0, Shape::num_edges());  // Avoid virtual call.
 }
+
+}  // namespace s2

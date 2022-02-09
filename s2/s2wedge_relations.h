@@ -21,9 +21,9 @@
 #ifndef S2_S2WEDGE_RELATIONS_H_
 #define S2_S2WEDGE_RELATIONS_H_
 
-#include "s2/s2point.h"
+#include "third_party/s2/s2point.h"
 
-namespace S2 {
+namespace s2 {
 
 // Given an edge chain (x0, x1, x2), the wedge at x1 is the region to the
 // left of the edges.  More precisely, it is the set of all rays from x1x0
@@ -59,6 +59,6 @@ bool WedgeContains(const S2Point& a0, const S2Point& ab1, const S2Point& a2,
 bool WedgeIntersects(const S2Point& a0, const S2Point& ab1, const S2Point& a2,
                      const S2Point& b0, const S2Point& b2);
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2WEDGE_RELATIONS_H_

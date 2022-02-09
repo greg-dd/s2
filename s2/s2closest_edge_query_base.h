@@ -21,22 +21,24 @@
 #include <memory>
 #include <vector>
 
-#include "s2/base/logging.h"
-#include "absl/container/btree_set.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/util/gtl/btree_set.h"
 #include "absl/container/inlined_vector.h"
-#include "s2/_fp_contract_off.h"
-#include "s2/s1angle.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2cell_union.h"
-#include "s2/s2distance_target.h"
-#include "s2/s2region_coverer.h"
-#include "s2/s2shape_index.h"
-#include "s2/s2shapeutil_count_edges.h"
-#include "s2/s2shapeutil_shape_edge_id.h"
-#include "s2/util/gtl/dense_hash_set.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2cell_union.h"
+#include "third_party/s2/s2distance_target.h"
+#include "third_party/s2/s2region_coverer.h"
+#include "third_party/s2/s2shape_index.h"
+#include "third_party/s2/s2shapeutil_count_edges.h"
+#include "third_party/s2/s2shapeutil_shape_edge_id.h"
+#include "third_party/s2/util/gtl/dense_hash_set.h"
+
+namespace s2 {
 
 // S2ClosestEdgeQueryBase is a templatized class for finding the closest
 // edge(s) between two geometries.  It is not intended to be used directly,
@@ -167,7 +169,7 @@ class S2ClosestEdgeQueryBase {
   //    Such results may be returned when options.include_interiors() is true.
   //    Such results can be identified using the is_interior() method.
   //
-  //  - (shape_id() < 0) && (edge_id() < 0) is returned by FindClosestEdge()
+  //  - (shape_id() < 0) && (edge_id() < 0) is returned by `FindClosestEdge`
   //    to indicate that no edge satisfies the given query options.  Such
   //    results can be identified using is_empty() method.
   class Result {
@@ -217,7 +219,7 @@ class S2ClosestEdgeQueryBase {
 
     // Indicates that linear rather than binary search should be used when this
     // type is used as the key in gtl::btree data structures.
-    using absl_btree_prefer_linear_node_search = std::true_type;
+    using goog_btree_prefer_linear_node_search = std::true_type;
 
    private:
     Distance distance_;  // The distance from the target to this edge.
@@ -342,7 +344,7 @@ class S2ClosestEdgeQueryBase {
   // when result_set_ is used so that we could use a priority queue instead.
   Result result_singleton_;
   std::vector<Result> result_vector_;
-  absl::btree_set<Result> result_set_;
+  gtl::btree_set<Result> result_set_;
 
   // When the result edges are stored in a btree_set (see above), usually
   // duplicates can be removed simply by inserting candidate edges in the
@@ -566,7 +568,7 @@ void S2ClosestEdgeQueryBase<Distance>::FindClosestEdgesInternal(
   }
 
   if (options.include_interiors()) {
-    absl::btree_set<int32> shape_ids;
+    gtl::btree_set<int32> shape_ids;
     (void) target->VisitContainingShapes(
         *index_, [&shape_ids, &options](S2Shape* containing_shape,
                                         const S2Point& target_point) {
@@ -942,5 +944,7 @@ void S2ClosestEdgeQueryBase<Distance>::ProcessOrEnqueue(
   }
   queue_.push(QueueEntry(distance, id, index_cell));
 }
+
+}  // namespace s2
 
 #endif  // S2_S2CLOSEST_EDGE_QUERY_BASE_H_

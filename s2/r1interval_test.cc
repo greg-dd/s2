@@ -15,11 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/r1interval.h"
+#include "third_party/s2/r1interval.h"
 
 #include <cfloat>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
+
+namespace s2 {
 
 static void TestIntervalOps(const R1Interval& x, const R1Interval& y,
                             const char* expected) {
@@ -183,3 +185,5 @@ TEST(R1Interval, ApproxEquals) {
   EXPECT_FALSE(R1Interval(1 - kLo, 2 + kHi).ApproxEquals(R1Interval(1, 2)));
   EXPECT_FALSE(R1Interval(1 + kLo, 2 - kHi).ApproxEquals(R1Interval(1, 2)));
 }
+
+}  // namespace s2

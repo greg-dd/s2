@@ -15,29 +15,27 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/util/math/exactfloat/exactfloat.h"
+#include "third_party/s2/util/math/exactfloat/exactfloat.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
 #include <algorithm>
 #include <cmath>
-#include <cstdint>
 #include <limits>
 
-#include <openssl/bn.h>
-#include <openssl/crypto.h>  // for OPENSSL_free
+#include "openssl/bn.h"
+#include "openssl/crypto.h"  // for OPENSSL_free
 
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/base/logging.h"
 #include "absl/base/macros.h"
 #include "absl/container/fixed_array.h"
 
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-
 using std::max;
 using std::min;
-using std::string;
+
+namespace s2 {
 
 // Define storage for constants.
 const int ExactFloat::kMinExp;
@@ -97,8 +95,6 @@ inline static void BN_ext_set_uint64(BIGNUM* bn, uint64 v) {
 #endif
 }
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-
 // Return the absolute value of a BIGNUM as a 64-bit unsigned integer.
 // Requires that BIGNUM fits into 64 bits.
 inline static uint64 BN_ext_get_uint64(const BIGNUM* bn) {
@@ -113,6 +109,8 @@ inline static uint64 BN_ext_get_uint64(const BIGNUM* bn) {
   return (static_cast<uint64>(bn->d[1]) << 32) + bn->d[0];
 #endif
 }
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 
 // Count the number of low-order zero bits in the given BIGNUM (ignoring its
 // sign).  Returns 0 if the argument is zero.
@@ -133,22 +131,6 @@ static int BN_ext_count_low_zero_bits(const BIGNUM* bn) {
 }
 
 #else  // OPENSSL_VERSION_NUMBER >= 0x10100000L
-
-// Return the absolute value of a BIGNUM as a 64-bit unsigned integer.
-// Requires that BIGNUM fits into 64 bits.
-inline static uint64 BN_ext_get_uint64(const BIGNUM* bn) {
-  uint64 r;
-#ifdef IS_LITTLE_ENDIAN
-  S2_CHECK_EQ(BN_bn2lebinpad(bn, reinterpret_cast<unsigned char*>(&r),
-              sizeof(r)), sizeof(r));
-#elif IS_BIG_ENDIAN
-  S2_CHECK_EQ(BN_bn2binpad(bn, reinterpret_cast<unsigned char*>(&r),
-              sizeof(r)), sizeof(r));
-#else
-#error one of IS_LITTLE_ENDIAN or IS_BIG_ENDIAN should be defined!
-#endif
-  return r;
-}
 
 static int BN_ext_count_low_zero_bits(const BIGNUM* bn) {
   // In OpenSSL >= 1.1, BIGNUM is an opaque type, so d and top
@@ -440,7 +422,7 @@ std::string ExactFloat::ToStringWithMaxDigits(int max_digits) const {
   return str;
 }
 
-// Increment an unsigned integer represented as a string of ASCII digits.
+// Increment an unsigned integer represented as a std::string of ASCII digits.
 static void IncrementDecimalDigits(std::string* digits) {
   std::string::iterator pos = digits->end();
   while (--pos >= digits->begin()) {
@@ -473,7 +455,7 @@ int ExactFloat::GetDecimalDigits(int max_digits, std::string* digits) const {
     BN_free(power);
     bn_exp10 = bn_exp_;
   }
-  // Now convert "bn" to a decimal string.
+  // Now convert "bn" to a decimal std::string.
   char* all_digits = BN_bn2dec(bn);
   S2_DCHECK(all_digits != nullptr);
   BN_free(bn);
@@ -850,3 +832,5 @@ ExactFloat ExactFloat::Unimplemented() {
   S2_LOG(FATAL) << "Unimplemented ExactFloat method called";
   return NaN();
 }
+
+}  // namespace s2

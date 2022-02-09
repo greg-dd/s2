@@ -18,10 +18,11 @@
 #ifndef S2_S2SHAPEUTIL_SHAPE_EDGE_H_
 #define S2_S2SHAPEUTIL_SHAPE_EDGE_H_
 
-#include "s2/s2point.h"
-#include "s2/s2shape.h"
-#include "s2/s2shapeutil_shape_edge_id.h"
+#include "third_party/s2/s2point.h"
+#include "third_party/s2/s2shape.h"
+#include "third_party/s2/s2shapeutil_shape_edge_id.h"
 
+namespace s2 {
 namespace s2shapeutil {
 
 // A class representing a ShapeEdgeId together with the two endpoints of that
@@ -54,5 +55,6 @@ inline ShapeEdge::ShapeEdge(int32 shape_id, int32 edge_id,
 }
 
 }  // namespace s2shapeutil
+}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_SHAPE_EDGE_H_

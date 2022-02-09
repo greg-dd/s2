@@ -18,32 +18,27 @@
 #ifndef S2_S2POLYGON_H_
 #define S2_S2POLYGON_H_
 
-#include <algorithm>
 #include <atomic>
 #include <cstddef>
 #include <map>
-#include <memory>
-#include <utility>
 #include <vector>
 
-#include "absl/base/attributes.h"
+#include "third_party/s2/base/integral_types.h"
 #include "absl/base/macros.h"
-#include "absl/container/node_hash_map.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2boolean_operation.h"
+#include "third_party/s2/s2builder.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2debug.h"
+#include "third_party/s2/s2latlng_rect.h"
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2polyline.h"
+#include "third_party/s2/s2region.h"
+#include "third_party/s2/s2shape_index.h"
 
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-#include "s2/_fp_contract_off.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s1angle.h"
-#include "s2/s2boolean_operation.h"
-#include "s2/s2builder.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2debug.h"
-#include "s2/s2latlng_rect.h"
-#include "s2/s2loop.h"
-#include "s2/s2polyline.h"
-#include "s2/s2region.h"
-#include "s2/s2shape_index.h"
+namespace s2 {
 
 class Decoder;
 class Encoder;
@@ -53,6 +48,7 @@ class S2Cell;
 class S2CellUnion;
 class S2Error;
 class S2Loop;
+class S2PolygonBuilder;
 class S2Polyline;
 struct S2XYZFaceSiTi;
 
@@ -236,7 +232,6 @@ class S2Polygon final : public S2Region {
   int num_loops() const { return static_cast<int>(loops_.size()); }
 
   // Total number of vertices in all loops.
-  // TODO(ericv): Change to num_edges() for consistency with the S2Shape API.
   int num_vertices() const { return num_vertices_; }
 
   // Return the loop at the given index.  Note that during initialization, the
@@ -340,7 +335,7 @@ class S2Polygon final : public S2Region {
   // snap_radius of zero (which preserves the input vertices exactly).
   //
   // The boundary of the output polygon before snapping is guaranteed to be
-  // accurate to within S2::kIntersectionError of the exact result.
+  // accurate to within s2::kIntersectionError of the exact result.
   // Snapping can move the boundary by an additional distance that depends on
   // the snap function.  Finally, any degenerate portions of the output
   // polygon are automatically removed (i.e., regions that do not contain any
@@ -351,7 +346,7 @@ class S2Polygon final : public S2Region {
   // s2builderutil::IntLatLngSnapFunction(7).
   //
   // The default snap function is the IdentitySnapFunction with a snap radius
-  // of S2::kIntersectionMergeRadius (equal to about 1.8e-15 radians
+  // of s2::kIntersectionMergeRadius (equal to about 1.8e-15 radians
   // or 11 nanometers on the Earth's surface).  This means that vertices may
   // be positioned arbitrarily, but vertices that are extremely close together
   // can be merged together.  The reason for a non-zero default snap radius is
@@ -465,8 +460,8 @@ class S2Polygon final : public S2Region {
   // "boundary_tolerance" specifies how close a vertex must be to the cell
   // boundary to be kept.  The default tolerance is large enough to handle any
   // reasonable way of interpolating points along the cell boundary, such as
-  // S2::GetIntersection(), S2::Interpolate(), or direct (u,v)
-  // interpolation using S2::FaceUVtoXYZ().  However, if the vertices have
+  // s2::GetIntersection(), s2::Interpolate(), or direct (u,v)
+  // interpolation using s2::FaceUVtoXYZ().  However, if the vertices have
   // been snapped to a lower-precision representation (e.g., S2CellId centers
   // or E7 coordinates) then you will need to set this tolerance explicitly.
   // For example, if the vertices were snapped to E7 coordinates then
@@ -540,7 +535,7 @@ class S2Polygon final : public S2Region {
   // but there will not be any zero-vertex polylines.
   //
   // This is equivalent to calling ApproxIntersectWithPolyline() with the
-  // "snap_radius" set to S2::kIntersectionMergeRadius.
+  // "snap_radius" set to s2::kIntersectionMergeRadius.
   std::vector<std::unique_ptr<S2Polyline> > IntersectWithPolyline(
       const S2Polyline& in) const;
 
@@ -575,9 +570,6 @@ class S2Polygon final : public S2Region {
   static std::unique_ptr<S2Polygon> DestructiveApproxUnion(
       std::vector<std::unique_ptr<S2Polygon> > polygons,
       S1Angle snap_radius);
-  static std::unique_ptr<S2Polygon> DestructiveUnion(
-      std::vector<std::unique_ptr<S2Polygon> > polygons,
-      const S2Builder::SnapFunction& snap_function);
 #endif  // !defined(SWIG)
 
   // Initialize this polygon to the outline of the given cell union.
@@ -720,7 +712,7 @@ class S2Polygon final : public S2Region {
    public:
     static constexpr TypeTag kTypeTag = 1;
 
-    Shape() : polygon_(nullptr), loop_starts_(nullptr) {}
+    Shape() : polygon_(nullptr), cumulative_edges_(nullptr) {}
     ~Shape() override;
 
     // Initialization.  Does not take ownership of "polygon".  May be called
@@ -731,11 +723,20 @@ class S2Polygon final : public S2Region {
 
     const S2Polygon* polygon() const { return polygon_; }
 
-    // S2Shape interface:
-    int num_edges() const final {
-      return (polygon_->num_vertices() != 1) ? polygon_->num_vertices()
-                                             : polygon_->is_full() ? 0 : 1;
+    // Encodes the polygon using S2Polygon::Encode().
+    void Encode(Encoder* encoder) const {
+      polygon_->Encode(encoder);
     }
+
+    // Encodes the polygon using S2Polygon::EncodeUncompressed().
+    void EncodeUncompressed(Encoder* encoder) const {
+      polygon_->EncodeUncompressed(encoder);
+    }
+
+    // Decoding is defined only for S2Polyline::OwningShape below.
+
+    // S2Shape interface:
+    int num_edges() const final { return num_edges_; }
     Edge edge(int e) const final;
     int dimension() const final { return 2; }
     ReferencePoint GetReferencePoint() const final;
@@ -745,27 +746,22 @@ class S2Polygon final : public S2Region {
     ChainPosition chain_position(int e) const final;
     TypeTag type_tag() const override { return kTypeTag; }
 
-  void Encode(Encoder* encoder, s2coding::CodingHint hint) const override {
-      if (hint == s2coding::CodingHint::FAST) {
-        polygon_->EncodeUncompressed(encoder);
-      } else {
-        polygon_->Encode(encoder);
-      }
-    }
-    // Decoding is defined only for S2Polygon::OwningShape below.
-
    private:
-    // The loop that contained the edge returned by the previous call to the
-    // edge() method.  This is used as a hint to speed up edge location when
-    // there are many loops.  Note that this field does not take up any space
-    // due to field packing with S2Shape::id_.
-    mutable std::atomic<int> prev_loop_ = {0};
+    // The total number of edges in the polygon.  This is the same as
+    // polygon_->num_vertices() except in one case (polygon_->is_full()).  On
+    // the other hand this field doesn't take up any extra space due to field
+    // packing with S2Shape::id_.
+    //
+    // TODO(ericv): Consider using this field instead as an atomic<int> hint to
+    // speed up edge location when there are a large number of loops.  Also
+    // consider changing S2Polygon::num_vertices to num_edges instead.
+    int num_edges_;
 
     const S2Polygon* polygon_;
 
     // An array where element "i" is the total number of edges in loops 0..i-1.
     // This field is only used for polygons that have a large number of loops.
-    std::unique_ptr<uint32[]> loop_starts_;
+    int* cumulative_edges_;
   };
 
   // Like Shape, except that the S2Polygon is automatically deleted when this
@@ -828,7 +824,7 @@ class S2Polygon final : public S2Region {
   // A map from each loop to its immediate children with respect to nesting.
   // This map is built during initialization of multi-loop polygons to
   // determine which are shells and which are holes, and then discarded.
-  typedef absl::node_hash_map<S2Loop*, std::vector<S2Loop*> > LoopMap;
+  typedef std::map<S2Loop*, std::vector<S2Loop*> > LoopMap;
 
   void InsertLoop(S2Loop* new_loop, S2Loop* parent, LoopMap* loop_map);
   void InitLoops(LoopMap* loop_map);
@@ -937,48 +933,6 @@ class S2Polygon final : public S2Region {
 #endif
 };
 
-
-//////////////////   Implementation details follow   ////////////////////
-
-
-ABSL_ATTRIBUTE_ALWAYS_INLINE
-inline S2Shape::Edge S2Polygon::Shape::chain_edge(int i, int j) const {
-  S2_DCHECK_LT(i, Shape::num_chains());
-  const S2Loop* loop = polygon_->loop(i);
-  S2_DCHECK_LT(j, loop->num_vertices());
-  return Edge(loop->oriented_vertex(j), loop->oriented_vertex(j + 1));
-}
-
-ABSL_ATTRIBUTE_ALWAYS_INLINE
-inline S2Shape::ChainPosition S2Polygon::Shape::chain_position(int e) const {
-  S2_DCHECK_LT(e, num_edges());
-  int i;
-  const uint32* start = loop_starts_.get();
-  if (start == nullptr) {
-    // When the number of loops is small, linear search is faster.  Most often
-    // there is exactly one loop and the code below executes zero times.
-    for (i = 0; e >= polygon_->loop(i)->num_vertices(); ++i) {
-      e -= polygon_->loop(i)->num_vertices();
-    }
-  } else {
-    i = prev_loop_.load(std::memory_order_relaxed);
-    if (e >= start[i] && e < start[i + 1]) {
-      // This edge belongs to the same loop as the previous call.
-    } else {
-      if (e == start[i + 1]) {
-        // This edge immediately follows the loop from the previous call.
-        // Note that S2Polygon does not allow empty loops.
-        ++i;
-      } else {
-        // "upper_bound" finds the loop just beyond the one we want.
-        i = std::upper_bound(&start[1], &start[polygon_->num_loops()], e)
-            - &start[1];
-      }
-      prev_loop_.store(i, std::memory_order_relaxed);
-    }
-    e -= start[i];
-  }
-  return ChainPosition(i, e);
-}
+}  // namespace s2
 
 #endif  // S2_S2POLYGON_H_

@@ -20,10 +20,11 @@
 
 #include <vector>
 
-#include "s2/s2edge_crosser.h"
-#include "s2/s2shape_index.h"
-#include "s2/s2shapeutil_shape_edge.h"
+#include "third_party/s2/s2edge_crosser.h"
+#include "third_party/s2/s2shape_index.h"
+#include "third_party/s2/s2shapeutil_shape_edge.h"
 
+namespace s2 {
 // Defines whether shapes are considered to contain their vertices.  Note that
 // these definitions differ from the ones used by S2BooleanOperation.
 //
@@ -40,9 +41,9 @@
 //    and polylines).
 //
 // Note that points other than vertices are never contained by polylines.
-// If you need this behavior, use S2ClosestEdgeQuery::IsDistanceLess()
+// If you want need this behavior, use S2ClosestEdgeQuery::IsDistanceLess()
 // with a suitable distance threshold instead.
-enum class S2VertexModel : uint8 { OPEN, SEMI_OPEN, CLOSED };
+enum class S2VertexModel { OPEN, SEMI_OPEN, CLOSED };
 
 // This class defines the options supported by S2ContainsPointQuery.
 class S2ContainsPointQueryOptions {
@@ -122,12 +123,6 @@ class S2ContainsPointQuery {
   // visited at most once.
   //
   // Note that the API allows non-const access to the visited shapes.
-  //
-  // Also see S2ShapeIndexRegion::VisitIntersectingShapes() which allows
-  // visiting all shapes in an S2ShapeIndex that intersect or contain a given
-  // target S2CellId.
-  //
-  // ENSURES: shape != nullptr
   using ShapeVisitor = std::function<bool (S2Shape* shape)>;
   bool VisitContainingShapes(const S2Point& p, const ShapeVisitor& visitor);
 
@@ -152,9 +147,9 @@ class S2ContainsPointQuery {
   // allowed to reposition this iterator arbitrarily between method calls.
   Iterator* mutable_iter() { return &it_; }
 
-  // Low-level helper method that returns true if the given S2ClippedShape in
-  // the given cell contains the point "p".
-  bool ShapeContains(S2CellId cell_id, const S2ClippedShape& clipped,
+  // Low-level helper method that returns true if the given S2ClippedShape
+  // referred to by an S2ShapeIndex::Iterator contains the point "p".
+  bool ShapeContains(const Iterator& it, const S2ClippedShape& clipped,
                      const S2Point& p) const;
 
  private:
@@ -222,7 +217,7 @@ bool S2ContainsPointQuery<IndexType>::Contains(const S2Point& p) {
   const S2ShapeIndexCell& cell = it_.cell();
   int num_clipped = cell.num_clipped();
   for (int s = 0; s < num_clipped; ++s) {
-    if (ShapeContains(it_.id(), cell.clipped(s), p)) return true;
+    if (ShapeContains(it_, cell.clipped(s), p)) return true;
   }
   return false;
 }
@@ -233,7 +228,7 @@ bool S2ContainsPointQuery<IndexType>::ShapeContains(const S2Shape& shape,
   if (!it_.Locate(p)) return false;
   const S2ClippedShape* clipped = it_.cell().find_clipped(shape.id());
   if (clipped == nullptr) return false;
-  return ShapeContains(it_.id(), *clipped, p);
+  return ShapeContains(it_, *clipped, p);
 }
 
 template <class IndexType>
@@ -247,7 +242,7 @@ bool S2ContainsPointQuery<IndexType>::VisitContainingShapes(
   int num_clipped = cell.num_clipped();
   for (int s = 0; s < num_clipped; ++s) {
     const S2ClippedShape& clipped = cell.clipped(s);
-    if (ShapeContains(it_.id(), clipped, p) &&
+    if (ShapeContains(it_, clipped, p) &&
         !visitor(index_->shape(clipped.shape_id()))) {
       return false;
     }
@@ -294,8 +289,7 @@ std::vector<S2Shape*> S2ContainsPointQuery<IndexType>::GetContainingShapes(
 
 template <class IndexType>
 bool S2ContainsPointQuery<IndexType>::ShapeContains(
-    S2CellId cell_id, const S2ClippedShape& clipped,
-    const S2Point& p) const {
+    const Iterator& it, const S2ClippedShape& clipped, const S2Point& p) const {
   bool inside = clipped.contains_center();
   const int num_edges = clipped.num_edges();
   if (num_edges > 0) {
@@ -313,7 +307,7 @@ bool S2ContainsPointQuery<IndexType>::ShapeContains(
     }
     // Test containment by drawing a line segment from the cell center to the
     // given point and counting edge crossings.
-    S2CopyingEdgeCrosser crosser(cell_id.ToPoint(), p);
+    S2CopyingEdgeCrosser crosser(it.center(), p);
     for (int i = 0; i < num_edges; ++i) {
       auto edge = shape.edge(clipped.edge(i));
       int sign = crosser.CrossingSign(edge.v0, edge.v1);
@@ -324,12 +318,14 @@ bool S2ContainsPointQuery<IndexType>::ShapeContains(
             (edge.v0 == p || edge.v1 == p)) {
           return (options_.vertex_model() == S2VertexModel::CLOSED);
         }
-        sign = S2::VertexCrossing(crosser.a(), crosser.b(), edge.v0, edge.v1);
+        sign = s2::VertexCrossing(crosser.a(), crosser.b(), edge.v0, edge.v1);
       }
       inside ^= sign;
     }
   }
   return inside;
 }
+
+}  // namespace s2
 
 #endif  // S2_S2CONTAINS_POINT_QUERY_H_

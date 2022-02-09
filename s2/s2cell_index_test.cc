@@ -15,26 +15,22 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2cell_index.h"
+#include "third_party/s2/s2cell_index.h"
 
 #include <set>
 #include <utility>
 #include <vector>
+#include "third_party/s2/base/stringprintf.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2cell_union.h"
+#include "third_party/s2/s2testing.h"
 
-#include <gtest/gtest.h>
-#include "absl/container/flat_hash_set.h"
-#include "absl/flags/flag.h"
-#include "absl/strings/str_format.h"
-#include "absl/strings/string_view.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2cell_union.h"
-#include "s2/s2testing.h"
-
-using absl::flat_hash_set;
 using std::pair;
 using std::set;
-using std::string;
 using std::vector;
+
+namespace s2 {
 
 using Label = S2CellIndex::Label;
 using LabelledCell = S2CellIndex::LabelledCell;
@@ -50,7 +46,7 @@ class S2CellIndexTest : public ::testing::Test {
     contents_.push_back(LabelledCell(cell_id, label));
   }
 
-  void Add(absl::string_view cell_str, Label label) {
+  void Add(const std::string& cell_str, Label label) {
     Add(S2CellId::FromDebugString(cell_str), label);
   }
 
@@ -68,9 +64,9 @@ class S2CellIndexTest : public ::testing::Test {
   void VerifyRangeIterators() const;
   void VerifyIndexContents() const;
   void TestIntersection(const S2CellUnion& target);
-  void ExpectContents(absl::string_view target_str,
+  void ExpectContents(const std::string& target_str,
                       S2CellIndex::ContentsIterator* contents,
-                      const vector<pair<string, Label>>& expected_strs) const;
+                      const vector<pair<std::string, Label>>& expected_strs) const;
 
  protected:
   S2CellIndex index_;
@@ -279,8 +275,8 @@ TEST_F(S2CellIndexTest, RandomCellUnions) {
 // first leaf cell contained by this target will intersect the exact set of
 // (cell_id, label) pairs given by "expected_strs".
 void S2CellIndexTest::ExpectContents(
-    absl::string_view target_str, S2CellIndex::ContentsIterator* contents,
-    const vector<pair<string, Label>>& expected_strs) const {
+    const std::string& target_str, S2CellIndex::ContentsIterator* contents,
+    const vector<pair<std::string, Label>>& expected_strs) const {
   S2CellIndex::RangeIterator range(&index_);
   range.Seek(S2CellId::FromDebugString(target_str).range_min());
   vector<LabelledCell> expected, actual;
@@ -341,7 +337,7 @@ TEST_F(S2CellIndexTest, ContentsIteratorSuppressesDuplicates) {
 // correct results for the given target.
 void S2CellIndexTest::TestIntersection(const S2CellUnion& target) {
   vector<LabelledCell> expected, actual;
-  flat_hash_set<Label> expected_labels;
+  set<Label> expected_labels;
   for (S2CellIndex::CellIterator it(&index_); !it.done(); it.Next()) {
     if (target.Intersects(it.cell_id())) {
       expected.push_back(LabelledCell(it.cell_id(), it.label()));
@@ -354,11 +350,13 @@ void S2CellIndexTest::TestIntersection(const S2CellUnion& target) {
         return true;
       });
   ExpectEqual(expected, actual);
-  flat_hash_set<Label> actual_labels = index_.GetIntersectingLabels(target);
-  EXPECT_EQ(expected_labels, actual_labels);
+  vector<Label> actual_labels = index_.GetIntersectingLabels(target);
+  std::sort(actual_labels.begin(), actual_labels.end());
+  EXPECT_EQ(vector<Label>(expected_labels.begin(), expected_labels.end()),
+            actual_labels);
 }
 
-S2CellUnion MakeCellUnion(const vector<string>& strs) {
+S2CellUnion MakeCellUnion(const vector<std::string>& strs) {
   vector<S2CellId> ids;
   for (const auto& str : strs) {
     ids.push_back(S2CellId::FromDebugString(str));
@@ -413,3 +411,4 @@ TEST_F(S2CellIndexTest, IntersectionSemiRandomUnions) {
 }
 
 }  // namespace
+}  // namespace s2

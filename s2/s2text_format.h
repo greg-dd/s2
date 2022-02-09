@@ -28,19 +28,14 @@
 #include <vector>
 
 #include "absl/base/attributes.h"
-#include "absl/base/macros.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/span.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2cell_union.h"
+#include "third_party/s2/s2debug.h"
+#include "third_party/s2/s2latlng_rect.h"
+#include "third_party/s2/s2point_span.h"
 
-#include "s2/s2cell_id.h"
-#include "s2/s2cell_union.h"
-#include "s2/s2debug.h"
-#include "s2/s2latlng_rect.h"
-#include "s2/s2lax_polygon_shape.h"  // TODO(user,b/207351837): Remove.
-#include "s2/s2lax_polyline_shape.h"  // TODO(user,b/207351837): Remove.
-#include "s2/s2point_span.h"
-#include "s2/s2polygon.h"   // TODO(user,b/207351837): Remove.
-#include "s2/s2polyline.h"  // TODO(user,b/207351837): Remove.
+namespace s2 {
 
 class MutableS2ShapeIndex;
 class S2LaxPolygonShape;
@@ -61,10 +56,10 @@ S2Point MakePointOrDie(absl::string_view str);
 // is successful.
 ABSL_MUST_USE_RESULT bool MakePoint(absl::string_view str, S2Point* point);
 
-ABSL_DEPRECATED("Inline the implementation")
+ABSL_DEPRECATED("Use MakePointOrDie.")
 inline S2Point MakePoint(absl::string_view str) { return MakePointOrDie(str); }
 
-// Parses a string of one or more latitude-longitude coordinates in degrees,
+// Parses a std::string of one or more latitude-longitude coordinates in degrees,
 // and return the corresponding vector of S2LatLng points.
 // Examples of the input format:
 //     ""                            // no points
@@ -77,12 +72,12 @@ std::vector<S2LatLng> ParseLatLngsOrDie(absl::string_view str);
 ABSL_MUST_USE_RESULT bool ParseLatLngs(absl::string_view str,
                                        std::vector<S2LatLng>* latlngs);
 
-ABSL_DEPRECATED("Inline the implementation")
+ABSL_DEPRECATED("Use ParseLatLngsOrDie.")
 inline std::vector<S2LatLng> ParseLatLngs(absl::string_view str) {
   return ParseLatLngsOrDie(str);
 }
 
-// Parses a string in the same format as ParseLatLngs, and return the
+// Parses a std::string in the same format as ParseLatLngs, and return the
 // corresponding vector of S2Point values.
 std::vector<S2Point> ParsePointsOrDie(absl::string_view str);
 
@@ -91,19 +86,19 @@ std::vector<S2Point> ParsePointsOrDie(absl::string_view str);
 ABSL_MUST_USE_RESULT bool ParsePoints(absl::string_view str,
                                       std::vector<S2Point>* vertices);
 
-ABSL_DEPRECATED("Inline the implementation")
+ABSL_DEPRECATED("Use ParsePointsOrDie.")
 inline std::vector<S2Point> ParsePoints(absl::string_view str) {
   return ParsePointsOrDie(str);
 }
 
-// Given a string in the same format as ParseLatLngs, returns a single S2LatLng.
+// Given a std::string in the same format as ParseLatLngs, returns a single S2LatLng.
 S2LatLng MakeLatLngOrDie(absl::string_view str);
 
 // As above, but does not S2_CHECK-fail on invalid input. Returns true if
 // conversion is successful.
 ABSL_MUST_USE_RESULT bool MakeLatLng(absl::string_view str, S2LatLng* latlng);
 
-// Given a string in the same format as ParseLatLngs, returns the minimal
+// Given a std::string in the same format as ParseLatLngs, returns the minimal
 // bounding S2LatLngRect that contains the coordinates.
 S2LatLngRect MakeLatLngRectOrDie(absl::string_view str);
 
@@ -112,15 +107,15 @@ S2LatLngRect MakeLatLngRectOrDie(absl::string_view str);
 ABSL_MUST_USE_RESULT bool MakeLatLngRect(absl::string_view str,
                                          S2LatLngRect* rect);
 
-ABSL_DEPRECATED("Inline the implementation")
+ABSL_DEPRECATED("Use MakeLatLngRectOrDie.")
 inline S2LatLngRect MakeLatLngRect(absl::string_view str) {
   return MakeLatLngRectOrDie(str);
 }
 
 // Parses an S2CellId in the format "f/dd..d" where "f" is a digit in the
-// range [0-5] representing the S2CellId face, and "dd..d" is a string of
+// range [0-5] representing the S2CellId face, and "dd..d" is a std::string of
 // digits in the range [0-3] representing each child's position with respect
-// to its parent.  (Note that the latter string may be empty.)
+// to its parent.  (Note that the latter std::string may be empty.)
 //
 // For example "4/" represents S2CellId::FromFace(4), and "3/02" represents
 // S2CellId::FromFace(3).child(0).child(2).
@@ -143,10 +138,10 @@ S2CellUnion MakeCellUnionOrDie(absl::string_view str);
 ABSL_MUST_USE_RESULT bool MakeCellUnion(absl::string_view str,
                                         S2CellUnion* cell_union);
 
-// Given a string of latitude-longitude coordinates in degrees,
+// Given a std::string of latitude-longitude coordinates in degrees,
 // returns a newly allocated loop.  Example of the input format:
 //     "-20:150, 10:-120, 0.123:-170.652"
-// The strings "empty" or "full" create an empty or full loop respectively.
+// The std::strings "empty" or "full" create an empty or full loop respectively.
 std::unique_ptr<S2Loop> MakeLoopOrDie(absl::string_view str,
                                       S2Debug debug_override = S2Debug::ALLOW);
 
@@ -155,6 +150,10 @@ std::unique_ptr<S2Loop> MakeLoopOrDie(absl::string_view str,
 ABSL_MUST_USE_RESULT bool MakeLoop(absl::string_view str,
                                    std::unique_ptr<S2Loop>* loop,
                                    S2Debug debug_override = S2Debug::ALLOW);
+
+ABSL_DEPRECATED("Use MakeLoopOrDie.")
+std::unique_ptr<S2Loop> MakeLoop(absl::string_view str,
+                                 S2Debug debug_override = S2Debug::ALLOW);
 
 // Similar to MakeLoop(), but returns an S2Polyline rather than an S2Loop.
 std::unique_ptr<S2Polyline> MakePolylineOrDie(
@@ -167,11 +166,10 @@ ABSL_MUST_USE_RESULT bool MakePolyline(absl::string_view str,
                                        std::unique_ptr<S2Polyline>* polyline,
                                        S2Debug debug_override = S2Debug::ALLOW);
 
-ABSL_DEPRECATED("Inline the implementation")
-inline std::unique_ptr<S2Polyline> MakePolyline(
-    absl::string_view str, S2Debug debug_override = S2Debug::ALLOW) {
-  return MakePolylineOrDie(str, debug_override);
-}
+ABSL_DEPRECATED("Use MakePolylineOrDie.")
+std::unique_ptr<S2Polyline> MakePolyline(
+    absl::string_view str,
+    S2Debug debug_override = S2Debug::ALLOW);
 
 // Like MakePolyline, but returns an S2LaxPolylineShape instead.
 std::unique_ptr<S2LaxPolylineShape> MakeLaxPolylineOrDie(absl::string_view str);
@@ -181,11 +179,8 @@ std::unique_ptr<S2LaxPolylineShape> MakeLaxPolylineOrDie(absl::string_view str);
 ABSL_MUST_USE_RESULT bool MakeLaxPolyline(
     absl::string_view str, std::unique_ptr<S2LaxPolylineShape>* lax_polyline);
 
-ABSL_DEPRECATED("Inline the implementation")
-inline std::unique_ptr<S2LaxPolylineShape> MakeLaxPolyline(
-    absl::string_view str) {
-  return MakeLaxPolylineOrDie(str);
-}
+ABSL_DEPRECATED("Use MakeLaxPolylineOrDie.")
+std::unique_ptr<S2LaxPolylineShape> MakeLaxPolyline(absl::string_view str);
 
 // Given a sequence of loops separated by semicolons, returns a newly
 // allocated polygon.  Loops are automatically normalized by inverting them
@@ -210,11 +205,9 @@ ABSL_MUST_USE_RESULT bool MakePolygon(absl::string_view str,
                                       std::unique_ptr<S2Polygon>* polygon,
                                       S2Debug debug_override = S2Debug::ALLOW);
 
-ABSL_DEPRECATED("Inline the implementation")
-inline std::unique_ptr<S2Polygon> MakePolygon(
-    absl::string_view str, S2Debug debug_override = S2Debug::ALLOW) {
-  return MakePolygonOrDie(str, debug_override);
-}
+ABSL_DEPRECATED("Use MakePolygonOrDie.")
+std::unique_ptr<S2Polygon> MakePolygon(absl::string_view str,
+                                       S2Debug debug_override = S2Debug::ALLOW);
 
 // Like MakePolygon(), except that it does not normalize loops (i.e., it
 // gives you exactly what you asked for).
@@ -225,12 +218,10 @@ std::unique_ptr<S2Polygon> MakeVerbatimPolygonOrDie(absl::string_view str);
 ABSL_MUST_USE_RESULT bool MakeVerbatimPolygon(
     absl::string_view str, std::unique_ptr<S2Polygon>* polygon);
 
-ABSL_DEPRECATED("Inline the implementation")
-inline std::unique_ptr<S2Polygon> MakeVerbatimPolygon(absl::string_view str) {
-  return MakeVerbatimPolygonOrDie(str);
-}
+ABSL_DEPRECATED("Use MakeVerbatimPolygonOrDie.")
+std::unique_ptr<S2Polygon> MakeVerbatimPolygon(absl::string_view str);
 
-// Parses a string in the same format as MakePolygon, except that loops must
+// Parses a std::string in the same format as MakePolygon, except that loops must
 // be oriented so that the interior of the loop is always on the left, and
 // polygons with degeneracies are supported.  As with MakePolygon, "full" and
 // denotes the full polygon and "" or "empty" denote the empty polygon.
@@ -241,11 +232,8 @@ std::unique_ptr<S2LaxPolygonShape> MakeLaxPolygonOrDie(absl::string_view str);
 ABSL_MUST_USE_RESULT bool MakeLaxPolygon(
     absl::string_view str, std::unique_ptr<S2LaxPolygonShape>* lax_polygon);
 
-ABSL_DEPRECATED("Inline the implementation")
-inline std::unique_ptr<S2LaxPolygonShape> MakeLaxPolygon(
-    absl::string_view str) {
-  return MakeLaxPolygonOrDie(str);
-}
+ABSL_DEPRECATED("Use MakeLaxPolygonOrDie.")
+std::unique_ptr<S2LaxPolygonShape> MakeLaxPolygon(absl::string_view str);
 
 // Returns a MutableS2ShapeIndex containing the points, polylines, and loops
 // (in the form of a single polygon) described by the following format:
@@ -264,7 +252,7 @@ inline std::unique_ptr<S2LaxPolygonShape> MakeLaxPolygon(
 // Loops can be degenerate (they do not need to meet S2Loop requirements).
 //
 // CAVEAT: Because whitespace is ignored, empty polygons must be specified
-//         as the string "empty" rather than as the empty string ("").
+//         as the std::string "empty" rather than as the empty std::string ("").
 std::unique_ptr<MutableS2ShapeIndex> MakeIndexOrDie(absl::string_view str);
 
 // As above, but does not S2_CHECK-fail on invalid input. Returns true if
@@ -272,27 +260,25 @@ std::unique_ptr<MutableS2ShapeIndex> MakeIndexOrDie(absl::string_view str);
 ABSL_MUST_USE_RESULT bool MakeIndex(
     absl::string_view str, std::unique_ptr<MutableS2ShapeIndex>* index);
 
-ABSL_DEPRECATED("Inline the implementation")
-inline std::unique_ptr<MutableS2ShapeIndex> MakeIndex(absl::string_view str) {
-  return MakeIndexOrDie(str);
-}
+ABSL_DEPRECATED("Use MakeIndexOrDie.")
+std::unique_ptr<MutableS2ShapeIndex> MakeIndex(absl::string_view str);
 
 // Convert an S2Point, S2LatLng, S2LatLngRect, S2CellId, S2CellUnion, loop,
-// polyline, or polygon to the string format above.
+// polyline, or polygon to the std::string format above.
 std::string ToString(const S2Point& point);
 std::string ToString(const S2LatLng& latlng);
 std::string ToString(const S2LatLngRect& rect);
 std::string ToString(const S2CellId& cell_id);
 std::string ToString(const S2CellUnion& cell_union);
 std::string ToString(const S2Loop& loop);
+std::string ToString(S2PointLoopSpan loop);
 std::string ToString(const S2Polyline& polyline);
-std::string ToString(const S2Polygon& polygon,
-                     const char* loop_separator = ";\n");
-std::string ToString(absl::Span<const S2Point> points);
-std::string ToString(absl::Span<const S2LatLng> latlngs);
+std::string ToString(const S2Polygon& polygon, const char* loop_separator = ";\n");
+std::string ToString(const std::vector<S2Point>& points);
+std::string ToString(const std::vector<S2LatLng>& points);
 std::string ToString(const S2LaxPolylineShape& polyline);
 std::string ToString(const S2LaxPolygonShape& polygon,
-                     const char* loop_separator = ";\n");
+                const char* loop_separator = ";\n");
 
 // Convert the contents of an S2ShapeIndex to the format above.  The index may
 // contain S2Shapes of any type.  Shapes are reordered if necessary so that
@@ -301,5 +287,6 @@ std::string ToString(const S2LaxPolygonShape& polygon,
 std::string ToString(const S2ShapeIndex& index);
 
 }  // namespace s2textformat
+}  // namespace s2
 
 #endif  // S2_S2TEXT_FORMAT_H_

@@ -15,31 +15,29 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2builderutil_closed_set_normalizer.h"
+#include "third_party/s2/s2builderutil_closed_set_normalizer.h"
 
 #include <memory>
 #include <vector>
 
-#include <gtest/gtest.h>
-
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "absl/strings/string_view.h"
-
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2boolean_operation.h"
-#include "s2/s2builder.h"
-#include "s2/s2builder_graph.h"
-#include "s2/s2builder_layer.h"
-#include "s2/s2builderutil_s2point_vector_layer.h"
-#include "s2/s2builderutil_s2polygon_layer.h"
-#include "s2/s2builderutil_s2polyline_vector_layer.h"
-#include "s2/s2builderutil_testing.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2boolean_operation.h"
+#include "third_party/s2/s2builder.h"
+#include "third_party/s2/s2builder_graph.h"
+#include "third_party/s2/s2builder_layer.h"
+#include "third_party/s2/s2builderutil_s2point_vector_layer.h"
+#include "third_party/s2/s2builderutil_s2polygon_layer.h"
+#include "third_party/s2/s2builderutil_s2polyline_vector_layer.h"
+#include "third_party/s2/s2builderutil_testing.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using std::string;
 using std::unique_ptr;
 using std::vector;
+
+namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
@@ -75,23 +73,22 @@ class NormalizeTest : public testing::Test {
                      DuplicateEdges::KEEP, SiblingPairs::KEEP));
   }
 
-  void Run(const string& input_str, const string& expected_str);
+  void Run(const std::string& input_str, const std::string& expected_str);
 
  protected:
   bool suppress_lower_dimensions_;
   vector<GraphOptions> graph_options_out_;
 
  private:
-  static string ToString(const Graph& g);
-  void AddLayers(absl::string_view str,
-                 const vector<GraphOptions>& graph_options,
+  static std::string ToString(const Graph& g);
+  void AddLayers(const std::string& str, const vector<GraphOptions>& graph_options,
                  vector<Graph>* graphs_out, S2Builder* builder);
 
   vector<unique_ptr<GraphClone>> graph_clones_;
 };
 
-void NormalizeTest::Run(const string& input_str,
-                        const string& expected_str) {
+void NormalizeTest::Run(const std::string& input_str,
+                        const std::string& expected_str) {
   ClosedSetNormalizer::Options options;
   options.set_suppress_lower_dimensions(suppress_lower_dimensions_);
   ClosedSetNormalizer normalizer(options, graph_options_out_);
@@ -111,9 +108,9 @@ void NormalizeTest::Run(const string& input_str,
   }
 }
 
-void NormalizeTest::AddLayers(absl::string_view str,
-                              const vector<GraphOptions>& graph_options,
-                              vector<Graph>* graphs_out, S2Builder* builder) {
+void NormalizeTest::AddLayers(
+    const std::string& str, const vector<GraphOptions>& graph_options,
+    vector<Graph>* graphs_out, S2Builder* builder) {
   auto index = s2textformat::MakeIndex(str);
   for (int dim = 0; dim < 3; ++dim) {
     builder->StartLayer(make_unique<GraphAppendingLayer>(
@@ -129,8 +126,8 @@ void NormalizeTest::AddLayers(absl::string_view str,
   }
 }
 
-string NormalizeTest::ToString(const Graph& g) {
-  string msg;
+std::string NormalizeTest::ToString(const Graph& g) {
+  std::string msg;
   for (const auto& edge : g.edges()) {
     vector<S2Point> vertices = { g.vertex(edge.first),
                                  g.vertex(edge.second) };
@@ -264,3 +261,4 @@ TEST(ComputeUnion, MixedGeometry) {
 }
 
 }  // namespace s2builderutil
+}  // namespace s2

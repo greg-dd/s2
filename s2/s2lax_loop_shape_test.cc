@@ -15,16 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2lax_loop_shape.h"
+#include "third_party/s2/s2lax_loop_shape.h"
 
 #include <vector>
 
-#include <gtest/gtest.h>
-#include "s2/s2loop.h"
-#include "s2/s2shapeutil_contains_brute_force.h"
-#include "s2/s2text_format.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2shapeutil_contains_brute_force.h"
+#include "third_party/s2/s2text_format.h"
 
 using std::vector;
+
+namespace s2 {
 
 TEST(S2LaxLoopShape, EmptyLoop) {
   // Test S2Loop constructor.
@@ -97,5 +99,7 @@ TEST(S2VertexIdLaxLoopShape, InvertedLoop) {
   EXPECT_EQ(2, shape.dimension());
   EXPECT_FALSE(shape.is_empty());
   EXPECT_FALSE(shape.is_full());
-  EXPECT_TRUE(s2shapeutil::ContainsBruteForce(shape, S2::Origin()));
+  EXPECT_TRUE(s2shapeutil::ContainsBruteForce(shape, Origin()));
 }
+
+}  // namespace s2

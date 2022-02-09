@@ -15,26 +15,24 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2latlng.h"
+#include "third_party/s2/s2latlng.h"
 
 #include <cmath>
 #include <cstdio>
+#include <unordered_map>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2testing.h"
 #include "absl/base/macros.h"
-#include "absl/container/flat_hash_map.h"
 #include "absl/strings/str_cat.h"
-
-#include "s2/base/logging.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
 
 using absl::StrCat;
 using std::fabs;
-using std::signbit;
-using std::string;
+
+namespace s2 {
 
 TEST(S2LatLng, TestBasic) {
   S2LatLng ll_rad = S2LatLng::FromRadians(M_PI_4, M_PI_2);
@@ -97,25 +95,8 @@ TEST(S2LatLng, TestConversion) {
   // Test a bunch of random points.
   for (int i = 0; i < 100000; ++i) {
     S2Point p = S2Testing::RandomPoint();
-    EXPECT_TRUE(S2::ApproxEquals(p, S2Point(S2LatLng(p)))) << p;
+    EXPECT_TRUE(ApproxEquals(p, S2Point(S2LatLng(p)))) << p;
   }
-}
-
-bool IsIdentical(double x, double y) {
-  return x == y && signbit(x) == signbit(y);
-}
-
-TEST(S2LatLng, NegativeZeros) {
-  EXPECT_TRUE(IsIdentical(
-      S2LatLng::Latitude(S2Point(1., 0., -0.)).radians(), +0.));
-  EXPECT_TRUE(IsIdentical(
-      S2LatLng::Longitude(S2Point(1., -0., 0.)).radians(), +0.));
-  EXPECT_TRUE(IsIdentical(
-      S2LatLng::Longitude(S2Point(-1., -0., 0.)).radians(), M_PI));
-  EXPECT_TRUE(IsIdentical(
-      S2LatLng::Longitude(S2Point(-0., 0., 1.)).radians(), +0.));
-  EXPECT_TRUE(IsIdentical(
-      S2LatLng::Longitude(S2Point(-0., -0., 1.)).radians(), +0.));
 }
 
 TEST(S2LatLng, TestDistance) {
@@ -152,7 +133,8 @@ TEST(S2LatLng, TestToString) {
   for (const auto& v : values) {
     SCOPED_TRACE(StrCat("Iteration ", i++));
     S2LatLng p = S2LatLng::FromDegrees(v.lat, v.lng);
-    string output = p.ToStringInDegrees();
+    std::string output;
+    p.ToStringInDegrees(&output);
 
     double lat, lng;
     ASSERT_EQ(2, std::sscanf(output.c_str(), "%lf,%lf", &lat, &lng));
@@ -161,8 +143,15 @@ TEST(S2LatLng, TestToString) {
   }
 }
 
+// Test the variant that returns a std::string.
+TEST(S2LatLng, TestToStringReturnsString) {
+  std::string s;
+  S2LatLng::FromDegrees(0, 1).ToStringInDegrees(&s);
+  EXPECT_EQ(S2LatLng::FromDegrees(0, 1).ToStringInDegrees(), s);
+}
+
 TEST(S2LatLng, TestHashCode) {
-  absl::flat_hash_map<S2LatLng, int, S2LatLngHash> map;
+  std::unordered_map<S2LatLng, int, S2LatLngHash> map;
   map[S2LatLng::FromDegrees(0, 10)] = 1;
   map[S2LatLng::FromDegrees(2, 12)] = 2;
   map[S2LatLng::FromDegrees(5, 15)] = 3;
@@ -176,3 +165,4 @@ TEST(S2LatLng, TestHashCode) {
   EXPECT_EQ(5, map[S2LatLng::FromDegrees(11, 19)]);
 }
 
+}  // namespace s2

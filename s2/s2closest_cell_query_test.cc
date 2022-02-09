@@ -15,38 +15,35 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2closest_cell_query.h"
+#include "third_party/s2/s2closest_cell_query.h"
 
 #include <memory>
 #include <set>
 #include <vector>
 
-#include <gtest/gtest.h>
-
-#include "absl/flags/flag.h"
+#include "third_party/s2/base/stringprintf.h"
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "absl/strings/str_format.h"
-
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s1angle.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2closest_edge_query_testing.h"
-#include "s2/s2loop.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
-
-namespace {
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2closest_edge_query_testing.h"
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2testing::FractalLoopShapeIndexFactory;
-using s2textformat::MakeCellIdOrDie;
-using s2textformat::MakePointOrDie;
+using s2::s2testing::FractalLoopShapeIndexFactory;
+using s2::s2textformat::MakeCellIdOrDie;
+using s2::s2textformat::MakePointOrDie;
 using std::min;
 using std::pair;
 using std::unique_ptr;
 using std::vector;
+
+namespace s2 {
 
 using LabelledCell = S2CellIndex::LabelledCell;
 
@@ -302,7 +299,7 @@ static void TestWithIndexFactory(const CellIndexFactory& factory,
   vector<S2Cap> index_caps;
   vector<unique_ptr<S2CellIndex>> indexes;
   for (int i = 0; i < num_indexes; ++i) {
-    S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed) + i);
+    S2Testing::rnd.Reset(kS2RandomSeed + i);
     index_caps.push_back(S2Cap(S2Testing::RandomPoint(), kTestCapRadius));
     auto index = make_unique<S2CellIndex>();
     factory.AddCells(index_caps.back(), num_cells, index.get());
@@ -310,7 +307,7 @@ static void TestWithIndexFactory(const CellIndexFactory& factory,
     indexes.push_back(std::move(index));
   }
   for (int i = 0; i < num_queries; ++i) {
-    S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed) + i);
+    S2Testing::rnd.Reset(kS2RandomSeed + i);
     int i_index = S2Testing::rnd.Uniform(num_indexes);
     const S2Cap& index_cap = index_caps[i_index];
 
@@ -358,7 +355,7 @@ static void TestWithIndexFactory(const CellIndexFactory& factory,
       TestFindClosestCells(&target, &query);
     } else if (target_type == 2) {
       // Find the cells closest to a given cell.
-      int min_level = S2::kMaxDiag.GetLevelForMaxValue(query_radius.radians());
+      int min_level = kMaxDiag.GetLevelForMaxValue(query_radius.radians());
       int level = min_level + S2Testing::rnd.Uniform(
           S2CellId::kMaxLevel - min_level + 1);
       S2Point a = S2Testing::SamplePoint(query_cap);
@@ -401,15 +398,15 @@ TEST(S2ClosestCellQuery, CapsCells) {
 }
 
 TEST(S2ClosestCellQuery, ConservativeCellDistanceIsUsed) {
-  // Don't use absl::FlagSaver, so it works in opensource without gflags.
-  const int saved_seed = absl::GetFlag(FLAGS_s2_random_seed);
+  // Don't use google::FlagSaver, so it works in opensource without gflags.
+  const int saved_seed = kS2RandomSeed;
   // These specific test cases happen to fail if max_error() is not properly
   // taken into account when measuring distances to S2ShapeIndex cells.
   for (int seed : {32, 109, 253, 342, 948, 1535, 1884, 1887, 2133}) {
-    absl::SetFlag(&FLAGS_s2_random_seed, seed);
+    kS2RandomSeed = seed;
     TestWithIndexFactory(PointCloudCellIndexFactory(), 5, 100, 10);
   }
-  absl::SetFlag(&FLAGS_s2_random_seed, saved_seed);
+  kS2RandomSeed = saved_seed;
 }
 
-}  // namespace
+}  // namespace s2

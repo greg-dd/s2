@@ -26,11 +26,11 @@
 #ifndef S2_S2POLYLINE_MEASURES_H_
 #define S2_S2POLYLINE_MEASURES_H_
 
-#include "s2/s1angle.h"
-#include "s2/s2point.h"
-#include "s2/s2point_span.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2point.h"
+#include "third_party/s2/s2point_span.h"
 
-namespace S2 {
+namespace s2 {
 
 // Returns the length of the polyline.  Returns zero for polylines with fewer
 // than two vertices.
@@ -48,6 +48,6 @@ S1Angle GetLength(S2PointSpan polyline);
 // the polyline, whose value is always zero if the polyline is degenerate.]
 S2Point GetCentroid(S2PointSpan polyline);
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2POLYLINE_MEASURES_H_

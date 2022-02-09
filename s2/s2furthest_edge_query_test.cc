@@ -13,42 +13,40 @@
 // limitations under the License.
 //
 
-#include "s2/s2furthest_edge_query.h"
-
 #include <memory>
 #include <set>
 #include <vector>
 
-#include <gtest/gtest.h>
-
-#include "absl/flags/flag.h"
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s1angle.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2closest_edge_query_testing.h"
-#include "s2/s2coords.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2loop.h"
-#include "s2/s2metrics.h"
-#include "s2/s2point.h"
-#include "s2/s2polygon.h"
-#include "s2/s2predicates.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2closest_edge_query_testing.h"
+#include "third_party/s2/s2coords.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2furthest_edge_query.h"
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2metrics.h"
+#include "third_party/s2/s2point.h"
+#include "third_party/s2/s2polygon.h"
+#include "third_party/s2/s2predicates.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2textformat::MakeIndexOrDie;
-using s2textformat::MakePointOrDie;
-using s2textformat::ParsePointsOrDie;
+using s2::s2textformat::MakeIndexOrDie;
+using s2::s2textformat::MakePointOrDie;
+using s2::s2textformat::ParsePointsOrDie;
 using std::make_pair;
 using std::min;
 using std::pair;
 using std::unique_ptr;
 using std::vector;
+
+namespace s2 {
 
 TEST(S2FurthestEdgeQuery, NoEdges) {
   MutableS2ShapeIndex index;
@@ -87,7 +85,7 @@ TEST(S2FurthestEdgeQuery, OptionsNotModified) {
 S1ChordAngle GetMaxDistanceToEdge(
     const S2Point& x, const S2Point& y0, const S2Point& y1) {
   S1ChordAngle dist = S1ChordAngle::Negative();
-  S2::UpdateMaxDistance(x, y0, y1, &dist);
+  UpdateMaxDistance(x, y0, y1, &dist);
   return dist;
 }
 
@@ -400,14 +398,14 @@ static void TestWithIndexFactory(const s2testing::ShapeIndexFactory& factory,
   vector<S2Cap> index_caps;
   vector<unique_ptr<MutableS2ShapeIndex>> indexes;
   for (int i = 0; i < num_indexes; ++i) {
-    S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed) + i);
+    S2Testing::rnd.Reset(kS2RandomSeed + i);
     index_caps.push_back(S2Cap(S2Testing::RandomPoint(), kTestCapRadius));
     indexes.emplace_back(new MutableS2ShapeIndex);
     factory.AddEdges(index_caps.back(), num_edges, indexes.back().get());
   }
 
   for (int i = 0; i < num_queries; ++i) {
-    S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed) + i);
+    S2Testing::rnd.Reset(kS2RandomSeed + i);
     int i_index = S2Testing::rnd.Uniform(num_indexes);
     const S2Cap& index_cap = index_caps[i_index];
 
@@ -452,7 +450,7 @@ static void TestWithIndexFactory(const s2testing::ShapeIndexFactory& factory,
       TestFindFurthestEdges(&target, &query);
     } else if (target_type == 2) {
       // Find the edges furthest from a given cell.
-      int min_level = S2::kMaxDiag.GetLevelForMaxValue(query_radius.radians());
+      int min_level = kMaxDiag.GetLevelForMaxValue(query_radius.radians());
       int level = min_level + S2Testing::rnd.Uniform(
           S2CellId::kMaxLevel - min_level + 1);
       S2Point a = S2Testing::SamplePoint(query_cap);
@@ -489,3 +487,4 @@ TEST(S2FurthestEdgeQuery, PointCloudEdges) {
                        kNumIndexes, kNumEdges, kNumQueries);
 }
 
+}  // namespace s2

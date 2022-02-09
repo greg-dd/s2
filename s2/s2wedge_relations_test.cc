@@ -15,22 +15,24 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2wedge_relations.h"
+#include "third_party/s2/s2wedge_relations.h"
 
-#include <gtest/gtest.h>
-#include "s2/s2point.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/s2point.h"
+
+namespace s2 {
 
 void TestWedge(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2,
                bool contains, bool intersects,
-               S2::WedgeRelation wedge_relation) {
+               WedgeRelation wedge_relation) {
   a0 = a0.Normalize();
   ab1 = ab1.Normalize();
   a2 = a2.Normalize();
   b0 = b0.Normalize();
   b2 = b2.Normalize();
-  EXPECT_EQ(contains, S2::WedgeContains(a0, ab1, a2, b0, b2));
-  EXPECT_EQ(intersects, S2::WedgeIntersects(a0, ab1, a2, b0, b2));
-  EXPECT_EQ(wedge_relation, S2::GetWedgeRelation(a0, ab1, a2, b0, b2));
+  EXPECT_EQ(contains, WedgeContains(a0, ab1, a2, b0, b2));
+  EXPECT_EQ(intersects, WedgeIntersects(a0, ab1, a2, b0, b2));
+  EXPECT_EQ(wedge_relation, GetWedgeRelation(a0, ab1, a2, b0, b2));
 }
 
 TEST(S2WedgeRelations, Wedges) {
@@ -41,49 +43,51 @@ TEST(S2WedgeRelations, Wedges) {
   // Intersection in one wedge.
   TestWedge(S2Point(-1, 0, 10), S2Point(0, 0, 1), S2Point(1, 2, 10),
             S2Point(0, 1, 10), S2Point(1, -2, 10),
-            false, true, S2::WEDGE_PROPERLY_OVERLAPS);
+            false, true, WEDGE_PROPERLY_OVERLAPS);
   // Intersection in two wedges.
   TestWedge(S2Point(-1, -1, 10), S2Point(0, 0, 1), S2Point(1, -1, 10),
             S2Point(1, 0, 10), S2Point(-1, 1, 10),
-            false, true, S2::WEDGE_PROPERLY_OVERLAPS);
+            false, true, WEDGE_PROPERLY_OVERLAPS);
 
   // Normal containment.
   TestWedge(S2Point(-1, -1, 10), S2Point(0, 0, 1), S2Point(1, -1, 10),
             S2Point(-1, 0, 10), S2Point(1, 0, 10),
-            true, true, S2::WEDGE_PROPERLY_CONTAINS);
+            true, true, WEDGE_PROPERLY_CONTAINS);
   // Containment with equality on one side.
   TestWedge(S2Point(2, 1, 10), S2Point(0, 0, 1), S2Point(-1, -1, 10),
             S2Point(2, 1, 10), S2Point(1, -5, 10),
-            true, true, S2::WEDGE_PROPERLY_CONTAINS);
+            true, true, WEDGE_PROPERLY_CONTAINS);
   // Containment with equality on the other side.
   TestWedge(S2Point(2, 1, 10), S2Point(0, 0, 1), S2Point(-1, -1, 10),
             S2Point(1, -2, 10), S2Point(-1, -1, 10),
-            true, true, S2::WEDGE_PROPERLY_CONTAINS);
+            true, true, WEDGE_PROPERLY_CONTAINS);
 
   // Containment with equality on both sides.
   TestWedge(S2Point(-2, 3, 10), S2Point(0, 0, 1), S2Point(4, -5, 10),
             S2Point(-2, 3, 10), S2Point(4, -5, 10),
-            true, true, S2::WEDGE_EQUALS);
+            true, true, WEDGE_EQUALS);
 
   // Disjoint with equality on one side.
   TestWedge(S2Point(-2, 3, 10), S2Point(0, 0, 1), S2Point(4, -5, 10),
             S2Point(4, -5, 10), S2Point(-2, -3, 10),
-            false, false, S2::WEDGE_IS_DISJOINT);
+            false, false, WEDGE_IS_DISJOINT);
   // Disjoint with equality on the other side.
   TestWedge(S2Point(-2, 3, 10), S2Point(0, 0, 1), S2Point(0, 5, 10),
             S2Point(4, -5, 10), S2Point(-2, 3, 10),
-            false, false, S2::WEDGE_IS_DISJOINT);
+            false, false, WEDGE_IS_DISJOINT);
   // Disjoint with equality on both sides.
   TestWedge(S2Point(-2, 3, 10), S2Point(0, 0, 1), S2Point(4, -5, 10),
             S2Point(4, -5, 10), S2Point(-2, 3, 10),
-            false, false, S2::WEDGE_IS_DISJOINT);
+            false, false, WEDGE_IS_DISJOINT);
 
   // B contains A with equality on one side.
   TestWedge(S2Point(2, 1, 10), S2Point(0, 0, 1), S2Point(1, -5, 10),
             S2Point(2, 1, 10), S2Point(-1, -1, 10),
-            false, true, S2::WEDGE_IS_PROPERLY_CONTAINED);
+            false, true, WEDGE_IS_PROPERLY_CONTAINED);
   // B contains A with equality on the other side.
   TestWedge(S2Point(2, 1, 10), S2Point(0, 0, 1), S2Point(1, -5, 10),
             S2Point(-2, 1, 10), S2Point(1, -5, 10),
-            false, true, S2::WEDGE_IS_PROPERLY_CONTAINED);
+            false, true, WEDGE_IS_PROPERLY_CONTAINED);
 }
+
+}  // namespace s2

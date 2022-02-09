@@ -25,23 +25,23 @@
 #include <map>
 #include <vector>
 
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2debug.h"
+#include "third_party/s2/s2latlng_rect.h"
+#include "third_party/s2/s2loop_measures.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2region.h"
+#include "third_party/s2/s2shape_index.h"
 #include "absl/base/macros.h"
-#include "absl/types/span.h"
+#include "third_party/s2/util/math/matrix3x3.h"
+#include "third_party/s2/util/math/vector.h"
 
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-#include "s2/_fp_contract_off.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s1angle.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2debug.h"
-#include "s2/s2latlng_rect.h"
-#include "s2/s2loop_measures.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2region.h"
-#include "s2/s2shape_index.h"
-#include "s2/util/math/matrix3x3.h"
-#include "s2/util/math/vector.h"
+namespace s2 {
 
 class Decoder;
 class Encoder;
@@ -91,7 +91,7 @@ class S2Loop final : public S2Region {
   S2Loop();
 
   // Convenience constructor that calls Init() with the given vertices.
-  explicit S2Loop(absl::Span<const S2Point> vertices);
+  explicit S2Loop(const std::vector<S2Point>& vertices);
 
   // Convenience constructor to disable the automatic validity checking
   // controlled by the --s2debug flag.  Example:
@@ -106,13 +106,13 @@ class S2Loop final : public S2Region {
   //
   // The main reason to use this constructor is if you intend to call
   // IsValid() explicitly.  See set_s2debug_override() for details.
-  S2Loop(absl::Span<const S2Point> vertices, S2Debug override);
+  S2Loop(const std::vector<S2Point>& vertices, S2Debug override);
 
   // Initialize a loop with given vertices.  The last vertex is implicitly
   // connected to the first.  All points should be unit length.  Loops must
   // have at least 3 vertices (except for the empty and full loops, see
   // kEmpty and kFull).  This method may be called multiple times.
-  void Init(absl::Span<const S2Point> vertices);
+  void Init(const std::vector<S2Point>& vertices);
 
   // A special vertex chain of length 1 that creates an empty loop (i.e., a
   // loop with no edges that contains no points).  Example usage:
@@ -198,12 +198,6 @@ class S2Loop final : public S2Region {
     return vertices_[j];
   }
 
-  // Returns an S2PointLoopSpan containing the loop vertices, for use with the
-  // functions defined in s2loop_measures.h.
-  S2PointLoopSpan vertices_span() const {
-    return S2PointLoopSpan(vertices_, num_vertices());
-  }
-
   // Returns true if this is the special empty loop that contains no points.
   bool is_empty() const;
 
@@ -264,7 +258,7 @@ class S2Loop final : public S2Region {
   S2Point GetCentroid() const;
 
   // Returns the geodesic curvature of the loop, defined as the sum of the turn
-  // angles at each vertex (see S2::TurnAngle).  The result is positive if the
+  // angles at each vertex (see s2::TurnAngle).  The result is positive if the
   // loop is counter-clockwise, negative if the loop is clockwise, and zero if
   // the loop is a great circle.  The geodesic curvature is equal to 2*Pi minus
   // the area of the loop.
@@ -377,7 +371,7 @@ class S2Loop final : public S2Region {
                                                  S1Angle radius,
                                                  int num_vertices);
 
-  // Returns the total number of bytes used by the loop.
+  // Returnss the total number of bytes used by the loop.
   size_t SpaceUsed() const;
 
   ////////////////////////////////////////////////////////////////////////
@@ -483,7 +477,7 @@ class S2Loop final : public S2Region {
     }
     int dimension() const final { return 2; }
     ReferencePoint GetReferencePoint() const final {
-      return ReferencePoint(S2::Origin(), loop_->contains_origin());
+      return ReferencePoint(Origin(), loop_->contains_origin());
     }
     int num_chains() const final;
     Chain chain(int i) const final;
@@ -529,7 +523,13 @@ class S2Loop final : public S2Region {
   // its argument.
   S2Loop(const S2Loop& src);
 
-  // Returns true if this loop contains S2::Origin().
+  // Returns an S2PointLoopSpan containing the loop vertices, for use with the
+  // functions defined in s2loop_measures.h.
+  S2PointLoopSpan vertices_span() const {
+    return S2PointLoopSpan(vertices_, num_vertices());
+  }
+
+  // Returns true if this loop contains s2::Origin().
   bool contains_origin() const { return origin_inside_; }
 
   // The single vertex in the "empty loop" vertex chain.
@@ -601,7 +601,7 @@ class S2Loop final : public S2Region {
   // sequence (first, first + dir, ..., first + (n - 1) * dir) does not change
   // when the loop vertex order is rotated or reversed.  This allows the loop
   // vertices to be traversed in a canonical order.
-  S2::LoopOrder GetCanonicalLoopOrder() const;
+  LoopOrder GetCanonicalLoopOrder() const;
 
   // Returns the index of a vertex at point "p", or -1 if not found.
   // The return value is in the range 1..num_vertices_ if found.
@@ -643,7 +643,7 @@ class S2Loop final : public S2Region {
   bool owns_vertices_ = false;
 
   S2Debug s2debug_override_ = S2Debug::ALLOW;
-  bool origin_inside_ = false;  // Does the loop contain S2::Origin()?
+  bool origin_inside_ = false;  // Does the loop contain s2::Origin()?
 
   // In general we build the index the first time it is needed, but we make an
   // exception for Contains(S2Point) because this method has a simple brute
@@ -707,7 +707,9 @@ inline bool S2Loop::is_empty_or_full() const {
 template <class T>
 T S2Loop::GetSurfaceIntegral(T f_tri(const S2Point&, const S2Point&,
                                      const S2Point&)) const {
-  return S2::GetSurfaceIntegral(vertices_span(), f_tri);
+  return GetSurfaceIntegral(vertices_span(), f_tri);
 }
+
+}  // namespace s2
 
 #endif  // S2_S2LOOP_H_

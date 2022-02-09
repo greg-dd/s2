@@ -15,7 +15,9 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2shape_index.h"
+#include "third_party/s2/s2shape_index.h"
+
+namespace s2 {
 
 bool S2ClippedShape::ContainsEdge(int id) const {
   // Linear search is fast because the number of edges per shape is typically
@@ -319,3 +321,5 @@ inline bool S2ShapeIndexCell::DecodeEdges(int num_edges,
   }
   return true;
 }
+
+}  // namespace s2

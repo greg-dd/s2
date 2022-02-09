@@ -15,13 +15,14 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2point_vector_shape.h"
+#include "third_party/s2/s2point_vector_shape.h"
 
 #include <vector>
 
-#include <gtest/gtest.h>
-#include "absl/flags/flag.h"
-#include "s2/s2testing.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/s2testing.h"
+
+namespace s2 {
 
 TEST(S2PointVectorShape, Empty) {
   std::vector<S2Point> points;
@@ -36,24 +37,27 @@ TEST(S2PointVectorShape, Empty) {
 
 TEST(S2PointVectorShape, ConstructionAndAccess) {
   std::vector<S2Point> points;
-  S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed));
+  S2Testing::rnd.Reset(kS2RandomSeed);
   const int kNumPoints = 100;
   for (int i = 0; i < kNumPoints; ++i) {
     points.push_back(S2Testing::RandomPoint());
   }
-  S2PointVectorShape shape(points);
+  S2PointVectorShape shape(std::move(points));
 
   EXPECT_EQ(kNumPoints, shape.num_edges());
   EXPECT_EQ(kNumPoints, shape.num_chains());
   EXPECT_EQ(0, shape.dimension());
   EXPECT_FALSE(shape.is_empty());
   EXPECT_FALSE(shape.is_full());
+  S2Testing::rnd.Reset(kS2RandomSeed);
   for (int i = 0; i < kNumPoints; ++i) {
     EXPECT_EQ(i, shape.chain(i).start);
     EXPECT_EQ(1, shape.chain(i).length);
     auto edge = shape.edge(i);
-    const S2Point& pt = points.at(i);
+    S2Point pt = S2Testing::RandomPoint();
     EXPECT_EQ(pt, edge.v0);
     EXPECT_EQ(pt, edge.v1);
   }
 }
+
+}  // namespace s2

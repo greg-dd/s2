@@ -19,25 +19,27 @@
 // use the R1Interval and S1Interval classes, so most of the testing
 // is done in those unit tests.
 
-#include "s2/s2latlng_rect.h"
+#include "third_party/s2/s2latlng_rect.h"
 
 #include <algorithm>
 #include <cmath>
 
-#include <gtest/gtest.h>
-#include "s2/util/coding/coder.h"
-#include "s2/s1angle.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2latlng.h"
-#include "s2/s2predicates.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/util/coding/coder.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 
-using s2textformat::MakePointOrDie;
+using s2::s2textformat::MakePointOrDie;
 using std::fabs;
 using std::min;
+
+namespace s2 {
 
 static S2LatLngRect RectFromDegrees(double lat_lo, double lng_lo,
                                     double lat_hi, double lng_hi) {
@@ -154,9 +156,9 @@ TEST(S2LatLngRect, GetVertex) {
                    S1Interval(remainder(lng, 2 * M_PI),
                               remainder(lng + M_PI_2, 2 * M_PI)));
     for (int k = 0; k < 4; ++k) {
-      EXPECT_GT(s2pred::Sign(r.GetVertex(k - 1).ToPoint(),
-                             r.GetVertex(k).ToPoint(),
-                             r.GetVertex(k + 1).ToPoint()), 0);
+      EXPECT_TRUE(SimpleCCW(r.GetVertex(k - 1).ToPoint(),
+                                r.GetVertex(k).ToPoint(),
+                                r.GetVertex(k + 1).ToPoint()));
     }
   }
 }
@@ -506,10 +508,6 @@ TEST(S2LatLngRect, GetCapBound) {
   // Longitude span > 180 degrees:
   EXPECT_TRUE(RectFromDegrees(-30, -150, -10, 50).GetCapBound().
               ApproxEquals(S2Cap(S2Point(0, 0, -1), S1Angle::Degrees(80))));
-
-  // Ensure hemispheres are bounded conservatively.
-  EXPECT_GE(RectFromDegrees(-10, -100, 0, 100).GetCapBound().radius(),
-            S1ChordAngle::Right());
 }
 
 static void TestCellOps(const S2LatLngRect& r, const S2Cell& cell,
@@ -637,7 +635,7 @@ TEST(S2LatLngRect, GetCentroid) {
     double lat2 = rnd->UniformDouble(-M_PI_2, M_PI_2);
     S2LatLngRect r(R1Interval::FromPointPair(lat1, lat2), S1Interval::Full());
     S2Point centroid = r.GetCentroid();
-    EXPECT_NEAR(0.5 * (sin(lat1) + sin(lat2)) * r.Area(), centroid.z(), 1e-15);
+    EXPECT_NEAR(0.5 * (std::sin(lat1) + std::sin(lat2)) * r.Area(), centroid.z(), 1e-15);
     EXPECT_LE(Vector2_d(centroid.x(), centroid.y()).Norm(), 1e-15);
   }
 
@@ -651,7 +649,7 @@ TEST(S2LatLngRect, GetCentroid) {
     EXPECT_LE(fabs(centroid.z()), 1e-15);
     EXPECT_NEAR(r.lng().GetCenter(), S2LatLng(centroid).lng().radians(), 1e-15);
     double alpha = 0.5 * r.lng().GetLength();
-    EXPECT_NEAR(0.25 * M_PI * sin(alpha) / alpha * r.Area(),
+    EXPECT_NEAR(0.25 * M_PI * std::sin(alpha) / alpha * r.Area(),
                 Vector2_d(centroid.x(), centroid.y()).Norm(), 1e-15);
   }
 
@@ -717,9 +715,9 @@ static S1Angle BruteForceDistance(const S2LatLngRect& a,
       // Get distances to latitude and longitude edges.
       S1Angle a_to_lat = GetDistance(current_a, lat_b[j], b.lng());
       S1Angle b_to_lat = GetDistance(current_b, lat_a[j], a.lng());
-      S1Angle a_to_lng = S2::GetDistance(
+      S1Angle a_to_lng = GetDistance(
           current_a.ToPoint(), lng_edge_b[j][0], lng_edge_b[j][1]);
-      S1Angle b_to_lng = S2::GetDistance(
+      S1Angle b_to_lng = GetDistance(
           current_b.ToPoint(), lng_edge_a[j][0], lng_edge_a[j][1]);
 
       min_distance = min(min_distance,
@@ -737,11 +735,11 @@ static S1Angle BruteForceRectPointDistance(const S2LatLngRect& a,
 
   S1Angle b_to_lo_lat = GetDistance(b, a.lat_lo(), a.lng());
   S1Angle b_to_hi_lat = GetDistance(b, a.lat_hi(), a.lng());
-  S1Angle b_to_lo_lng = S2::GetDistance(
+  S1Angle b_to_lo_lng = GetDistance(
       b.ToPoint(),
       S2LatLng(a.lat_lo(), a.lng_lo()).ToPoint(),
       S2LatLng(a.lat_hi(), a.lng_lo()).ToPoint());
-  S1Angle b_to_hi_lng = S2::GetDistance(
+  S1Angle b_to_hi_lng = GetDistance(
       b.ToPoint(),
       S2LatLng(a.lat_lo(), a.lng_hi()).ToPoint(),
       S2LatLng(a.lat_hi(), a.lng_hi()).ToPoint());
@@ -881,7 +879,10 @@ static void VerifyGetDirectedHausdorffDistance(const S2LatLngRect& a,
   S1Angle hausdorff_distance = a.GetDirectedHausdorffDistance(b);
 
   static const double kResolution = 0.1;
+  // Record the max sample distance as well as the sample point realizing the
+  // max for easier debugging.
   S1Angle max_distance;
+  double lat_max, lng_max;
 
   int sample_size_on_lat =
       static_cast<int>(a.lat().GetLength() / kResolution) + 1;
@@ -899,6 +900,8 @@ static void VerifyGetDirectedHausdorffDistance(const S2LatLngRect& a,
 
       if (distance_to_b >= max_distance) {
         max_distance = distance_to_b;
+        lat_max = lat;
+        lng_max = lng;
       }
     }
   }
@@ -1027,3 +1030,5 @@ TEST(S2LatLngRect, GetDirectedHausdorffDistanceRectToRectDegenerateCases) {
   VerifyGetDirectedHausdorffDistance(
       RectFromDegrees(-20, 95, 20, 105), RectFromDegrees(-30, 5, 30, 15));
 }
+
+}  // namespace s2

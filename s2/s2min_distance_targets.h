@@ -25,14 +25,16 @@
 
 #include <memory>
 
-#include "s2/_fp_contract_off.h"
-#include "s2/s1angle.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_index.h"
-#include "s2/s2distance_target.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2shape_index.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_index.h"
+#include "third_party/s2/s2distance_target.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2shape_index.h"
+
+namespace s2 {
 
 // Forward references because these classes depend on the types defined here.
 class S2ClosestCellQuery;
@@ -269,5 +271,7 @@ inline S2MinDistanceEdgeTarget::S2MinDistanceEdgeTarget(const S2Point& a,
                                                         const S2Point& b)
     : a_(a), b_(b) {
 }
+
+}  // namespace s2
 
 #endif  // S2_S2MIN_DISTANCE_TARGETS_H_

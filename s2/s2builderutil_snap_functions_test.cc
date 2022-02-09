@@ -22,7 +22,7 @@
 // spherical case is slightly better or worse because of the spherical
 // distortion.
 
-#include "s2/s2builderutil_snap_functions.h"
+#include "third_party/s2/s2builderutil_snap_functions.h"
 
 #include <algorithm>
 #include <cinttypes>
@@ -31,23 +31,23 @@
 #include <cstdio>
 #include <map>
 #include <set>
+#include <string>
 #include <utility>
 #include <vector>
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-#include <gtest/gtest.h>
-#include "s2/base/log_severity.h"
-#include "s2/r2.h"
-#include "s2/s1angle.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2latlng.h"
-#include "s2/s2measures.h"
-#include "s2/s2metrics.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
-#include "s2/util/math/mathutil.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/base/logging.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/r2.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2measures.h"
+#include "third_party/s2/s2metrics.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
+#include "third_party/s2/util/math/mathutil.h"
 
 using std::abs;
 using std::fabs;
@@ -58,8 +58,10 @@ using std::max;
 using std::pair;
 using std::set;
 using std::vector;
-using s2builderutil::S2CellIdSnapFunction;
-using s2builderutil::IntLatLngSnapFunction;
+using s2::s2builderutil::S2CellIdSnapFunction;
+using s2::s2builderutil::IntLatLngSnapFunction;
+
+namespace s2 {
 
 TEST(S2CellIdSnapFunction, LevelToFromSnapRadius) {
   for (int level = 0; level <= S2CellId::kMaxLevel; ++level) {
@@ -230,7 +232,7 @@ static S1Angle GetCircumRadius(const S2Point& a, const S2Point& b,
                                const S2Point& c) {
   // We return this value is the circumradius is very large.
   S1Angle kTooBig = S1Angle::Radians(M_PI);
-  double turn_angle = S2::TurnAngle(a, b, c);
+  double turn_angle = TurnAngle(a, b, c);
   if (fabs(remainder(turn_angle, M_PI)) < 1e-2) return kTooBig;
 
   long double a2 = (b - c).Norm2();
@@ -335,7 +337,7 @@ static double GetS2CellIdMinEdgeSeparation(
                     S2CellIdSnapFunction::MinSnapRadiusForLevel(level));
 
           // This is a valid configuration, so evaluate it.
-          S1Angle edge_sep = S2::GetDistance(site0, site1, site2);
+          S1Angle edge_sep = GetDistance(site0, site1, site2);
           double score = objective(level, edge_sep,
                                    min_snap_radius, max_snap_radius);
           double& best_score = best_scores[id0];
@@ -407,7 +409,7 @@ TEST(S2CellIdSnapFunction, MinEdgeVertexSeparationForLevel) {
                                               [](int level, S1Angle edge_sep,
                                                  S1Angle min_snap_radius,
                                                  S1Angle max_snap_radius) {
-    return edge_sep.radians() / S2::kMinDiag.GetValue(level);
+    return edge_sep.radians() / kMinDiag.GetValue(level);
   });
   printf("min_edge_vertex_sep / kMinDiag ratio: %.15f\n", score);
 }
@@ -418,9 +420,9 @@ TEST(S2CellIdSnapFunction, MinEdgeVertexSeparationAtMinSnapRadius) {
                                               [](int level, S1Angle edge_sep,
                                                  S1Angle min_snap_radius,
                                                  S1Angle max_snap_radius) {
-    double min_radius_at_level = S2::kMaxDiag.GetValue(level) / 2;
+    double min_radius_at_level = kMaxDiag.GetValue(level) / 2;
     return (min_snap_radius.radians() <= (1 + 1e-10) * min_radius_at_level) ?
-        (edge_sep.radians() / S2::kMinDiag.GetValue(level)) : 100.0;
+        (edge_sep.radians() / kMinDiag.GetValue(level)) : 100.0;
   });
   printf("min_edge_vertex_sep / kMinDiag at MinSnapRadiusForLevel: %.15f\n",
          score);
@@ -521,7 +523,7 @@ static double GetLatLngMinVertexSeparation(int64 old_scale, int64 scale,
   for (const auto& entry : scores) {
     if (--num_to_print >= 0) {
       printf("Scale %14" PRId64 ": min_vertex_sep_ratio = %.15f, %s\n",
-             int64{scale}, entry.first,
+             int64_t{scale}, entry.first,
              s2textformat::ToString(ToPoint(entry.second, scale)).c_str());
     }
     if (best_configs->insert(entry.second).second && --num_to_keep <= 0) break;
@@ -619,7 +621,7 @@ static double GetLatLngMinEdgeSeparation(
               if (max_snap_radius < min_snap_radius_at_scale) continue;
 
               // This is a valid configuration, so evaluate it.
-              S1Angle edge_sep = S2::GetDistance(site0, site1, site2);
+              S1Angle edge_sep = GetDistance(site0, site1, site2);
               double score = objective(scale, edge_sep, max_snap_radius);
               LatLngConfig config(scale, ll0, ll1, ll2);
               scores.push_back(make_pair(score, config));
@@ -636,7 +638,7 @@ static double GetLatLngMinEdgeSeparation(
   best_configs->clear();
   int num_to_keep = google::DEBUG_MODE ? 50 : 200;
   int num_to_print = 3;
-  printf("Scale %" PRId64 ":\n", int64{scale});
+  printf("Scale %" PRId64 ":\n", int64_t{scale});
   for (const auto& entry : scores) {
     const LatLngConfig& config = entry.second;
     int64 scale = config.scale;
@@ -714,3 +716,5 @@ TEST(IntLatLngSnapFunction, MinEdgeVertexSeparationSnapRadiusRatio) {
   });
   printf("min_edge_vertex_sep / snap_radius ratio: %.15f\n", score);
 }
+
+}  // namespace s2

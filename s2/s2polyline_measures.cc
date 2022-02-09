@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2polyline_measures.h"
+#include "third_party/s2/s2polyline_measures.h"
 
 #include <cmath>
-#include "s2/base/logging.h"
-#include "s2/s2centroids.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/s2centroids.h"
 
-namespace S2 {
+namespace s2 {
 
 S1Angle GetLength(S2PointSpan polyline) {
   S1Angle length;
@@ -34,9 +34,9 @@ S1Angle GetLength(S2PointSpan polyline) {
 S2Point GetCentroid(S2PointSpan polyline) {
   S2Point centroid;
   for (int i = 1; i < polyline.size(); ++i) {
-    centroid += S2::TrueCentroid(polyline[i - 1], polyline[i]);
+    centroid += s2::TrueCentroid(polyline[i - 1], polyline[i]);
   }
   return centroid;
 }
 
-}  // namespace S2
+}  // namespace s2

@@ -22,13 +22,15 @@
 #include <iosfwd>
 #include <iostream>
 
-#include "s2/base/logging.h"
-#include "s2/_fp_contract_off.h"
-#include "s2/r1interval.h"
-#include "s2/s1angle.h"
-#include "s2/s1interval.h"
-#include "s2/s2latlng.h"
-#include "s2/s2region.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/r1interval.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1interval.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2region.h"
+
+namespace s2 {
 
 class Decoder;
 class Encoder;
@@ -279,7 +281,7 @@ class S2LatLngRect final : public S2Region {
   //    include the full longitude range (because all longitudes are present
   //    at the poles).
   //
-  // Expansion and contraction are defined such that they are inverses whenever
+  // Expansion and contraction are defined such that they are inverses whenver
   // possible, i.e.
   //
   //   rect.ExpandedByDistance(x).ExpandedByDistance(-x) == rect
@@ -430,5 +432,7 @@ inline bool S2LatLngRect::operator!=(const S2LatLngRect& other) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const S2LatLngRect& r);
+
+}  // namespace s2
 
 #endif  // S2_S2LATLNG_RECT_H_

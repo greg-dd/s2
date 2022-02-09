@@ -15,23 +15,25 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2latlng_rect_bounder.h"
+#include "third_party/s2/s2latlng_rect_bounder.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include "s2/base/logging.h"
-#include "s2/r1interval.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s1interval.h"
-#include "s2/s2pointutil.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/r1interval.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s1interval.h"
+#include "third_party/s2/s2pointutil.h"
 
 using std::fabs;
 using std::max;
 using std::min;
 
+namespace s2 {
+
 void S2LatLngRectBounder::AddPoint(const S2Point& b) {
-  S2_DCHECK(S2::IsUnitLength(b));
+  S2_DCHECK(s2::IsUnitLength(b));
   AddInternal(b, S2LatLng(b));
 }
 
@@ -43,13 +45,13 @@ void S2LatLngRectBounder::AddInternal(const S2Point& b,
                                       const S2LatLng& b_latlng) {
   // Simple consistency check to verify that b and b_latlng are alternate
   // representations of the same vertex.
-  S2_DCHECK(S2::ApproxEquals(b, b_latlng.ToPoint()));
+  S2_DCHECK(s2::ApproxEquals(b, b_latlng.ToPoint()));
 
   if (bound_.is_empty()) {
     bound_.AddPoint(b_latlng);
   } else {
     // First compute the cross product N = A x B robustly.  This is the normal
-    // to the great circle through A and B.  We don't use S2::RobustCrossProd()
+    // to the great circle through A and B.  We don't use s2::RobustCrossProd()
     // since that method returns an arbitrary vector orthogonal to A if the two
     // vectors are proportional, and we want the zero vector in that case.
     Vector3_d n = (a_ - b).CrossProd(a_ + b);  // N = 2 * (A x B)
@@ -139,7 +141,7 @@ void S2LatLngRectBounder::AddInternal(const S2Point& b,
         // We add 3 * DBL_EPSILON to the bound here, and GetBound() will pad
         // the bound by another 2 * DBL_EPSILON.
         double max_lat = min(
-            atan2(sqrt(n[0]*n[0] + n[1]*n[1]), fabs(n[2])) + 3 * DBL_EPSILON,
+            std::atan2(sqrt(n[0]*n[0] + n[1]*n[1]), fabs(n[2])) + 3 * DBL_EPSILON,
             M_PI_2);
 
         // In order to get tight bounds when the two points are close together,
@@ -151,17 +153,8 @@ void S2LatLngRectBounder::AddInternal(const S2Point& b,
         // be spent getting from A to B; the remainder bounds the round-trip
         // distance (in latitude) from A or B to the min or max latitude
         // attained along the edge AB.
-        //
-        // There is a maximum relative error of 4.5 * DBL_EPSILON in computing
-        // the squared distance (a_ - b), which means a maximum error of (4.5
-        // / 2 + 0.5) == 2.75 * DBL_EPSILON in computing Norm().  The sin()
-        // and multiply each have a relative error of 0.5 * DBL_EPSILON which
-        // we round up to a total of 4 * DBL_EPSILON.
-        double lat_budget_z = 0.5 * (a_ - b).Norm() * sin(max_lat);
-        double lat_budget = 2 * asin(min((1 + 4 * DBL_EPSILON) * lat_budget_z,
-                                         1.0));
-        double max_delta = 0.5 * (lat_budget - lat_ab.GetLength()) +
-                           DBL_EPSILON;
+        double lat_budget = 2 * asin(0.5 * (a_ - b).Norm() * std::sin(max_lat));
+        double max_delta = 0.5*(lat_budget - lat_ab.GetLength()) + DBL_EPSILON;
 
         // Test whether AB passes through the point of maximum latitude or
         // minimum latitude.  If the dot product(s) are small enough then the
@@ -340,7 +333,7 @@ S2LatLngRect S2LatLngRectBounder::ExpandForSubregions(
 
 S2LatLng S2LatLngRectBounder::MaxErrorForTests() {
   // The maximum error in the latitude calculation is
-  //    3.84 * DBL_EPSILON   for the cross product calculation (see above)
+  //    3.84 * DBL_EPSILON   for the RobustCrossProd calculation
   //    0.96 * DBL_EPSILON   for the Latitude() calculation
   //    5    * DBL_EPSILON   added by AddPoint/GetBound to compensate for error
   //    ------------------
@@ -351,3 +344,5 @@ S2LatLng S2LatLngRectBounder::MaxErrorForTests() {
   // bound the *rounded* longitudes of contained points.
   return S2LatLng::FromRadians(10 * DBL_EPSILON, 1 * DBL_EPSILON);
 }
+
+}  // namespace s2

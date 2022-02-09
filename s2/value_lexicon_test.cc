@@ -15,17 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/value_lexicon.h"
+#include "third_party/s2/value_lexicon.h"
 
 #include <memory>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "s2/s1angle.h"
-#include "s2/s2point.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2point.h"
 
 using absl::make_unique;
-using std::min;
+
+namespace s2 {
 
 TEST(ValueLexicon, DuplicateValues) {
   ValueLexicon<int64> lex;
@@ -120,3 +121,4 @@ TEST(ValueLexicon, MoveAssignmentOperator) {
   EXPECT_EQ(20, lex.value(1));
 }
 
+}  // namespace s2

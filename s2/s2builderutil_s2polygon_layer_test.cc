@@ -15,31 +15,31 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2builderutil_s2polygon_layer.h"
+#include "third_party/s2/s2builderutil_s2polygon_layer.h"
 
 #include <algorithm>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
-#include "s2/base/casts.h"
-#include "s2/base/integral_types.h"
-#include <gtest/gtest.h>
+#include "third_party/s2/base/casts.h"
+#include "third_party/s2/base/integral_types.h"
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2debug.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2debug.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2builderutil::IndexedS2PolygonLayer;
-using s2builderutil::S2PolygonLayer;
-using s2textformat::MakePolylineOrDie;
+using s2::s2builderutil::IndexedS2PolygonLayer;
+using s2::s2builderutil::S2PolygonLayer;
+using s2::s2textformat::MakePolylineOrDie;
 using std::map;
 using std::set;
-using std::string;
 using std::unique_ptr;
-using std::string;
 using std::vector;
+
+namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 
@@ -54,14 +54,14 @@ void TestS2Polygon(const vector<const char*>& input_strs,
       &output, S2PolygonLayer::Options(edge_type)));
   bool is_full = false;
   for (auto input_str : input_strs) {
-    if (string(input_str) == "full") is_full = true;
+    if (std::string(input_str) == "full") is_full = true;
     builder.AddPolygon(*s2textformat::MakeVerbatimPolygonOrDie(input_str));
   }
   builder.AddIsFullPolygonPredicate(S2Builder::IsFullPolygon(is_full));
   S2Error error;
   ASSERT_TRUE(builder.Build(&error));
-  // The input strings in tests may not be in normalized form, so we build an
-  // S2Polygon and convert it back to a string.
+  // The input std::strings in tests may not be in normalized form, so we build an
+  // S2Polygon and convert it back to a std::string.
   unique_ptr<S2Polygon> expected(s2textformat::MakePolygon(expected_str));
   EXPECT_EQ(s2textformat::ToString(*expected),
             s2textformat::ToString(output));
@@ -87,7 +87,7 @@ void TestS2PolygonError(const vector<const char*>& input_strs,
   options.set_validate(true);
   builder.StartLayer(make_unique<S2PolygonLayer>(&output, options));
   for (auto input_str : input_strs) {
-    builder.AddPolyline(*s2textformat::MakePolylineOrDie(input_str));
+    builder.AddPolyline(*s2textformat::MakePolyline(input_str));
   }
   S2Error error;
   ASSERT_FALSE(builder.Build(&error));
@@ -144,8 +144,8 @@ TEST(S2PolygonLayer, DuplicateInputEdges) {
   EXPECT_FALSE(builder.Build(&error));
   EXPECT_EQ(S2Error::POLYGON_LOOPS_SHARE_EDGE, error.code());
   ASSERT_EQ(2, output.num_loops());
-  unique_ptr<S2Loop> loop0(s2textformat::MakeLoopOrDie("0:0, 0:2, 2:2, 2:0"));
-  unique_ptr<S2Loop> loop1(s2textformat::MakeLoopOrDie("0:2, 2:2, 1:1"));
+  unique_ptr<S2Loop> loop0(s2textformat::MakeLoop("0:0, 0:2, 2:2, 2:0"));
+  unique_ptr<S2Loop> loop1(s2textformat::MakeLoop("0:2, 2:2, 1:1"));
   EXPECT_TRUE(loop0->Equals(output.loop(0)));
   EXPECT_TRUE(loop1->Equals(output.loop(1)));
 }
@@ -208,24 +208,6 @@ TEST(S2PolygonLayer, DirectedEdgeLabels) {
 
 TEST(S2PolygonLayer, UndirectedEdgeLabels) {
   TestEdgeLabels(EdgeType::UNDIRECTED);
-}
-
-TEST(S2PolygonLayer, LabelsRequestedButNotProvided) {
-  // Tests the situation where labels are requested but none were provided.
-  S2Builder builder{S2Builder::Options()};
-  S2Polygon output;
-  S2PolygonLayer::LabelSetIds label_set_ids;
-  IdSetLexicon label_set_lexicon;
-  builder.StartLayer(make_unique<S2PolygonLayer>(
-      &output, &label_set_ids, &label_set_lexicon));
-  builder.AddPolyline(*MakePolylineOrDie("0:0, 0:1, 1:0, 0:0"));
-  S2Error error;
-  ASSERT_TRUE(builder.Build(&error));
-  EXPECT_EQ(label_set_ids.size(), 1);     // One loop.
-  EXPECT_EQ(label_set_ids[0].size(), 3);  // Three edges.
-  for (auto label_set_id : label_set_ids[0]) {
-    EXPECT_EQ(label_set_id, IdSetLexicon::EmptySetId());
-  }
 }
 
 TEST(S2PolygonLayer, ThreeLoopsIntoOne) {
@@ -310,7 +292,7 @@ TEST(IndexedS2PolygonLayer, AddsShape) {
   S2Builder builder{S2Builder::Options()};
   MutableS2ShapeIndex index;
   builder.StartLayer(make_unique<IndexedS2PolygonLayer>(&index));
-  const string& polygon_str = "0:0, 0:10, 10:0";
+  const std::string& polygon_str = "0:0, 0:10, 10:0";
   builder.AddPolygon(*s2textformat::MakePolygon(polygon_str));
   S2Error error;
   ASSERT_TRUE(builder.Build(&error));
@@ -330,3 +312,4 @@ TEST(IndexedS2PolygonLayer, IgnoresEmptyShape) {
 }
 
 }  // namespace
+}  // namespace s2

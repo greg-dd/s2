@@ -15,34 +15,30 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2region_term_indexer.h"
+#include "third_party/s2/s2region_term_indexer.h"
 
 #include <cstdio>
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-#include <gtest/gtest.h>
+#include "third_party/s2/base/commandlineflags.h"
+#include "third_party/s2/base/logging.h"
+#include "gtest/gtest.h"
 
-#include "absl/container/flat_hash_map.h"
-#include "absl/flags/flag.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2cell_union.h"
+#include "third_party/s2/s2testing.h"
 
-#include "s2/base/commandlineflags.h"
-#include "s2/base/logging.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2cell_union.h"
-#include "s2/s2latlng.h"
-#include "s2/s2testing.h"
-
-using std::string;
 using std::vector;
 
-S2_DEFINE_int32(iters, 400, "number of iterations for testing");
+DEFINE_int32(iters, 400, "number of iterations for testing");
 
-namespace {
+namespace s2 {
 
 enum QueryType { POINT, CAP };
 
@@ -56,13 +52,13 @@ void TestRandomCaps(const S2RegionTermIndexer::Options& options,
   S2RegionCoverer coverer(options);
   vector<S2Cap> caps;
   vector<S2CellUnion> coverings;
-  absl::flat_hash_map<string, vector<int>> index;
+  std::unordered_map<std::string, vector<int>> index;
   int index_terms = 0, query_terms = 0;
-  for (int i = 0; i < absl::GetFlag(FLAGS_iters); ++i) {
+  for (int i = 0; i < FLAGS_iters; ++i) {
     // Choose the region to be indexed: either a single point or a cap
     // of random size (up to a full sphere).
     S2Cap cap;
-    vector<string> terms;
+    vector<std::string> terms;
     if (options.index_contains_points_only()) {
       cap = S2Cap::FromPoint(S2Testing::RandomPoint());
       terms = indexer.GetIndexTerms(cap.center(), "");
@@ -74,16 +70,16 @@ void TestRandomCaps(const S2RegionTermIndexer::Options& options,
     }
     caps.push_back(cap);
     coverings.push_back(coverer.GetCovering(cap));
-    for (const string& term : terms) {
+    for (const std::string& term : terms) {
       index[term].push_back(i);
     }
     index_terms += terms.size();
   }
-  for (int i = 0; i < absl::GetFlag(FLAGS_iters); ++i) {
+  for (int i = 0; i < FLAGS_iters; ++i) {
     // Choose the region to be queried: either a random point or a cap of
     // random size.
     S2Cap cap;
-    vector<string> terms;
+    vector<std::string> terms;
     if (query_type == QueryType::CAP) {
       cap = S2Cap::FromPoint(S2Testing::RandomPoint());
       terms = indexer.GetQueryTerms(cap.center(), "");
@@ -101,15 +97,15 @@ void TestRandomCaps(const S2RegionTermIndexer::Options& options,
         expected.insert(j);
       }
     }
-    for (const string& term : terms) {
+    for (const std::string& term : terms) {
       actual.insert(index[term].begin(), index[term].end());
     }
     EXPECT_EQ(expected, actual);
     query_terms += terms.size();
   }
   printf("Index terms/doc: %.2f,  Query terms/doc: %.2f\n",
-         static_cast<double>(index_terms) / absl::GetFlag(FLAGS_iters),
-         static_cast<double>(query_terms) / absl::GetFlag(FLAGS_iters));
+         static_cast<double>(index_terms) / FLAGS_iters,
+         static_cast<double>(query_terms) / FLAGS_iters);
 }
 
 // We run one test case for each combination of space vs. time optimization,
@@ -170,23 +166,6 @@ TEST(S2RegionTermIndexer, IndexPointsQueryRegionsOptimizeSpace) {
   TestRandomCaps(options, QueryType::CAP);
 }
 
-TEST(S2RegionTermIndexer, MarkerCharacter) {
-  S2RegionTermIndexer::Options options;
-  options.set_min_level(20);
-  options.set_max_level(20);
-
-  S2RegionTermIndexer indexer(options);
-  S2Point point = S2LatLng::FromDegrees(10, 20).ToPoint();
-  EXPECT_EQ(indexer.options().marker_character(), '$');
-  EXPECT_EQ(indexer.GetQueryTerms(point, ""),
-            vector<string>({"11282087039", "$11282087039"}));
-
-  indexer.mutable_options()->set_marker_character(':');
-  EXPECT_EQ(indexer.options().marker_character(), ':');
-  EXPECT_EQ(indexer.GetQueryTerms(point, ""),
-            vector<string>({"11282087039", ":11282087039"}));
-}
-
 TEST(S2RegionTermIndexer, MaxLevelSetLoosely) {
   // Test that correct terms are generated even when (max_level - min_level)
   // is not a multiple of level_mod.
@@ -227,4 +206,4 @@ TEST(S2RegionTermIndexer, MoveAssignmentOperator) {
   EXPECT_EQ(12345, y.options().max_cells());
 }
 
-}  // namespace
+}  // namespace s2

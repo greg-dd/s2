@@ -15,17 +15,19 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2r2rect.h"
+#include "third_party/s2/s2r2rect.h"
 
 #include <iosfwd>
 
-#include "s2/base/logging.h"
-#include "s2/r1interval.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2coords.h"
-#include "s2/s2latlng_rect.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/r1interval.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2coords.h"
+#include "third_party/s2/s2latlng_rect.h"
+
+namespace s2 {
 
 S2R2Rect S2R2Rect::FromCell(const S2Cell& cell) {
   // S2Cells have a more efficient GetSizeST() method than S2CellIds.
@@ -43,7 +45,7 @@ S2R2Rect* S2R2Rect::Clone() const {
 }
 
 S2Point S2R2Rect::ToS2Point(const R2Point& p) {
-  return S2::FaceUVtoXYZ(0, S2::STtoUV(p.x()), S2::STtoUV(p.y())).Normalize();
+  return s2::FaceUVtoXYZ(0, s2::STtoUV(p.x()), s2::STtoUV(p.y())).Normalize();
 }
 
 S2Cap S2R2Rect::GetCapBound() const {
@@ -67,10 +69,10 @@ S2LatLngRect S2R2Rect::GetRectBound() const {
 }
 
 bool S2R2Rect::Contains(const S2Point& p) const {
-  if (S2::GetFace(p) != 0) return false;
+  if (s2::GetFace(p) != 0) return false;
   double u, v;
-  S2::ValidFaceXYZtoUV(0, p, &u, &v);
-  return Contains(R2Point(S2::UVtoST(u), S2::UVtoST(v)));
+  s2::ValidFaceXYZtoUV(0, p, &u, &v);
+  return Contains(R2Point(s2::UVtoST(u), s2::UVtoST(v)));
 }
 
 bool S2R2Rect::Contains(const S2Cell& cell) const {
@@ -86,3 +88,5 @@ bool S2R2Rect::MayIntersect(const S2Cell& cell) const {
 std::ostream& operator<<(std::ostream& os, const S2R2Rect& r) {
   return os << "[Lo" << r.lo() << ", Hi" << r.hi() << "]";
 }
+
+}  // namespace s2

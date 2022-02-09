@@ -15,24 +15,25 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2builderutil_snap_functions.h"
+#include "third_party/s2/s2builderutil_snap_functions.h"
 
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <memory>
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/base/logging.h"
 #include "absl/memory/memory.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2latlng.h"
-#include "s2/s2metrics.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2metrics.h"
 
 using absl::make_unique;
 using std::max;
 using std::min;
 using std::unique_ptr;
 
+namespace s2 {
 namespace s2builderutil {
 
 const int IntLatLngSnapFunction::kMinExponent;
@@ -62,7 +63,7 @@ S1Angle IdentitySnapFunction::min_vertex_separation() const {
 }
 
 S1Angle IdentitySnapFunction::min_edge_vertex_separation() const {
-  // In the worst case configuration, the edge-vertex separation is half of the
+  // In the worst case configuration, the edge separation is half of the
   // vertex separation.
   return 0.5 * snap_radius_;
 }
@@ -110,16 +111,16 @@ S1Angle S2CellIdSnapFunction::MinSnapRadiusForLevel(int level) {
   // point can move when snapped, taking into account numerical errors.
   //
   // The maximum error when converting from an S2Point to an S2CellId is
-  // S2::kMaxDiag.deriv() * DBL_EPSILON.  The maximum error when converting an
+  // s2::kMaxDiag.deriv() * DBL_EPSILON.  The maximum error when converting an
   // S2CellId center back to an S2Point is 1.5 * DBL_EPSILON.  These add up to
   // just slightly less than 4 * DBL_EPSILON.
-  return S1Angle::Radians(0.5 * S2::kMaxDiag.GetValue(level) + 4 * DBL_EPSILON);
+  return S1Angle::Radians(0.5 * s2::kMaxDiag.GetValue(level) + 4 * DBL_EPSILON);
 }
 
 int S2CellIdSnapFunction::LevelForMaxSnapRadius(S1Angle snap_radius) {
   // When choosing a level, we need to acount for the error bound of
   // 4 * DBL_EPSILON that is added by MinSnapRadiusForLevel().
-  return S2::kMaxDiag.GetLevelForMaxValue(
+  return s2::kMaxDiag.GetLevelForMaxValue(
       2 * (snap_radius.radians() - 4 * DBL_EPSILON));
 }
 
@@ -143,8 +144,8 @@ S1Angle S2CellIdSnapFunction::min_vertex_separation() const {
   //    only select a new site when it is at least snap_radius() away from all
   //    existing sites, and the site can move by at most 0.5 * kMaxDiag(level)
   //    when snapped.
-  S1Angle min_edge = S1Angle::Radians(S2::kMinEdge.GetValue(level_));
-  S1Angle max_diag = S1Angle::Radians(S2::kMaxDiag.GetValue(level_));
+  S1Angle min_edge = S1Angle::Radians(s2::kMinEdge.GetValue(level_));
+  S1Angle max_diag = S1Angle::Radians(s2::kMaxDiag.GetValue(level_));
   return max(min_edge,
              max(0.548 * snap_radius_,  // 2 / sqrt(13) in the plane
                  snap_radius_ - 0.5 * max_diag));
@@ -154,7 +155,7 @@ S1Angle S2CellIdSnapFunction::min_edge_vertex_separation() const {
   // Similar to min_vertex_separation(), in this case we have four bounds: a
   // constant bound that holds only at the minimum snap radius, a constant
   // bound that holds for any snap radius, a bound that is proportional to
-  // snap_radius, and a bound that approaches 0.5 * snap_radius asymptotically.
+  // snap_radius, and a bound that is equal to snap_radius minus a constant.
   //
   // 1. Constant bounds:
   //
@@ -186,7 +187,7 @@ S1Angle S2CellIdSnapFunction::min_edge_vertex_separation() const {
   //    edge-vertex separation approaches half of the minimum vertex
   //    separation as the snap radius becomes large compared to the cell size.
 
-  S1Angle min_diag = S1Angle::Radians(S2::kMinDiag.GetValue(level_));
+  S1Angle min_diag = S1Angle::Radians(s2::kMinDiag.GetValue(level_));
   if (snap_radius() == MinSnapRadiusForLevel(level_)) {
     // This bound only holds when the minimum snap radius is being used.
     return 0.565 * min_diag;            // 0.500 in the plane
@@ -311,8 +312,8 @@ S1Angle IntLatLngSnapFunction::min_vertex_separation() const {
 
 S1Angle IntLatLngSnapFunction::min_edge_vertex_separation() const {
   // Similar to min_vertex_separation(), in this case we have three bounds:
-  // one is a constant bound, one is proportional to snap_radius, and one
-  // approaches 0.5 * snap_radius asymptotically.
+  // one is a constant bound, one is proportional to snap_radius, and one is
+  // equal to snap_radius minus a constant.
   //
   // 1. Constant bound: In the plane, the worst-case configuration has an
   //    edge-vertex separation of ((1 / sqrt(13)) * to_degrees_) degrees.
@@ -352,3 +353,4 @@ unique_ptr<S2Builder::SnapFunction> IntLatLngSnapFunction::Clone() const {
 }
 
 }  // namespace s2builderutil
+}  // namespace s2

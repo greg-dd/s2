@@ -20,8 +20,9 @@
 #ifndef S2_UTIL_CODING_TRANSFORMS_H_
 #define S2_UTIL_CODING_TRANSFORMS_H_
 
-#include "s2/base/integral_types.h"
+#include "third_party/s2/base/integral_types.h"
 
+namespace s2 {
 // ZigZag Transform
 //
 // Good for varint coding small signed integers centered around 0.
@@ -58,5 +59,7 @@ static inline uint64 ZigZagEncode64(int64 n) {
 static inline int64 ZigZagDecode64(uint64 n) {
   return (n >> 1) ^ (0u - (n & 1));
 }
+
+}  // namespace s2
 
 #endif  // S2_UTIL_CODING_TRANSFORMS_H_

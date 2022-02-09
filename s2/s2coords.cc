@@ -15,11 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2coords.h"
+#include "third_party/s2/s2coords.h"
 
-#include "s2/util/bits/bits.h"
+#include "third_party/s2/util/bits/bits.h"
 
-namespace S2 {
+namespace s2 {
 
 namespace internal {
 
@@ -143,4 +143,4 @@ S2Point FaceSiTitoXYZ(int face, unsigned int si, unsigned int ti) {
   return FaceUVtoXYZ(face, u, v);
 }
 
-}  // namespace S2
+}  // namespace s2

@@ -22,12 +22,13 @@
 #include <string>
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
-#include "s2/encoded_uint_vector.h"
+#include "third_party/s2/encoded_uint_vector.h"
 
+namespace s2 {
 namespace s2coding {
 
-// This class allows an EncodedStringVector to be created by adding strings
-// incrementally.  It also supports adding strings that are the output of
+// This class allows an EncodedStringVector to be created by adding std::strings
+// incrementally.  It also supports adding std::strings that are the output of
 // another Encoder.  For example, to create a vector of encoded S2Polygons,
 // you can do this:
 //
@@ -42,11 +43,11 @@ class StringVectorEncoder {
  public:
   StringVectorEncoder();
 
-  // Adds a string to the encoded vector.
+  // Adds a std::string to the encoded vector.
   void Add(const std::string& str);
 
-  // Adds a string to the encoded vector by means of the given Encoder.  The
-  // string consists of all output added to the encoder before the next call
+  // Adds a std::string to the encoded vector by means of the given Encoder.  The
+  // std::string consists of all output added to the encoder before the next call
   // to any method of this class (after which the encoder is no longer valid).
   Encoder* AddViaEncoder();
 
@@ -56,7 +57,7 @@ class StringVectorEncoder {
   //           can be enlarged as necessary by calling Ensure(int).
   void Encode(Encoder* encoder);
 
-  // Encodes a vector of strings in a format that can later be decoded as an
+  // Encodes a vector of std::strings in a format that can later be decoded as an
   // EncodedStringVector.
   //
   // REQUIRES: "encoder" uses the default constructor, so that its buffer
@@ -64,14 +65,14 @@ class StringVectorEncoder {
   static void Encode(absl::Span<const std::string> v, Encoder* encoder);
 
  private:
-  // A vector consisting of the starting offset of each string in the
+  // A vector consisting of the starting offset of each std::string in the
   // encoder's data buffer, plus a final entry pointing just past the end of
-  // the last string.
+  // the last std::string.
   std::vector<uint64> offsets_;
   Encoder data_;
 };
 
-// This class represents an encoded vector of strings.  Values are decoded
+// This class represents an encoded vector of std::strings.  Values are decoded
 // only when they are accessed.  This allows for very fast initialization and
 // no additional memory use beyond the encoded data.  The encoded data is not
 // owned by this class; typically it points into a large contiguous buffer
@@ -98,22 +99,20 @@ class EncodedStringVector {
   // Returns the size of the original vector.
   size_t size() const;
 
-  // Returns the string at the given index.
+  // Returns the std::string at the given index.
   absl::string_view operator[](int i) const;
 
-  // Returns a Decoder initialized with the string at the given index.
+  // Returns a Decoder initialized with the std::string at the given index.
   Decoder GetDecoder(int i) const;
 
-  // Returns a pointer to the start of the string at the given index.  This is
-  // faster than operator[] but returns an unbounded string.
+  // Returns a pointer to the start of the std::string at the given index.  This is
+  // faster than operator[] but returns an unbounded std::string.
   const char* GetStart(int i) const;
 
-  // Returns the entire vector of original strings.  Requires that the
+  // Returns the entire vector of original std::strings.  Requires that the
   // data buffer passed to the constructor persists until the result vector is
   // no longer needed.
   std::vector<absl::string_view> Decode() const;
-
-  void Encode(Encoder* encoder) const;
 
  private:
   EncodedUintVector<uint64> offsets_;
@@ -162,5 +161,6 @@ inline const char* EncodedStringVector::GetStart(int i) const {
 }
 
 }  // namespace s2coding
+}  // namespace s2
 
 #endif  // S2_ENCODED_STRING_VECTOR_H_

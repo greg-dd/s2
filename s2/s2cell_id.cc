@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2cell_id.h"
+#include "third_party/s2/s2cell_id.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -25,27 +25,25 @@
 #include <mutex>
 #include <vector>
 
-#include "absl/base/call_once.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/r1interval.h"
+#include "third_party/s2/s2coords.h"
+#include "third_party/s2/s2latlng.h"
 #include "absl/base/casts.h"
 #include "absl/strings/str_cat.h"
 
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-#include "s2/util/bits/bits.h"
-#include "s2/r1interval.h"
-#include "s2/s2coords.h"
-#include "s2/s2latlng.h"
-
 using absl::StrCat;
-using S2::internal::kSwapMask;
-using S2::internal::kInvertMask;
-using S2::internal::kPosToIJ;
-using S2::internal::kPosToOrientation;
+using s2::internal::kSwapMask;
+using s2::internal::kInvertMask;
+using s2::internal::kPosToIJ;
+using s2::internal::kPosToOrientation;
 using std::fabs;
 using std::max;
 using std::min;
-using std::string;
 using std::vector;
+
+namespace s2 {
 
 // The following lookup tables are used to convert efficiently between an
 // (i,j) cell index and the corresponding position along the Hilbert curve.
@@ -102,9 +100,9 @@ static void InitLookupCell(int level, int i, int j, int orig_orientation,
   }
 }
 
-static absl::once_flag flag;
+static std::once_flag flag;
 inline static void MaybeInit() {
-  absl::call_once(flag, []{
+  std::call_once(flag, []{
     InitLookupCell(0, 0, 0, 0, 0, 0);
     InitLookupCell(0, 0, 0, kSwapMask, 0, kSwapMask);
     InitLookupCell(0, 0, 0, kInvertMask, 0, kInvertMask);
@@ -198,14 +196,14 @@ int S2CellId::GetCommonAncestorLevel(S2CellId other) const {
 }
 
 // Print the num_digits low order hex digits.
-static string HexFormatString(uint64 val, size_t num_digits) {
-  string result(num_digits, ' ');
+static std::string HexFormatString(uint64 val, size_t num_digits) {
+  std::string result(num_digits, ' ');
   for (; num_digits--; val >>= 4)
     result[num_digits] = "0123456789abcdef"[val & 0xF];
   return result;
 }
 
-string S2CellId::ToToken() const {
+std::string S2CellId::ToToken() const {
   // Simple implementation: print the id in hex without trailing zeros.
   // Using hex has the advantage that the tokens are case-insensitive, all
   // characters are alphanumeric, no characters require any special escaping
@@ -216,17 +214,17 @@ string S2CellId::ToToken() const {
   // sizes used during indexing (up to level 15 or so) the average savings
   // would be less than 2 bytes per cell which doesn't seem worth it.
 
-  // "0" with trailing 0s stripped is the empty string, which is not a
+  // "0" with trailing 0s stripped is the empty std::string, which is not a
   // reasonable token.  Encode as "X".
   if (id_ == 0) return "X";
   const size_t num_zero_digits = Bits::FindLSBSetNonZero64(id_) / 4;
   return HexFormatString(id_ >> (4 * num_zero_digits), 16 - num_zero_digits);
 }
 
-S2CellId S2CellId::FromToken(const absl::string_view token) {
-  if (token.length() > 16) return S2CellId::None();
+S2CellId S2CellId::FromToken(const char* token, size_t length) {
+  if (length > 16) return S2CellId::None();
   uint64 id = 0;
-  for (int i = 0, pos = 60; i < token.length(); ++i, pos -= 4) {
+  for (int i = 0, pos = 60; i < length; ++i, pos -= 4) {
     uint64 d;
     if ('0' <= token[i] && token[i] <= '9') {
       d = token[i] - '0';
@@ -240,6 +238,10 @@ S2CellId S2CellId::FromToken(const absl::string_view token) {
     id |= d << pos;
   }
   return S2CellId(id);
+}
+
+S2CellId S2CellId::FromToken(const std::string& token) {
+  return FromToken(token.data(), token.size());
 }
 
 void S2CellId::Encode(Encoder* const encoder) const {
@@ -299,9 +301,9 @@ S2CellId S2CellId::FromFaceIJ(int face, int i, int j) {
 
 S2CellId::S2CellId(const S2Point& p) {
   double u, v;
-  int face = S2::XYZtoFaceUV(p, &u, &v);
-  int i = S2::STtoIJ(S2::UVtoST(u));
-  int j = S2::STtoIJ(S2::UVtoST(v));
+  int face = s2::XYZtoFaceUV(p, &u, &v);
+  int i = s2::STtoIJ(s2::UVtoST(u));
+  int j = s2::STtoIJ(s2::UVtoST(v));
   id_ = FromFaceIJ(face, i, j).id();
 }
 
@@ -369,7 +371,7 @@ int S2CellId::ToFaceIJOrientation(int* pi, int* pj, int* orientation) const {
 S2Point S2CellId::ToPointRaw() const {
   int si, ti;
   int face = GetCenterSiTi(&si, &ti);
-  return S2::FaceSiTitoXYZ(face, si, ti);
+  return s2::FaceSiTitoXYZ(face, si, ti);
 }
 
 S2LatLng S2CellId::ToLatLng() const {
@@ -379,14 +381,14 @@ S2LatLng S2CellId::ToLatLng() const {
 R2Point S2CellId::GetCenterST() const {
   int si, ti;
   GetCenterSiTi(&si, &ti);
-  return R2Point(S2::SiTitoST(si), S2::SiTitoST(ti));
+  return R2Point(s2::SiTitoST(si), s2::SiTitoST(ti));
 }
 
 R2Point S2CellId::GetCenterUV() const {
   int si, ti;
   GetCenterSiTi(&si, &ti);
-  return R2Point(S2::STtoUV(S2::SiTitoST(si)),
-                 S2::STtoUV(S2::SiTitoST(ti)));
+  return R2Point(s2::STtoUV(s2::SiTitoST(si)),
+                 s2::STtoUV(s2::SiTitoST(ti)));
 }
 
 R2Rect S2CellId::IJLevelToBoundUV(int ij[2], int level) {
@@ -395,8 +397,8 @@ R2Rect S2CellId::IJLevelToBoundUV(int ij[2], int level) {
   for (int d = 0; d < 2; ++d) {
     int ij_lo = ij[d] & -cell_size;
     int ij_hi = ij_lo + cell_size;
-    bound[d][0] = S2::STtoUV(S2::IJtoSTMin(ij_lo));
-    bound[d][1] = S2::STtoUV(S2::IJtoSTMin(ij_hi));
+    bound[d][0] = s2::STtoUV(s2::IJtoSTMin(ij_lo));
+    bound[d][1] = s2::STtoUV(s2::IJtoSTMin(ij_hi));
   }
   return bound;
 }
@@ -434,8 +436,8 @@ R2Rect S2CellId::ExpandedByDistanceUV(const R2Rect& uv, S1Angle distance) {
   // points within the given distance of that side.  (The rectangle may be
   // expanded by a different amount in (u,v)-space on each side.)
   double u0 = uv[0][0], u1 = uv[0][1], v0 = uv[1][0], v1 = uv[1][1];
-  double max_u = max(fabs(u0), fabs(u1));
-  double max_v = max(fabs(v0), fabs(v1));
+  double max_u = std::max(fabs(u0), fabs(u1));
+  double max_v = std::max(fabs(v0), fabs(v1));
   double sin_dist = sin(distance);
   return R2Rect(R1Interval(ExpandEndpoint(u0, max_v, -sin_dist),
                            ExpandEndpoint(u1, max_v, sin_dist)),
@@ -453,7 +455,7 @@ S2CellId S2CellId::FromFaceIJWrap(int face, int i, int j) {
   // We want to wrap these coordinates onto the appropriate adjacent face.
   // The easiest way to do this is to convert the (i,j) coordinates to (x,y,z)
   // (which yields a point outside the normal face boundary), and then call
-  // S2::XYZtoFaceUV() to project back onto the correct face.
+  // s2::XYZtoFaceUV() to project back onto the correct face.
   //
   // The code below converts (i,j) to (si,ti), and then (si,ti) to (u,v) using
   // the linear projection (u=2*s-1 and v=2*t-1).  (The code further below
@@ -472,8 +474,8 @@ S2CellId S2CellId::FromFaceIJWrap(int face, int i, int j) {
 
   // Find the leaf cell coordinates on the adjacent face, and convert
   // them to a cell id at the appropriate level.
-  face = S2::XYZtoFaceUV(S2::FaceUVtoXYZ(face, u, v), &u, &v);
-  return FromFaceIJ(face, S2::STtoIJ(0.5*(u+1)), S2::STtoIJ(0.5*(v+1)));
+  face = s2::XYZtoFaceUV(s2::FaceUVtoXYZ(face, u, v), &u, &v);
+  return FromFaceIJ(face, s2::STtoIJ(0.5*(u+1)), s2::STtoIJ(0.5*(v+1)));
 }
 
 inline S2CellId S2CellId::FromFaceIJSame(int face, int i, int j,
@@ -585,11 +587,11 @@ void S2CellId::AppendAllNeighbors(int nbr_level,
   }
 }
 
-string S2CellId::ToString() const {
+std::string S2CellId::ToString() const {
   if (!is_valid()) {
     return StrCat("Invalid: ", absl::Hex(id(), absl::kZeroPad16));
   }
-  string out = StrCat(face(), "/");
+  std::string out = StrCat(face(), "/");
   for (int current_level = 1; current_level <= level(); ++current_level) {
     // Avoid dependencies of SimpleItoA, and slowness of StrAppend &
     // std::to_string.
@@ -617,3 +619,5 @@ S2CellId S2CellId::FromDebugString(absl::string_view str) {
   }
   return id;
 }
+
+}  // namespace s2

@@ -19,9 +19,11 @@
 #define S2_S2SHAPEUTIL_VISIT_CROSSING_EDGE_PAIRS_H_
 
 #include <functional>
-#include "s2/s2crossing_edge_query.h"
-#include "s2/s2shape_index.h"
-#include "s2/s2shapeutil_shape_edge.h"
+#include "third_party/s2/s2crossing_edge_query.h"
+#include "third_party/s2/s2shape_index.h"
+#include "third_party/s2/s2shapeutil_shape_edge.h"
+
+namespace s2 {
 
 class S2Error;
 
@@ -68,5 +70,6 @@ bool VisitCrossingEdgePairs(const S2ShapeIndex& a_index,
 bool FindSelfIntersection(const S2ShapeIndex& index, S2Error* error);
 
 }  // namespace s2shapeutil
+}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_VISIT_CROSSING_EDGE_PAIRS_H_

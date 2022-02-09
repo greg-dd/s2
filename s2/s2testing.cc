@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2testing.h"
+#include "third_party/s2/s2testing.h"
 
 #include <algorithm>
 #include <cmath>
@@ -25,40 +25,36 @@
 #include <utility>
 #include <vector>
 
-#include "absl/flags/flag.h"
+#include "third_party/s2/base/commandlineflags.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/r1interval.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1interval.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_union.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2latlng_rect.h"
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2polygon.h"
+#include "third_party/s2/s2polyline.h"
+#include "third_party/s2/s2region.h"
+#include "third_party/s2/s2text_format.h"
+#include "third_party/s2/strings/serialize.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_split.h"
-
-#include "s2/base/commandlineflags.h"
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-#include "s2/r1interval.h"
-#include "s2/s1angle.h"
-#include "s2/s1interval.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_union.h"
-#include "s2/s2latlng.h"
-#include "s2/s2latlng_rect.h"
-#include "s2/s2lax_polygon_shape.h"
-#include "s2/s2lax_polyline_shape.h"
-#include "s2/s2loop.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2polygon.h"
-#include "s2/s2polyline.h"
-#include "s2/s2region.h"
-#include "s2/s2text_format.h"
-#include "s2/strings/serialize.h"
-#include "s2/util/math/matrix3x3.h"
+#include "third_party/s2/util/math/matrix3x3.h"
 
 using absl::make_unique;
 using std::max;
-using std::string;
 using std::unique_ptr;
 using std::vector;
 
-S2_DEFINE_int32(s2_random_seed, 1,
-             "Seed value that can be passed to S2Testing::rnd.Reset()");
+namespace s2 {
+
+int kS2RandomSeed = 1;
 
 const double S2Testing::kEarthRadiusKm = 6371.01;
 
@@ -176,16 +172,9 @@ double S2Testing::AreaToKm2(double steradians) {
   return steradians * kEarthRadiusKm * kEarthRadiusKm;
 }
 
-// The Dump*() functions are for use within a debugger.  They are similar to
-// the corresponding s2textformat::ToString() functions except that they
-// prefix their output with a label and they don't require default arguments
-// or constructing absl::Span objects (which gdb doesn't know how to do).
+// The overloaded Dump() function is for use within a debugger.
 void Dump(const S2Point& p) {
   std::cout << "S2Point: " << s2textformat::ToString(p) << std::endl;
-}
-
-void Dump(const vector<S2Point>& points) {
-  std::cout << "S2Polygon: " << s2textformat::ToString(points) << std::endl;
 }
 
 void Dump(const S2Loop& loop) {
@@ -200,18 +189,9 @@ void Dump(const S2Polygon& polygon) {
   std::cout << "S2Polygon: " << s2textformat::ToString(polygon) << std::endl;
 }
 
-void Dump(const S2LaxPolylineShape& polyline) {
-  std::cout << "S2Polyline: " << s2textformat::ToString(polyline) << std::endl;
-}
-
-void Dump(const S2LaxPolygonShape& polygon) {
-  std::cout << "S2Polygon: " << s2textformat::ToString(polygon) << std::endl;
-}
-
 // Outputs the contents of an S2ShapeIndex in human-readable form.
 void Dump(const S2ShapeIndex& index) {
   std::cout << "S2ShapeIndex: " << &index << std::endl;
-  std::cout << "  " << s2textformat::ToString(index) << std::endl;
   for (S2ShapeIndex::Iterator it(&index, S2ShapeIndex::BEGIN);
        !it.done(); it.Next()) {
     std::cout << "  id: " << it.id().ToString() << std::endl;
@@ -282,7 +262,7 @@ void S2Testing::ConcentricLoopsPolygon(const S2Point& center,
                                        int num_vertices_per_loop,
                                        S2Polygon* polygon) {
   Matrix3x3_d m;
-  S2::GetFrame(center, &m);
+  GetFrame(center, &m);
   vector<unique_ptr<S2Loop>> loops;
   for (int li = 0; li < num_loops; ++li) {
     vector<S2Point> vertices;
@@ -290,8 +270,8 @@ void S2Testing::ConcentricLoopsPolygon(const S2Point& center,
     double radian_step = 2 * M_PI / num_vertices_per_loop;
     for (int vi = 0; vi < num_vertices_per_loop; ++vi) {
       double angle = vi * radian_step;
-      S2Point p(radius * cos(angle), radius * sin(angle), 1);
-      vertices.push_back(S2::FromFrame(m, p.Normalize()));
+      S2Point p(radius * std::cos(angle), radius * std::sin(angle), 1);
+      vertices.push_back(FromFrame(m, p.Normalize()));
     }
     loops.push_back(make_unique<S2Loop>(vertices));
   }
@@ -303,7 +283,7 @@ S2Point S2Testing::SamplePoint(const S2Cap& cap) {
   // complete the coordinate frame.
 
   Matrix3x3_d m;
-  S2::GetFrame(cap.center(), &m);
+  GetFrame(cap.center(), &m);
 
   // The surface area of a spherical cap is directly proportional to its
   // height.  First we choose a random height, and then we choose a random
@@ -315,15 +295,15 @@ S2Point S2Testing::SamplePoint(const S2Cap& cap) {
 
   // The result should already be very close to unit-length, but we might as
   // well make it accurate as possible.
-  return S2::FromFrame(m, S2Point(cos(theta) * r, sin(theta) * r, 1 - h))
+  return FromFrame(m, S2Point(std::cos(theta) * r, std::sin(theta) * r, 1 - h))
          .Normalize();
 }
 
 S2Point S2Testing::SamplePoint(const S2LatLngRect& rect) {
   // First choose a latitude uniformly with respect to area on the sphere.
-  double sin_lo = sin(rect.lat().lo());
-  double sin_hi = sin(rect.lat().hi());
-  double lat = asin(rnd.UniformDouble(sin_lo, sin_hi));
+  double sin_lo = std::sin(rect.lat().lo());
+  double sin_hi = std::sin(rect.lat().hi());
+  double lat = std::asin(rnd.UniformDouble(sin_lo, sin_hi));
 
   // Now choose longitude uniformly within the given range.
   double lng = rect.lng().lo() + rnd.RandDouble() * rect.lng().GetLength();
@@ -479,7 +459,9 @@ std::unique_ptr<S2Loop> S2Testing::Fractal::MakeLoop(
   double r = nominal_radius.radians();
   for (const R2Point& v : r2vertices) {
     S2Point p(v[0] * r, v[1] * r, 1);
-    vertices.push_back(S2::FromFrame(frame, p).Normalize());
+    vertices.push_back(FromFrame(frame, p).Normalize());
   }
   return make_unique<S2Loop>(vertices);
 }
+
+}  // namespace s2

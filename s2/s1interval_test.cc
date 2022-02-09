@@ -15,14 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s1interval.h"
+#include "third_party/s2/s1interval.h"
 
 #include <cfloat>
 #include <cmath>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 using std::fabs;
+
+namespace s2 {
 
 class S1IntervalTestBase : public testing::Test {
  public:
@@ -301,7 +303,7 @@ TEST_F(S1IntervalTestBase, IntervalOps) {
   TestIntervalOps(mid23, quad12, "FFTT", quad12eps, quad2hi);
 
   // This test checks that the union of two disjoint intervals is the smallest
-  // interval that contains both of them.  Note that the center of "mid34" is
+  // interval that contains both of them.  Note that the center of "mid34"
   // slightly CCW of -Pi/2 so that there is no ambiguity about the result.
   S1Interval quad412eps(mid34.lo(), quad12.hi());
   TestIntervalOps(quad12, mid34, "FFFF", quad412eps, empty);
@@ -453,12 +455,6 @@ TEST_F(S1IntervalTestBase, ApproxEquals) {
   EXPECT_FALSE(S1Interval(2 + kLo, 1 - kHi).ApproxEquals(S1Interval(2, 1)));
 }
 
-TEST_F(S1IntervalTestBase, OperatorEquals) {
-  EXPECT_EQ(empty, empty);
-  EXPECT_EQ(full, full);
-  EXPECT_NE(full, empty);
-}
-
 TEST_F(S1IntervalTestBase, GetDirectedHausdorffDistance) {
   EXPECT_FLOAT_EQ(0.0, empty.GetDirectedHausdorffDistance(empty));
   EXPECT_FLOAT_EQ(0.0, empty.GetDirectedHausdorffDistance(mid12));
@@ -473,3 +469,5 @@ TEST_F(S1IntervalTestBase, GetDirectedHausdorffDistance) {
   EXPECT_FLOAT_EQ(3.0 - 0.1,
                   S1Interval(-0.2, -0.1).GetDirectedHausdorffDistance(in));
 }
+
+}  // namespace s2

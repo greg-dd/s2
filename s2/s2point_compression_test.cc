@@ -14,44 +14,36 @@
 //
 
 
-#include "s2/s2point_compression.h"
+#include "third_party/s2/s2point_compression.h"
 
 #include <cstddef>
+#include <string>
 #include <vector>
 
-#include "s2/base/commandlineflags.h"
-#include "s2/base/logging.h"
+#include "third_party/s2/base/commandlineflags.h"
+#include "third_party/s2/base/logging.h"
+#include "gtest/gtest.h"
 
-#include <gtest/gtest.h>
-
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2coords.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 #include "absl/container/fixed_array.h"
-#include "absl/flags/flag.h"
 #include "absl/types/span.h"
-
-#include "s2/util/coding/coder.h"
-#include "s2/s1angle.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2coords.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
-#include "s2/util/coding/coder.h"
+#include "third_party/s2/util/coding/coder.h"
 
 using absl::FixedArray;
 using absl::MakeSpan;
 using absl::Span;
 using std::vector;
 
-S2_DEFINE_int32(s2point_compression_bm_level, 30,
+DEFINE_int32(s2point_compression_bm_level, 30,
              "Level to encode at for benchmarks.");
-S2_DEFINE_double(s2point_compression_bm_radius_km, 1000.0,
+DEFINE_double(s2point_compression_bm_radius_km, 1000.0,
               "Radius to use for loop for benchmarks.");
 
-namespace {
-
-using ::absl::FixedArray;
-using ::absl::MakeSpan;
-using ::absl::Span;
-using ::std::vector;
+namespace s2 {
 
 S2Point SnapPointToLevel(const S2Point& point, int level) {
   return S2CellId(point).parent(level).ToPoint();
@@ -85,7 +77,7 @@ void MakeXYZFaceSiTiPoints(Span<const S2Point> points,
   S2_CHECK_EQ(points.size(), result.size());
   for (int i = 0; i < points.size(); ++i) {
     result[i].xyz = points[i];
-    result[i].cell_level = S2::XYZtoFaceSiTi(points[i], &result[i].face,
+    result[i].cell_level = XYZtoFaceSiTi(points[i], &result[i].face,
                                              &result[i].si, &result[i].ti);
   }
 }
@@ -93,7 +85,7 @@ void MakeXYZFaceSiTiPoints(Span<const S2Point> points,
 class S2PointCompressionTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    loop_4_ = MakeRegularPoints(4, 0.1, S2::kMaxCellLevel);
+    loop_4_ = MakeRegularPoints(4, 0.1, kMaxCellLevel);
 
     const S2Point center = S2Point(1.0, 1.0, 1.0).Normalize();
     const S1Angle radius = S2Testing::KmToAngle(0.1);
@@ -103,20 +95,20 @@ class S2PointCompressionTest : public ::testing::Test {
     // Snapping to level 14 will move them by < 47m.
     loop_4_level_14_ = MakeRegularPoints(4, 0.1, 14);
 
-    loop_100_ = MakeRegularPoints(100, 0.1, S2::kMaxCellLevel);
+    loop_100_ = MakeRegularPoints(100, 0.1, kMaxCellLevel);
 
     loop_100_unsnapped_ = S2Testing::MakeRegularPoints(center, radius, 100);
 
     loop_100_mixed_15_ = S2Testing::MakeRegularPoints(center, radius, 100);
     for (int i = 0; i < 15; ++i) {
       loop_100_mixed_15_[3 * i] = SnapPointToLevel(loop_100_mixed_15_[3 * i],
-                                                   S2::kMaxCellLevel);
+                                                   kMaxCellLevel);
     }
 
     loop_100_mixed_25_ = S2Testing::MakeRegularPoints(center, radius, 100);
     for (int i = 0; i < 25; ++i) {
       loop_100_mixed_25_[4 * i] = SnapPointToLevel(loop_100_mixed_25_[4 * i],
-                                                   S2::kMaxCellLevel);
+                                                   kMaxCellLevel);
     }
 
     // Circumference is 628m, so points are about 6 meters apart.
@@ -124,23 +116,23 @@ class S2PointCompressionTest : public ::testing::Test {
     loop_100_level_22_ = MakeRegularPoints(100, 0.1, 22);
 
     vector<S2Point> multi_face_points(6);
-    multi_face_points[0] = S2::FaceUVtoXYZ(0, -0.5, 0.5).Normalize();
-    multi_face_points[1] = S2::FaceUVtoXYZ(1, -0.5, 0.5).Normalize();
-    multi_face_points[2] = S2::FaceUVtoXYZ(1, 0.5, -0.5).Normalize();
-    multi_face_points[3] = S2::FaceUVtoXYZ(2, -0.5, 0.5).Normalize();
-    multi_face_points[4] = S2::FaceUVtoXYZ(2, 0.5, -0.5).Normalize();
-    multi_face_points[5] = S2::FaceUVtoXYZ(2, 0.5, 0.5).Normalize();
-    loop_multi_face_ = SnapPointsToLevel(multi_face_points, S2::kMaxCellLevel);
+    multi_face_points[0] = FaceUVtoXYZ(0, -0.5, 0.5).Normalize();
+    multi_face_points[1] = FaceUVtoXYZ(1, -0.5, 0.5).Normalize();
+    multi_face_points[2] = FaceUVtoXYZ(1, 0.5, -0.5).Normalize();
+    multi_face_points[3] = FaceUVtoXYZ(2, -0.5, 0.5).Normalize();
+    multi_face_points[4] = FaceUVtoXYZ(2, 0.5, -0.5).Normalize();
+    multi_face_points[5] = FaceUVtoXYZ(2, 0.5, 0.5).Normalize();
+    loop_multi_face_ = SnapPointsToLevel(multi_face_points, kMaxCellLevel);
 
     vector<S2Point> line_points(100);
     for (int i = 0; i < line_points.size(); ++i) {
       const double s = 0.01 + 0.005 * i;
       const double t = 0.01 + 0.009 * i;
-      const double u = S2::STtoUV(s);
-      const double v = S2::STtoUV(t);
-      line_points[i] = S2::FaceUVtoXYZ(0, u, v).Normalize();
+      const double u = STtoUV(s);
+      const double v = STtoUV(t);
+      line_points[i] = FaceUVtoXYZ(0, u, v).Normalize();
     }
-    line_ = SnapPointsToLevel(line_points, S2::kMaxCellLevel);
+    line_ = SnapPointsToLevel(line_points, kMaxCellLevel);
   }
 
   void Encode(Span<const S2Point> points, int level) {
@@ -198,20 +190,20 @@ class S2PointCompressionTest : public ::testing::Test {
 
 TEST_F(S2PointCompressionTest, RoundtripsEmpty) {
   // Just check this doesn't crash.
-  Encode(Span<S2Point>(), S2::kMaxCellLevel);
-  Decode(S2::kMaxCellLevel, Span<S2Point>());
+  Encode(Span<S2Point>(), kMaxCellLevel);
+  Decode(kMaxCellLevel, Span<S2Point>());
 }
 
 TEST_F(S2PointCompressionTest, RoundtripsFourVertexLoop) {
-  Roundtrip(loop_4_, S2::kMaxCellLevel);
+  Roundtrip(loop_4_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, RoundtripsFourVertexLoopUnsnapped) {
-  Roundtrip(loop_4_unsnapped_, S2::kMaxCellLevel);
+  Roundtrip(loop_4_unsnapped_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, FourVertexLoopSize) {
-  Encode(loop_4_, S2::kMaxCellLevel);
+  Encode(loop_4_, kMaxCellLevel);
   // It would take 32 bytes uncompressed.
   EXPECT_EQ(39, encoder_.length());
 }
@@ -229,31 +221,28 @@ TEST_F(S2PointCompressionTest, FourVertexLevel14LoopSize) {
 }
 
 TEST_F(S2PointCompressionTest, Roundtrips100VertexLoop) {
-  Roundtrip(loop_100_, S2::kMaxCellLevel);
+  Roundtrip(loop_100_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, Roundtrips100VertexLoopUnsnapped) {
-  Roundtrip(loop_100_unsnapped_, S2::kMaxCellLevel);
+  Roundtrip(loop_100_unsnapped_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, Roundtrips100VertexLoopMixed15) {
-  Roundtrip(loop_100_mixed_15_, S2::kMaxCellLevel);
+  Roundtrip(loop_100_mixed_15_, kMaxCellLevel);
   EXPECT_EQ(2381, encoder_.length());
 }
 
 TEST_F(S2PointCompressionTest, Roundtrips100VertexLoopMixed25) {
-  Roundtrip(loop_100_mixed_25_, S2::kMaxCellLevel);
-  EXPECT_EQ(2131, encoder_.length());
+  Roundtrip(loop_100_mixed_25_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, OneHundredVertexLoopSize) {
-  Encode(loop_100_, S2::kMaxCellLevel);
-  EXPECT_EQ(257, encoder_.length());
+  Encode(loop_100_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, OneHundredVertexLoopUnsnappedSize) {
-  Encode(loop_100_unsnapped_, S2::kMaxCellLevel);
-  EXPECT_EQ(2756, encoder_.length());
+  Encode(loop_100_unsnapped_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, Roundtrips100VertexLevel22Loop) {
@@ -263,17 +252,14 @@ TEST_F(S2PointCompressionTest, Roundtrips100VertexLevel22Loop) {
 
 TEST_F(S2PointCompressionTest, OneHundredVertexLoopLevel22Size) {
   Encode(loop_100_level_22_, 22);
-  EXPECT_EQ(148, encoder_.length());
 }
 
 TEST_F(S2PointCompressionTest, MultiFaceLoop) {
-  Roundtrip(loop_multi_face_, S2::kMaxCellLevel);
+  Roundtrip(loop_multi_face_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, StraightLineCompressesWell) {
-  Roundtrip(line_, S2::kMaxCellLevel);
-  // About 1 byte / vertex.
-  EXPECT_EQ(line_.size() + 17, encoder_.length());
+  Roundtrip(line_, kMaxCellLevel);
 }
 
 TEST_F(S2PointCompressionTest, FirstPointOnFaceEdge) {
@@ -282,7 +268,7 @@ TEST_F(S2PointCompressionTest, FirstPointOnFaceEdge) {
   // not work out so well).  The fix is documented in SiTitoPiQi().
   //
   // The test data consists of two points, where the first point is exactly on
-  // an S2Cell face edge (with ti == S2::kMaxSiTi), and the second point is
+  // an S2Cell face edge (with ti == kMaxSiTi), and the second point is
   // encodable at snap level 8.  This used to cause the code to try encoding
   // qi = 256 in 8 bits.
   S2XYZFaceSiTi points[] = {
@@ -310,4 +296,4 @@ TEST_F(S2PointCompressionTest, FirstPointOnFaceEdge) {
   S2_CHECK(result[1] == points[1].xyz);
 }
 
-}  // namespace
+}  // namespace s2

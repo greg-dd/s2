@@ -15,26 +15,28 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2builderutil_find_polygon_degeneracies.h"
+#include "third_party/s2/s2builderutil_find_polygon_degeneracies.h"
 
 #include <cstdlib>
 #include <utility>
 #include <vector>
 
 #include "absl/memory/memory.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2builder_graph.h"
-#include "s2/s2builderutil_graph_shape.h"
-#include "s2/s2contains_vertex_query.h"
-#include "s2/s2crossing_edge_query.h"
-#include "s2/s2edge_crosser.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2predicates.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2builder_graph.h"
+#include "third_party/s2/s2builderutil_graph_shape.h"
+#include "third_party/s2/s2contains_vertex_query.h"
+#include "third_party/s2/s2crossing_edge_query.h"
+#include "third_party/s2/s2edge_crosser.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2predicates.h"
 
 using absl::make_unique;
 using std::make_pair;
 using std::pair;
 using std::vector;
+
+namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
@@ -158,8 +160,8 @@ vector<PolygonDegeneracy> DegeneracyFinder::Run(S2Error* error) {
       known_vertex = FindUnbalancedVertex();
       known_vertex_sign = ContainsVertexSign(known_vertex);
     }
-    const int kMaxUnindexedSignComputations = 25;  // Tuned using benchmarks.
-    if (num_unknown_signs <= kMaxUnindexedSignComputations) {
+    const int kMaxUnindexedContainsCalls = 20;  // Tuned using benchmarks.
+    if (num_unknown_signs <= kMaxUnindexedContainsCalls) {
       ComputeUnknownSignsBruteForce(known_vertex, known_vertex_sign,
                                     &components);
     } else {
@@ -243,7 +245,7 @@ Component DegeneracyFinder::BuildComponent(VertexId root) {
 
 // Counts the number of times that (v0, v1) crosses the edges incident to v0,
 // and returns the result modulo 2.  This is equivalent to calling
-// S2::VertexCrossing for the edges incident to v0, except that this
+// s2::VertexCrossing for the edges incident to v0, except that this
 // implementation is more efficient (since it doesn't need to determine which
 // two edge vertices are the same).
 //
@@ -254,7 +256,7 @@ bool DegeneracyFinder::CrossingParity(VertexId v0, VertexId v1,
   int crossings = 0;
   S2Point p0 = g_.vertex(v0);
   S2Point p1 = g_.vertex(v1);
-  S2Point p0_ref = S2::RefDir(p0);
+  S2Point p0_ref = s2::Ortho(p0);
   for (const Edge& edge : out_.edges(v0)) {
     if (edge.second == v1) {
       if (include_same) ++crossings;
@@ -390,3 +392,4 @@ bool IsFullyDegenerate(const S2Builder::Graph& g) {
 }
 
 }  // namespace s2builderutil
+}  // namespace s2

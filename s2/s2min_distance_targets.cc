@@ -15,17 +15,19 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2min_distance_targets.h"
+#include "third_party/s2/s2min_distance_targets.h"
 
 #include <memory>
 #include "absl/memory/memory.h"
-#include "s2/s1angle.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2closest_cell_query.h"
-#include "s2/s2closest_edge_query.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2shape_index_region.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2closest_cell_query.h"
+#include "third_party/s2/s2closest_edge_query.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2shape_index_region.h"
+
+namespace s2 {
 
 S2Cap S2MinDistancePointTarget::GetCapBound() {
   return S2Cap(point_, S1ChordAngle::Zero());
@@ -38,7 +40,7 @@ bool S2MinDistancePointTarget::UpdateMinDistance(
 
 bool S2MinDistancePointTarget::UpdateMinDistance(
     const S2Point& v0, const S2Point& v1, S2MinDistance* min_dist) {
-  return S2::UpdateMinDistance(point_, v0, v1, min_dist);
+  return s2::UpdateMinDistance(point_, v0, v1, min_dist);
 }
 
 bool S2MinDistancePointTarget::UpdateMinDistance(
@@ -64,12 +66,12 @@ S2Cap S2MinDistanceEdgeTarget::GetCapBound() {
 
 bool S2MinDistanceEdgeTarget::UpdateMinDistance(
     const S2Point& p, S2MinDistance* min_dist) {
-  return S2::UpdateMinDistance(p, a_, b_, min_dist);
+  return s2::UpdateMinDistance(p, a_, b_, min_dist);
 }
 
 bool S2MinDistanceEdgeTarget::UpdateMinDistance(
     const S2Point& v0, const S2Point& v1, S2MinDistance* min_dist) {
-  return S2::UpdateEdgePairMinDistance(a_, b_, v0, v1, min_dist);
+  return s2::UpdateEdgePairMinDistance(a_, b_, v0, v1, min_dist);
 }
 
 bool S2MinDistanceEdgeTarget::UpdateMinDistance(
@@ -293,3 +295,5 @@ bool S2MinDistanceShapeIndexTarget::VisitContainingShapes(
   }
   return true;
 }
+
+}  // namespace s2

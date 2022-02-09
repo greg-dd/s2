@@ -15,12 +15,11 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2cell_index.h"
+#include "third_party/s2/s2cell_index.h"
 
-#include "absl/container/flat_hash_set.h"
-
-using absl::flat_hash_set;
 using std::vector;
+
+namespace s2 {
 
 using Label = S2CellIndex::Label;
 
@@ -133,18 +132,22 @@ void S2CellIndex::Build() {
   }
 }
 
-flat_hash_set<Label> S2CellIndex::GetIntersectingLabels(
-    const S2CellUnion& target) const {
-  flat_hash_set<Label> labels;
+vector<Label> S2CellIndex::GetIntersectingLabels(const S2CellUnion& target)
+    const {
+  vector<Label> labels;
   GetIntersectingLabels(target, &labels);
   return labels;
 }
 
 void S2CellIndex::GetIntersectingLabels(const S2CellUnion& target,
-                                        flat_hash_set<Label>* labels) const {
+                                        std::vector<Label>* labels) const {
   labels->clear();
   VisitIntersectingCells(target, [labels](S2CellId cell_id, Label label) {
-    labels->insert(label);
-    return true;
-  });
+      labels->push_back(label);
+      return true;
+    });
+  std::sort(labels->begin(), labels->end());
+  labels->erase(std::unique(labels->begin(), labels->end()), labels->end());
 }
+
+}  // namespace s2

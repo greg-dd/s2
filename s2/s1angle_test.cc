@@ -15,16 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s1angle.h"
+#include "third_party/s2/s1angle.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
-#include "absl/flags/flag.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2testing.h"
 
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-#include "s2/s2latlng.h"
-#include "s2/s2testing.h"
+namespace s2 {
 
 TEST(S1Angle, DefaultConstructor) {
   // Check that the default constructor returns an angle of 0.
@@ -96,7 +96,6 @@ TEST(S1Angle, NormalizeCorrectlyCanonicalizesAngles) {
 
 TEST(S1Angle, ArithmeticOperationsOnAngles) {
   EXPECT_DOUBLE_EQ(0.3, S1Angle::Radians(-0.3).abs().radians());
-  EXPECT_DOUBLE_EQ(0.3, abs(S1Angle::Radians(-0.3)).radians());
   EXPECT_DOUBLE_EQ(-0.1, (-S1Angle::Radians(0.1)).radians());
   EXPECT_DOUBLE_EQ(0.4,
                    (S1Angle::Radians(0.1) + S1Angle::Radians(0.3)).radians());
@@ -160,7 +159,7 @@ TEST(S1Angle, DegreesVsE7) {
 // The current implementation guarantees exact conversions between
 // E6() and E7() when the E6() argument is an integer.
 TEST(S1Angle, E6VsE7) {
-  S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed));
+  S2Testing::rnd.Reset(kS2RandomSeed);
   for (int iter = 0; iter < 1000; ++iter) {
     int i = S2Testing::rnd.Uniform(180000000);
     EXPECT_EQ(S1Angle::E6(i), S1Angle::E7(10 * i));
@@ -186,3 +185,5 @@ TEST(S1Angle, DegreesVsRadians) {
   EXPECT_NE(S1Angle::Degrees(3), S1Angle::Radians(M_PI / 60));
   EXPECT_NE(60, S1Angle::Degrees(60).degrees());
 }
+
+}  // namespace s2

@@ -24,16 +24,19 @@
 #include <utility>
 #include <vector>
 
+#include "third_party/s2/base/commandlineflags.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/_fp_contract_off.h"
+#include "third_party/s2/r2.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2cell_id.h"
 #include "absl/base/macros.h"
+#include "third_party/s2/util/math/matrix3x3.h"
 
-#include "s2/base/commandlineflags.h"
-#include "s2/base/integral_types.h"
-#include "s2/_fp_contract_off.h"
-#include "s2/r2.h"
-#include "s2/s1angle.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2cell_id.h"
-#include "s2/util/math/matrix3x3.h"
+namespace s2 {
+
+extern int kS2RandomSeed;
 
 class S1Angle;
 class S2Cap;
@@ -44,15 +47,6 @@ class S2Loop;
 class S2Polygon;
 class S2Polyline;
 class S2Region;
-
-// You can optionally call S2Testing::rnd.Reset(FLAGS_s2_random_seed) at the
-// start of a test or benchmark to ensure that its results do not depend on
-// which other tests of benchmarks have run previously.  This can help with
-// debugging.
-//
-// This flag currently does *not* affect the initial seed value for
-// S2Testing::rnd.  TODO(user): Fix this.
-S2_DECLARE_int32(s2_random_seed);
 
 // This class defines various static functions that are useful for writing
 // unit tests.
@@ -307,7 +301,6 @@ bool CheckDistanceResults(
 //////////////////// Implementation Details Follow ////////////////////////
 
 
-namespace S2 {
 namespace internal {
 
 // Check that result set "x" contains all the expected results from "y", and
@@ -363,7 +356,6 @@ bool CheckResultSet(const std::vector<std::pair<Distance, Id>>& x,
 }
 
 }  // namespace internal
-}  // namespace S2
 
 template <typename Id, typename Distance>
 bool CheckDistanceResults(
@@ -375,12 +367,14 @@ bool CheckDistanceResults(
   // pruned from the result set even though they may be slightly closer.
   static const typename Distance::Delta kMaxPruningError(
       S1ChordAngle::Radians(1e-15));
-  return (S2::internal::CheckResultSet(
+  return (s2::internal::CheckResultSet(
               actual, expected, max_size, max_distance, max_error,
               kMaxPruningError, "Missing") & /*not &&*/
-          S2::internal::CheckResultSet(
+          s2::internal::CheckResultSet(
               expected, actual, max_size, max_distance, max_error,
               Distance::Delta::Zero(), "Extra"));
 }
+
+}  // namespace s2
 
 #endif  // S2_S2TESTING_H_

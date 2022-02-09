@@ -36,6 +36,7 @@
 
 #include "absl/base/macros.h"
 
+namespace s2 {
 namespace gtl {
 
 // Reorders the elements in the range `[begin, last)` randomly.  The
@@ -73,5 +74,6 @@ void legacy_random_shuffle(RandomIt begin, RandomIt end) {
 }
 
 }  // namespace gtl
+}  // namespace s2
 
 #endif  // S2_UTIL_GTL_LEGACY_RANDOM_SHUFFLE_H_

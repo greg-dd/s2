@@ -13,16 +13,18 @@
 // limitations under the License.
 //
 
-#include "s2/s2furthest_edge_query.h"
+#include "third_party/s2/s2furthest_edge_query.h"
 
 #include <vector>
 
-#include "s2/s2edge_distances.h"
+#include "third_party/s2/s2edge_distances.h"
+
+namespace s2 {
 
 void S2FurthestEdgeQuery::Options::set_conservative_min_distance(
     S1ChordAngle min_distance) {
   set_max_distance(Distance(min_distance.PlusError(
-      -S2::GetUpdateMinDistanceMaxError(min_distance)).Predecessor()));
+      -s2::GetUpdateMinDistanceMaxError(min_distance)).Predecessor()));
 }
 
 void S2FurthestEdgeQuery::Options::set_conservative_min_distance(
@@ -115,3 +117,5 @@ bool S2FurthestEdgeQuery::IsConservativeDistanceGreaterOrEqual(
   tmp_options.set_max_error(S1ChordAngle::Straight());
   return base_.FindClosestEdge(target, tmp_options).shape_id() >= 0;
 }
+
+}  // namespace s2

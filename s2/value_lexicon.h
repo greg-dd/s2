@@ -22,8 +22,10 @@
 #include <limits>
 #include <vector>
 
-#include "s2/base/integral_types.h"
-#include "s2/util/gtl/dense_hash_set.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/util/gtl/dense_hash_set.h"
+
+namespace s2 {
 
 // ValueLexicon is a class that maps distinct values to sequentially numbered
 // integer identifiers.  It automatically eliminates duplicates and uses a
@@ -40,7 +42,7 @@
 //
 // Example usage:
 //
-//   ValueLexicon<string> lexicon;
+//   ValueLexicon<std::string> lexicon;
 //   uint32 cat_id = lexicon.Add("cat");
 //   EXPECT_EQ(cat_id, lexicon.Add("cat"));
 //   EXPECT_EQ("cat", lexicon.value(cat_id));
@@ -230,5 +232,7 @@ template <class T, class Hasher, class KeyEqual>
 inline const T& ValueLexicon<T, Hasher, KeyEqual>::value(uint32 id) const {
   return values_[id];
 }
+
+}  // namespace s2
 
 #endif  // S2_VALUE_LEXICON_H_

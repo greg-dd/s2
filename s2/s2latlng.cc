@@ -15,17 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2latlng.h"
+#include "third_party/s2/s2latlng.h"
 
 #include <algorithm>
 #include <ostream>
 
-#include "s2/base/logging.h"
-#include "absl/strings/str_format.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/base/stringprintf.h"
 
 using std::max;
 using std::min;
-using std::string;
+
+namespace s2 {
 
 S2LatLng S2LatLng::Normalized() const {
   // remainder(x, 2 * M_PI) reduces its argument to the range [-M_PI, M_PI]
@@ -39,8 +40,8 @@ S2Point S2LatLng::ToPoint() const {
       << "Invalid S2LatLng in S2LatLng::ToPoint: " << *this;
   double phi = lat().radians();
   double theta = lng().radians();
-  double cosphi = cos(phi);
-  return S2Point(cos(theta) * cosphi, sin(theta) * cosphi, sin(phi));
+  double cosphi = std::cos(phi);
+  return S2Point(std::cos(theta) * cosphi, std::sin(theta) * cosphi, std::sin(phi));
 }
 
 S2LatLng::S2LatLng(const S2Point& p)
@@ -71,17 +72,23 @@ S1Angle S2LatLng::GetDistance(const S2LatLng& o) const {
   double lat2 = o.lat().radians();
   double lng1 = lng().radians();
   double lng2 = o.lng().radians();
-  double dlat = sin(0.5 * (lat2 - lat1));
-  double dlng = sin(0.5 * (lng2 - lng1));
-  double x = dlat * dlat + dlng * dlng * cos(lat1) * cos(lat2);
+  double dlat = std::sin(0.5 * (lat2 - lat1));
+  double dlng = std::sin(0.5 * (lng2 - lng1));
+  double x = dlat * dlat + dlng * dlng * std::cos(lat1) * std::cos(lat2);
   return S1Angle::Radians(2 * asin(sqrt(min(1.0, x))));
 }
 
-string S2LatLng::ToStringInDegrees() const {
+std::string S2LatLng::ToStringInDegrees() const {
   S2LatLng pt = Normalized();
-  return absl::StrFormat("%f,%f", pt.lat().degrees(), pt.lng().degrees());
+  return StringPrintf("%f,%f", pt.lat().degrees(), pt.lng().degrees());
+}
+
+void S2LatLng::ToStringInDegrees(std::string* s) const {
+  *s = ToStringInDegrees();
 }
 
 std::ostream& operator<<(std::ostream& os, const S2LatLng& ll) {
   return os << "[" << ll.lat() << ", " << ll.lng() << "]";
 }
+
+}  // namespace s2

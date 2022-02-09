@@ -21,9 +21,11 @@
 #include <limits>
 #include <vector>
 
-#include "s2/base/integral_types.h"
-#include "s2/base/logging.h"
-#include "s2/sequence_lexicon.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/sequence_lexicon.h"
+
+namespace s2 {
 
 // IdSetLexicon is a class for compactly representing sets of non-negative
 // integers such as array indices ("id sets").  It is especially suitable when
@@ -39,17 +41,17 @@
 // 32-bit integers rather than 64-bit pointers.
 //
 // This class is especially useful in conjunction with ValueLexicon<T>.  For
-// example, suppose that you want to label objects with a set of strings.  You
-// could use a ValueLexicon<string> to map the strings to "label ids" (32-bit
+// example, suppose that you want to label objects with a set of std::strings.  You
+// could use a ValueLexicon<std::string> to map the std::strings to "label ids" (32-bit
 // integers), and then use IdSetLexicon to map each set of labels to a "label
 // set id".  Each reference to that label set then takes up only 4 bytes.
 //
 // Example usage:
 //
-//   ValueLexicon<string> labels_;
+//   ValueLexicon<std::string> labels_;
 //   IdSetLexicon label_sets_;
 //
-//   int32 GetLabelSet(const vector<string>& label_strings) {
+//   int32 GetLabelSet(const vector<std::string>& label_strings) {
 //     vector<int32> label_ids;
 //     for (const auto& str : label_strings) {
 //       label_ids.push_back(labels_.Add(str));
@@ -132,7 +134,7 @@ class IdSetLexicon {
  private:
   // Choose kEmptySetId to be the last id that will ever be generated.
   // (Non-negative ids are reserved for singleton sets.)
-  static constexpr int32 kEmptySetId = std::numeric_limits<int32>::min();
+  static const int32 kEmptySetId = std::numeric_limits<int32>::min();
   int32 AddInternal(std::vector<int32>* ids);
 
   SequenceLexicon<int32> id_sets_;
@@ -195,5 +197,7 @@ template <class Container>
 int32 IdSetLexicon::Add(const Container& container) {
   return Add(std::begin(container), std::end(container));
 }
+
+}  // namespace s2
 
 #endif  // S2_ID_SET_LEXICON_H_

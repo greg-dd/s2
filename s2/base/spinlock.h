@@ -18,6 +18,7 @@
 
 #include <atomic>
 
+namespace s2 {
 
 class SpinLock {
  public:
@@ -56,5 +57,7 @@ class SpinLockHolder {
  private:
   SpinLock* lock_;
 };
+
+}  // namespace s2
 
 #endif  // S2_BASE_SPINLOCK_H_

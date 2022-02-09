@@ -20,10 +20,11 @@
 
 #include <vector>
 
-#include "s2/base/integral_types.h"
-#include "s2/s2builder_graph.h"
-#include "s2/s2error.h"
+#include "third_party/s2/base/integral_types.h"
+#include "third_party/s2/s2builder_graph.h"
+#include "third_party/s2/s2error.h"
 
+namespace s2 {
 namespace s2builderutil {
 
 // A polygon degeneracy is either a degenerate edge (an edge from a vertex to
@@ -82,5 +83,6 @@ std::vector<PolygonDegeneracy> FindPolygonDegeneracies(
 bool IsFullyDegenerate(const S2Builder::Graph& g);
 
 }  // namespace s2builderutil
+}  // namespace s2
 
 #endif  // S2_S2BUILDERUTIL_FIND_POLYGON_DEGENERACIES_H_

@@ -19,8 +19,10 @@
 #define S2_S2POINT_VECTOR_SHAPE_H_
 
 #include <vector>
-#include "s2/encoded_s2point_vector.h"
-#include "s2/s2shape.h"
+#include "third_party/s2/encoded_s2point_vector.h"
+#include "third_party/s2/s2shape.h"
+
+namespace s2 {
 
 // S2PointVectorShape is an S2Shape representing a set of S2Points. Each point
 // is reprsented as a degenerate edge with the same starting and ending
@@ -48,7 +50,8 @@ class S2PointVectorShape : public S2Shape {
   //
   // REQUIRES: "encoder" uses the default constructor, so that its buffer
   //           can be enlarged as necessary by calling Ensure(int).
-  void Encode(Encoder* encoder, s2coding::CodingHint hint) const override {
+  void Encode(Encoder* encoder,
+              s2coding::CodingHint hint = s2coding::CodingHint::COMPACT) const {
     s2coding::EncodeS2PointVector(points_, hint, encoder);
   }
 
@@ -90,8 +93,6 @@ class S2PointVectorShape : public S2Shape {
 // into a large contiguous buffer that contains other encoded data as well.
 class EncodedS2PointVectorShape : public S2Shape {
  public:
-  static constexpr TypeTag kTypeTag = S2PointVectorShape::kTypeTag;
-
   // Constructs an uninitialized object; requires Init() to be called.
   EncodedS2PointVectorShape() {}
 
@@ -99,16 +100,6 @@ class EncodedS2PointVectorShape : public S2Shape {
   //
   // REQUIRES: The Decoder data buffer must outlive this object.
   bool Init(Decoder* decoder) { return points_.Init(decoder); }
-
-  // Appends an encoded representation of the S2LaxPolygonShape to "encoder".
-  // The coding hint is ignored, and whatever method was originally used to
-  // encode the shape is preserved.
-  //
-  // REQUIRES: "encoder" uses the default constructor, so that its buffer
-  //           can be enlarged as necessary by calling Ensure(int).
-  void Encode(Encoder* encoder, s2coding::CodingHint) const override {
-    points_.Encode(encoder);
-  }
 
   int num_points() const { return static_cast<int>(points_.size()); }
   S2Point point(int i) const { return points_[i]; }
@@ -129,11 +120,11 @@ class EncodedS2PointVectorShape : public S2Shape {
   ChainPosition chain_position(int e) const final {
     return ChainPosition(e, 0);
   }
-  TypeTag type_tag() const override { return kTypeTag; }
 
  private:
   s2coding::EncodedS2PointVector points_;
 };
 
+}  // namespace s2
 
 #endif  // S2_S2POINT_VECTOR_SHAPE_H_

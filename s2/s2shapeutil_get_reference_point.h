@@ -18,8 +18,9 @@
 #ifndef S2_S2SHAPEUTIL_GET_REFERENCE_POINT_H_
 #define S2_S2SHAPEUTIL_GET_REFERENCE_POINT_H_
 
-#include "s2/s2shape_index.h"
+#include "third_party/s2/s2shape_index.h"
 
+namespace s2 {
 namespace s2shapeutil {
 
 // This is a helper function for implementing S2Shape::GetReferencePoint().
@@ -44,5 +45,6 @@ namespace s2shapeutil {
 S2Shape::ReferencePoint GetReferencePoint(const S2Shape& shape);
 
 }  // namespace s2shapeutil
+}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_GET_REFERENCE_POINT_H_

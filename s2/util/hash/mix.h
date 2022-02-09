@@ -21,9 +21,9 @@
 #define S2_UTIL_HASH_MIX_H_
 
 #include <cstddef>
-
 #include <limits>
 
+namespace s2 {
 
 // Fast mixing of hash values -- not strong enough for fingerprinting.
 // May change from time to time.
@@ -41,7 +41,7 @@
 // struct Xyzzy {
 //   int x;
 //   int y;
-//   string id;
+//   std::string id;
 // };
 //
 // #ifndef SWIG
@@ -49,7 +49,7 @@
 //   size_t operator()(const Xyzzy& c) const {
 //     HashMix mix(hash<int>()(c.x));
 //     mix.Mix(hash<int>()(c.y));
-//     mix.Mix(GoodFastHash<string>()(c.id));
+//     mix.Mix(GoodFastHash<std::string>()(c.id));
 //     return mix.get();
 //   }
 // }
@@ -71,9 +71,10 @@ class HashMix {
              (hash_ >> (std::numeric_limits<size_t>::digits - 19))) + val;
   }
   size_t get() const { return hash_; }
-
  private:
   size_t hash_;
 };
+
+}  // namespace s2
 
 #endif  // S2_UTIL_HASH_MIX_H_

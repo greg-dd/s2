@@ -19,10 +19,12 @@
 #define S2_S2EDGE_TESSELLATOR_H_
 
 #include <vector>
-#include "s2/r2.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2point.h"
-#include "s2/s2projections.h"
+#include "third_party/s2/r2.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2point.h"
+#include "third_party/s2/s2projections.h"
+
+namespace s2 {
 
 // Given an edge in some 2D projection (e.g., Mercator), S2EdgeTessellator
 // converts the edge into a chain of spherical geodesic edges such that the
@@ -41,7 +43,7 @@ class S2EdgeTessellator {
   // ------------------|------------------------|-----------------------
   // AppendProjected   | S2 geodesics           | Planar projected edges
   // AppendUnprojected | Planar projected edges | S2 geodesics
-  S2EdgeTessellator(const S2::Projection* projection, S1Angle tolerance);
+  S2EdgeTessellator(const s2::Projection* projection, S1Angle tolerance);
 
   // Converts the spherical geodesic edge AB to a chain of planar edges in the
   // given projection and appends the corresponding vertices to "vertices".
@@ -91,11 +93,13 @@ class S2EdgeTessellator {
                        const R2Point& pb, const S2Point& b,
                        std::vector<R2Point>* vertices) const;
 
-  const S2::Projection& proj_;
+  const s2::Projection& proj_;
 
   // The given tolerance scaled by a constant fraction so that it can be
   // compared against the result returned by EstimateMaxError().
   S1ChordAngle scaled_tolerance_;
 };
+
+}  // namespace s2
 
 #endif  // S2_S2EDGE_TESSELLATOR_H_

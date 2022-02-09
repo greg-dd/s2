@@ -15,11 +15,12 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2shapeutil_contains_brute_force.h"
+#include "third_party/s2/s2shapeutil_contains_brute_force.h"
 
 #include <utility>
-#include "s2/s2edge_crosser.h"
+#include "third_party/s2/s2edge_crosser.h"
 
+namespace s2 {
 namespace s2shapeutil {
 
 bool ContainsBruteForce(const S2Shape& shape, const S2Point& point) {
@@ -38,3 +39,4 @@ bool ContainsBruteForce(const S2Shape& shape, const S2Point& point) {
 }
 
 }  // namespace s2shapeutil
+}  // namespace s2

@@ -15,27 +15,27 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2region_union.h"
+#include "third_party/s2/s2region_union.h"
 
 #include <memory>
 #include <vector>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2latlng.h"
-#include "s2/s2latlng_rect.h"
-#include "s2/s2point_region.h"
-#include "s2/s2region_coverer.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2latlng_rect.h"
+#include "third_party/s2/s2point_region.h"
+#include "third_party/s2/s2region_coverer.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
 using std::unique_ptr;
 using std::vector;
 
-namespace {
+namespace s2 {
 
 TEST(S2RegionUnionTest, Basic) {
   S2RegionUnion ru_empty((vector<unique_ptr<S2Region>>()));
@@ -86,4 +86,4 @@ TEST(S2RegionUnionTest, Basic) {
   EXPECT_EQ(face0.id(), covering[0]);
 }
 
-}  // namespace
+}  // namespace s2

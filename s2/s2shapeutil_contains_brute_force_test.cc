@@ -15,17 +15,18 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2shapeutil_contains_brute_force.h"
+#include "third_party/s2/s2shapeutil_contains_brute_force.h"
 
-#include <gtest/gtest.h>
-#include "s2/s2lax_polygon_shape.h"
-#include "s2/s2lax_polyline_shape.h"
-#include "s2/s2text_format.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/s2lax_polygon_shape.h"
+#include "third_party/s2/s2lax_polyline_shape.h"
+#include "third_party/s2/s2text_format.h"
 
-using s2textformat::MakeLaxPolygon;
-using s2textformat::MakeLaxPolyline;
-using s2textformat::MakePoint;
+using s2::s2textformat::MakeLaxPolygon;
+using s2::s2textformat::MakeLaxPolyline;
+using s2::s2textformat::MakePoint;
 
+namespace s2 {
 namespace s2shapeutil {
 
 TEST(ContainsBruteForce, NoInterior) {
@@ -53,3 +54,4 @@ TEST(ContainsBruteForce, ConsistentWithS2Loop) {
 }
 
 }  // namespace s2shapeutil
+}  // namespace s2

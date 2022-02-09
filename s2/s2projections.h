@@ -22,11 +22,11 @@
 #ifndef S2_S2PROJECTIONS_H_
 #define S2_S2PROJECTIONS_H_
 
-#include "s2/r2.h"
-#include "s2/s2latlng.h"
-#include "s2/s2point.h"
+#include "third_party/s2/r2.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2point.h"
 
-namespace S2 {
+namespace s2 {
 
 // For the purposes of the S2 library, a projection is a function that maps
 // between S2Points and R2Points.  It can also define the coordinate wrapping
@@ -155,7 +155,7 @@ class MercatorProjection final : public Projection {
   double from_radians_;  // Multiplier to convert coordinates from radians.
 };
 
-}  // namespace S2
+}  // namespace s2
 
 
 #endif  // S2_S2PROJECTIONS_H_

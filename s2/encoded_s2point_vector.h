@@ -20,12 +20,17 @@
 
 #include <atomic>
 #include "absl/types/span.h"
-#include "s2/encoded_string_vector.h"
-#include "s2/encoded_uint_vector.h"
-#include "s2/s2point.h"
-#include "s2/s2shape.h"
+#include "third_party/s2/encoded_string_vector.h"
+#include "third_party/s2/encoded_uint_vector.h"
+#include "third_party/s2/s2point.h"
 
+namespace s2 {
 namespace s2coding {
+
+// Controls whether to optimize for speed or size when encoding points.  (Note
+// that encoding is always lossless, and that currently compact encodings are
+// only possible when points have been snapped to S2CellId centers.)
+enum class CodingHint : uint8 { FAST, COMPACT };
 
 // Encodes a vector of S2Points in a format that can later be decoded as an
 // EncodedS2PointVector.
@@ -63,10 +68,6 @@ class EncodedS2PointVector {
 
   // Decodes and returns the entire original vector.
   std::vector<S2Point> Decode() const;
-
-  // Copy the encoded data to the encoder. This allows for "reserialization" of
-  // encoded shapes created through lazy decoding.
-  void Encode(Encoder* encoder) const;
 
   // TODO(ericv): Consider adding a method that returns an adjacent pair of
   // points.  This would save some decoding overhead.
@@ -130,11 +131,12 @@ inline S2Point EncodedS2PointVector::operator[](int i) const {
       return DecodeCellIdsFormat(i);
 
     default:
-      S2_DLOG(FATAL) << "Unrecognized format";
+      S2_LOG(DFATAL) << "Unrecognized format";
       return S2Point();
   }
 }
 
 }  // namespace s2coding
+}  // namespace s2
 
 #endif  // S2_ENCODED_S2POINT_VECTOR_H_

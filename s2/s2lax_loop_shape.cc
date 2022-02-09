@@ -15,15 +15,20 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2lax_loop_shape.h"
+#include "third_party/s2/s2lax_loop_shape.h"
 
-#include "s2/s2loop.h"
-#include "s2/s2shapeutil_get_reference_point.h"
+#include <vector>
 
-using absl::Span;
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2shapeutil_get_reference_point.h"
+
+using std::vector;
+
+namespace s2 {
+
 using ReferencePoint = S2Shape::ReferencePoint;
 
-S2LaxLoopShape::S2LaxLoopShape(Span<const S2Point> vertices) {
+S2LaxLoopShape::S2LaxLoopShape(const vector<S2Point>& vertices) {
   Init(vertices);
 }
 
@@ -31,7 +36,7 @@ S2LaxLoopShape::S2LaxLoopShape(const S2Loop& loop) {
   Init(loop);
 }
 
-void S2LaxLoopShape::Init(Span<const S2Point> vertices) {
+void S2LaxLoopShape::Init(const vector<S2Point>& vertices) {
   num_vertices_ = vertices.size();
   vertices_.reset(new S2Point[num_vertices_]);
   std::copy(vertices.begin(), vertices.end(), vertices_.get());
@@ -68,13 +73,13 @@ S2Shape::ReferencePoint S2LaxLoopShape::GetReferencePoint() const {
   return s2shapeutil::GetReferencePoint(*this);
 }
 
-S2VertexIdLaxLoopShape::S2VertexIdLaxLoopShape(Span<const int32> vertex_ids,
-                                               const S2Point* vertex_array) {
+S2VertexIdLaxLoopShape::S2VertexIdLaxLoopShape(
+    const std::vector<int32>& vertex_ids, const S2Point* vertex_array) {
   Init(vertex_ids, vertex_array);
 }
 
-void S2VertexIdLaxLoopShape::Init(Span<const int32> vertex_ids,
-                                  const S2Point* vertex_array) {
+void S2VertexIdLaxLoopShape::Init(const std::vector<int32>& vertex_ids,
+                           const S2Point* vertex_array) {
   num_vertices_ = vertex_ids.size();
   vertex_ids_.reset(new int32[num_vertices_]);
   std::copy(vertex_ids.begin(), vertex_ids.end(), vertex_ids_.get());
@@ -100,3 +105,5 @@ S2Shape::ReferencePoint S2VertexIdLaxLoopShape::GetReferencePoint() const {
   if (num_vertices() == 0) return ReferencePoint::Contained(false);
   return s2shapeutil::GetReferencePoint(*this);
 }
+
+}  // namespace s2

@@ -15,15 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2builderutil_lax_polygon_layer.h"
+#include "third_party/s2/s2builderutil_lax_polygon_layer.h"
 
 #include <algorithm>
 #include <memory>
 #include "absl/memory/memory.h"
-#include "s2/s2builderutil_find_polygon_degeneracies.h"
-#include "s2/s2debug.h"
+#include "third_party/s2/s2builderutil_find_polygon_degeneracies.h"
+#include "third_party/s2/s2debug.h"
 
 using std::vector;
+
+namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using Graph = S2Builder::Graph;
@@ -72,8 +74,11 @@ GraphOptions LaxPolygonLayer::graph_options() const {
                         DuplicateEdges::KEEP, SiblingPairs::DISCARD);
   } else {
     // Keep at most one copy of each sibling pair and each isolated vertex.
+    // We need DuplicateEdges::MERGE because DegenerateEdges::DISCARD_EXCESS
+    // can still keep multiple copies (it only discards degenerate edges that
+    // are connected to non-degenerate edges).
     return GraphOptions(options_.edge_type(), DegenerateEdges::DISCARD_EXCESS,
-                        DuplicateEdges::KEEP, SiblingPairs::DISCARD_EXCESS);
+                        DuplicateEdges::MERGE, SiblingPairs::DISCARD_EXCESS);
   }
 }
 
@@ -205,5 +210,7 @@ void LaxPolygonLayer::Build(const Graph& g, S2Error* error) {
     error->Init(S2Error::UNIMPLEMENTED, "Undirected edges not supported yet");
   }
 }
+
+}  // namespace s2
 
 }  // namespace s2builderutil

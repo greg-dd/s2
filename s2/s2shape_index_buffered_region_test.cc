@@ -15,26 +15,27 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2shape_index_buffered_region.h"
+#include "third_party/s2/s2shape_index_buffered_region.h"
 
 #include <iostream>
 #include <memory>
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2cap.h"
-#include "s2/s2cell_union.h"
-#include "s2/s2polygon.h"
-#include "s2/s2region_coverer.h"
-#include "s2/s2shape_index.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell_union.h"
+#include "third_party/s2/s2polygon.h"
+#include "third_party/s2/s2region_coverer.h"
+#include "third_party/s2/s2shape_index.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2textformat::MakeIndexOrDie;
-using s2textformat::MakePointOrDie;
+using s2::s2textformat::MakeIndexOrDie;
+using s2::s2textformat::MakePointOrDie;
 using std::cout;
-using std::string;
+
+namespace s2 {
 
 TEST(S2ShapeIndexBufferedRegion, EmptyIndex) {
   // Test buffering an empty S2ShapeIndex.
@@ -107,7 +108,7 @@ TEST(S2ShapeIndexBufferedRegion, BufferedPointVsCap) {
 //
 // The "radius" parameter is an S1Angle for convenience.
 // TODO(ericv): Add Degrees, Radians, etc, methods to S1ChordAngle?
-void TestBufferIndex(const string& index_str, S1Angle radius_angle,
+void TestBufferIndex(const std::string& index_str, S1Angle radius_angle,
                      S2RegionCoverer* coverer) {
   auto index = MakeIndexOrDie(index_str);
   S1ChordAngle radius(radius_angle);
@@ -162,9 +163,4 @@ TEST(S2ShapeIndexBufferedRegion, PolygonWithHole) {
                   S1Angle::Degrees(2), &coverer);
 }
 
-TEST(S2ShapeIndexBufferedRegion, HugeBufferRadius) {
-  // Test buffering a set of points.
-  S2RegionCoverer coverer;
-  coverer.mutable_options()->set_max_cells(100);
-  TestBufferIndex("10:20 # #", S1Angle::Degrees(200), &coverer);
-}
+}  // namespace s2

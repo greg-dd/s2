@@ -18,8 +18,10 @@
 #ifndef S2_S2SHAPEUTIL_RANGE_ITERATOR_H_
 #define S2_S2SHAPEUTIL_RANGE_ITERATOR_H_
 
-#include "s2/s2cell_id.h"
-#include "s2/s2shape_index.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2shape_index.h"
+
+namespace s2 {
 
 class S2Loop;
 class S2Error;
@@ -61,5 +63,6 @@ class RangeIterator {
 };
 
 }  // namespace s2shapeutil
+}  // namespace s2
 
 #endif  // S2_S2SHAPEUTIL_RANGE_ITERATOR_H_

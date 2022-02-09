@@ -15,26 +15,27 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2builderutil_s2polyline_vector_layer.h"
+#include "third_party/s2/s2builderutil_s2polyline_vector_layer.h"
 
 #include <memory>
 #include <string>
-#include "s2/base/casts.h"
-#include "s2/base/integral_types.h"
-#include <gtest/gtest.h>
+#include "third_party/s2/base/casts.h"
+#include "third_party/s2/base/integral_types.h"
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_join.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2builderutil_snap_functions.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2builderutil_snap_functions.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2builderutil::IndexedS2PolylineVectorLayer;
-using s2builderutil::S2PolylineVectorLayer;
-using s2textformat::MakePolylineOrDie;
-using std::string;
+using s2::s2builderutil::IndexedS2PolylineVectorLayer;
+using s2::s2builderutil::S2PolylineVectorLayer;
+using s2::s2textformat::MakePolylineOrDie;
 using std::unique_ptr;
 using std::vector;
+
+namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 using PolylineType = S2PolylineVectorLayer::Options::PolylineType;
@@ -59,7 +60,7 @@ void TestS2PolylineVector(
   }
   S2Error error;
   ASSERT_TRUE(builder.Build(&error));
-  vector<string> output_strs;
+  vector<std::string> output_strs;
   for (const auto& polyline : output) {
     output_strs.push_back(s2textformat::ToString(*polyline));
   }
@@ -178,28 +179,6 @@ TEST(S2PolylineVectorLayer, InputEdgeStartsMultipleLoops) {
   TestS2PolylineVector(input, expected, layer_options, builder_options);
 }
 
-TEST(S2PolylineVectorLayer, ValidateFalse) {
-  // Verifies that calling set_validate(false) does not turn off s2 debugging.
-  S2PolylineVectorLayer::Options layer_options;
-  layer_options.set_validate(false);
-  EXPECT_EQ(layer_options.s2debug_override(), S2Debug::ALLOW);
-}
-
-TEST(S2PolylineVectorLayer, ValidateTrue) {
-  // Verifies that the validate() option works.
-  S2PolylineVectorLayer::Options layer_options;
-  layer_options.set_validate(true);
-  EXPECT_EQ(layer_options.s2debug_override(), S2Debug::DISABLE);
-  S2Builder builder{S2Builder::Options()};
-  vector<unique_ptr<S2Polyline>> output;
-  builder.StartLayer(
-      make_unique<S2PolylineVectorLayer>(&output, layer_options));
-  builder.AddEdge(S2Point(1, 0, 0), S2Point(-1, 0, 0));
-  S2Error error;
-  ASSERT_FALSE(builder.Build(&error));
-  EXPECT_EQ(error.code(), S2Error::ANTIPODAL_VERTICES);
-}
-
 TEST(S2PolylineVectorLayer, SimpleEdgeLabels) {
   S2Builder builder{S2Builder::Options()};
   vector<unique_ptr<S2Polyline>> output;
@@ -238,8 +217,8 @@ TEST(IndexedS2PolylineVectorLayer, AddsShapes) {
   S2Builder builder{S2Builder::Options()};
   MutableS2ShapeIndex index;
   builder.StartLayer(make_unique<IndexedS2PolylineVectorLayer>(&index));
-  string polyline0_str = "0:0, 1:1";
-  string polyline1_str = "2:2, 3:3";
+  std::string polyline0_str = "0:0, 1:1";
+  std::string polyline1_str = "2:2, 3:3";
   builder.AddPolyline(*s2textformat::MakePolylineOrDie(polyline0_str));
   builder.AddPolyline(*s2textformat::MakePolylineOrDie(polyline1_str));
   S2Error error;
@@ -254,3 +233,4 @@ TEST(IndexedS2PolylineVectorLayer, AddsShapes) {
 }
 
 }  // namespace
+}  // namespace s2

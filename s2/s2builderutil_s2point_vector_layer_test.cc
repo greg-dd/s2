@@ -15,27 +15,24 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2builderutil_s2point_vector_layer.h"
+#include "third_party/s2/s2builderutil_s2point_vector_layer.h"
 
 #include <memory>
 #include <string>
-
-#include <gtest/gtest.h>
-
+#include "third_party/s2/base/casts.h"
+#include "third_party/s2/base/integral_types.h"
+#include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "absl/strings/string_view.h"
-
-#include "s2/base/casts.h"
-#include "s2/base/integral_types.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2text_format.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2text_format.h"
 
 using absl::make_unique;
-using s2builderutil::IndexedS2PointVectorLayer;
-using s2builderutil::S2PointVectorLayer;
-using s2textformat::MakePointOrDie;
-using std::string;
+using s2::s2builderutil::IndexedS2PointVectorLayer;
+using s2::s2builderutil::S2PointVectorLayer;
+using s2::s2textformat::MakePointOrDie;
 using std::vector;
+
+namespace s2 {
 
 using EdgeType = S2Builder::EdgeType;
 
@@ -44,7 +41,7 @@ namespace {
 void VerifyS2PointVectorLayerResults(
     const S2PointVectorLayer::LabelSetIds& label_set_ids,
     const IdSetLexicon& label_set_lexicon, const vector<S2Point>& output,
-    absl::string_view str_expected_points,
+    const std::string& str_expected_points,
     const vector<vector<int32>>& expected_labels) {
   vector<S2Point> expected_points =
       s2textformat::ParsePoints(str_expected_points);
@@ -87,7 +84,7 @@ TEST(S2PointVectorLayer, MergeDuplicates) {
   ASSERT_TRUE(builder.Build(&error));
 
   vector<vector<int32>> expected_labels = {{1, 2}, {1}, {2}, {2}, {}};
-  string expected_points = "0:1, 0:2, 0:4, 0:5, 0:6";
+  std::string expected_points = "0:1, 0:2, 0:4, 0:5, 0:6";
 
   VerifyS2PointVectorLayerResults(label_set_ids, label_set_lexicon, output,
                                   expected_points, expected_labels);
@@ -117,7 +114,7 @@ TEST(S2PointVectorLayer, KeepDuplicates) {
   ASSERT_TRUE(builder.Build(&error));
 
   vector<vector<int32>> expected_labels = {{1}, {2}, {1}, {2}, {2}, {}, {}};
-  string expected_points = "0:1, 0:1, 0:2, 0:4, 0:5, 0:5, 0:6";
+  std::string expected_points = "0:1, 0:1, 0:2, 0:4, 0:5, 0:5, 0:6";
 
   VerifyS2PointVectorLayerResults(label_set_ids, label_set_lexicon, output,
                                   expected_points, expected_labels);
@@ -147,8 +144,8 @@ TEST(IndexedS2PointVectorLayer, AddsShapes) {
   S2Builder builder{S2Builder::Options()};
   MutableS2ShapeIndex index;
   builder.StartLayer(make_unique<IndexedS2PointVectorLayer>(&index));
-  string point0_str = "0:0";
-  string point1_str = "2:2";
+  std::string point0_str = "0:0";
+  std::string point1_str = "2:2";
   builder.AddPoint(s2textformat::MakePointOrDie(point0_str));
   builder.AddPoint(s2textformat::MakePointOrDie(point1_str));
   S2Error error;
@@ -170,3 +167,4 @@ TEST(IndexedS2PointVectorLayer, AddsEmptyShape) {
 }
 
 }  // namespace
+}  // namespace s2

@@ -21,9 +21,9 @@
 #ifndef S2_S2MEASURES_H_
 #define S2_S2MEASURES_H_
 
-#include "s2/s2point.h"
+#include "third_party/s2/s2point.h"
 
-namespace S2 {
+namespace s2 {
 
 // Return the interior angle at the vertex B in the triangle ABC.  The
 // return value is always in the range [0, Pi].  All points should be
@@ -73,6 +73,6 @@ double GirardArea(const S2Point& a, const S2Point& b, const S2Point& c);
 // and a negative value otherwise.
 double SignedArea(const S2Point& a, const S2Point& b, const S2Point& c);
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2MEASURES_H_

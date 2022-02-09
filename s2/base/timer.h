@@ -18,7 +18,9 @@
 
 #include <chrono>
 
-#include "s2/base/integral_types.h"
+#include "third_party/s2/base/integral_types.h"
+
+namespace s2 {
 
 class CycleTimer {
  public:
@@ -46,5 +48,7 @@ class CycleTimer {
 
   Clock::time_point start_;
 };
+
+}  // namespace s2
 
 #endif  // S2_BASE_TIMER_H_

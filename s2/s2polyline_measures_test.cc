@@ -15,19 +15,19 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2polyline_measures.h"
+#include "third_party/s2/s2polyline_measures.h"
 
 #include <cmath>
 #include <vector>
 
-#include <gtest/gtest.h>
-#include "s2/s1angle.h"
-#include "s2/s2testing.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s2testing.h"
 
 using std::fabs;
 using std::vector;
 
-namespace {
+namespace s2 {
 
 TEST(GetLengthAndCentroid, GreatCircles) {
   // Construct random great circles and divide them randomly into segments.
@@ -43,15 +43,15 @@ TEST(GetLengthAndCentroid, GreatCircles) {
     vector<S2Point> line;
     for (double theta = 0; theta < 2 * M_PI;
          theta += pow(S2Testing::rnd.RandDouble(), 10)) {
-      line.push_back(cos(theta) * x + sin(theta) * y);
+      line.push_back(std::cos(theta) * x + std::sin(theta) * y);
     }
     // Close the circle.
     line.push_back(line[0]);
-    S1Angle length = S2::GetLength(line);
+    S1Angle length = GetLength(line);
     EXPECT_LE(fabs(length.radians() - 2 * M_PI), 2e-14);
-    S2Point centroid = S2::GetCentroid(line);
+    S2Point centroid = GetCentroid(line);
     EXPECT_LE(centroid.Norm(), 2e-14);
   }
 }
 
-}  // namespace
+}  // namespace s2

@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2loop.h"
+#include "third_party/s2/s2loop.h"
 
 #include <algorithm>
 #include <cmath>
@@ -27,46 +27,43 @@
 #include <utility>
 #include <vector>
 
-#include <gtest/gtest.h>
+#include "third_party/s2/base/commandlineflags.h"
+#include "third_party/s2/base/logging.h"
+#include "gtest/gtest.h"
 
+#include "third_party/s2/util/coding/coder.h"
+#include "third_party/s2/r1interval.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1interval.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2cell_id.h"
+#include "third_party/s2/s2debug.h"
+#include "third_party/s2/s2edge_crossings.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2error.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2latlng_rect_bounder.h"
+#include "third_party/s2/s2measures.h"
+#include "third_party/s2/s2point_compression.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2predicates.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 #include "absl/container/fixed_array.h"
-#include "absl/flags/flag.h"
 #include "absl/memory/memory.h"
-#include "absl/strings/string_view.h"
-
-#include "s2/base/commandlineflags.h"
-#include "s2/base/logging.h"
-#include "s2/util/coding/coder.h"
-#include "s2/r1interval.h"
-#include "s2/s1angle.h"
-#include "s2/s1interval.h"
-#include "s2/s2cell.h"
-#include "s2/s2cell_id.h"
-#include "s2/s2debug.h"
-#include "s2/s2edge_crossings.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2error.h"
-#include "s2/s2latlng.h"
-#include "s2/s2latlng_rect_bounder.h"
-#include "s2/s2measures.h"
-#include "s2/s2point_compression.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2predicates.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
-#include "s2/util/math/matrix3x3.h"
-#include "s2/util/math/vector.h"
+#include "third_party/s2/util/math/matrix3x3.h"
+#include "third_party/s2/util/math/vector.h"
 
 using absl::make_unique;
-using ::s2textformat::MakeLoopOrDie;
 using std::fabs;
 using std::map;
 using std::max;
 using std::min;
 using std::set;
-using std::string;
 using std::unique_ptr;
 using std::vector;
+
+namespace s2 {
 
 class S2LoopTestBase : public testing::Test {
  protected:
@@ -105,8 +102,8 @@ class S2LoopTestBase : public testing::Test {
   unique_ptr<const S2Loop> snapped_loop_a_;
 
  private:
-  unique_ptr<const S2Loop> AddLoop(absl::string_view str) {
-    return AddLoop(MakeLoopOrDie(str));
+  unique_ptr<const S2Loop> AddLoop(const std::string& str) {
+    return AddLoop(s2textformat::MakeLoop(str));
   }
 
   unique_ptr<const S2Loop> AddLoop(std::unique_ptr<const S2Loop> loop) {
@@ -280,7 +277,7 @@ static void Rotate(unique_ptr<S2Loop>* ptr) {
   for (int i = 1; i <= loop->num_vertices(); ++i) {
     vertices.push_back(loop->vertex(i));
   }
-  *ptr = make_unique<S2Loop>(vertices);
+  ptr->reset(new S2Loop(vertices));
 }
 
 TEST_F(S2LoopTestBase, AreaConsistentWithCurvature) {
@@ -329,7 +326,7 @@ TEST_F(S2LoopTestBase, GetAreaConsistentWithSign) {
 }
 
 TEST_F(S2LoopTestBase, GetAreaAccuracy) {
-  // TODO(b/200091211): Test that GetArea() has an accuracy significantly better
+  // TODO(ericv): Test that GetArea() has an accuracy significantly better
   // than 1e-15 on loops whose area is small.
 }
 
@@ -361,16 +358,16 @@ TEST_F(S2LoopTestBase, GetAreaAndCentroid) {
     // Thus we want fabs(atan(tan(phi) / cos(dtheta/2)) - phi) <= kMaxDist.
     static const double kMaxDist = 1e-6;
     double height = 2 * S2Testing::rnd.RandDouble();
-    double phi = asin(1 - height);
-    double max_dtheta = 2 * acos(tan(fabs(phi)) / tan(fabs(phi) + kMaxDist));
+    double phi = std::asin(1 - height);
+    double max_dtheta = 2 * std::acos(std::tan(fabs(phi)) / std::tan(fabs(phi) + kMaxDist));
     max_dtheta = min(M_PI, max_dtheta);  // At least 3 vertices.
 
     vector<S2Point> vertices;
     for (double theta = 0; theta < 2 * M_PI;
          theta += S2Testing::rnd.RandDouble() * max_dtheta) {
-      vertices.push_back(cos(theta) * cos(phi) * x +
-                         sin(theta) * cos(phi) * y +
-                         sin(phi) * z);
+      vertices.push_back(std::cos(theta) * std::cos(phi) * x +
+                         std::sin(theta) * std::cos(phi) * y +
+                         std::sin(phi) * z);
     }
     S2Loop loop(vertices);
     double area = loop.GetArea();
@@ -426,8 +423,8 @@ TEST_F(S2LoopTestBase, GetCurvature) {
   vertices[kArmPoints] = S2Point(0, 0, 1);
   for (int i = 0; i < kArmPoints; ++i) {
     double angle = (2 * M_PI / 3) * i;
-    double x = cos(angle);
-    double y = sin(angle);
+    double x = std::cos(angle);
+    double y = std::sin(angle);
     double r1 = i * kArmRadius / kArmPoints;
     double r2 = (i + 1.5) * kArmRadius / kArmPoints;
     vertices[kArmPoints - i - 1] = S2Point(r1 * x, r1 * y, 1).Normalize();
@@ -578,17 +575,17 @@ TEST(S2Loop, ContainsMatchesCrossingSign) {
       << "\n       a0:" << a0;
 
   // The edge from a0 to the origin crosses one boundary.
-  EXPECT_EQ(-1, S2::CrossingSign(a0, S2::Origin(),
+  EXPECT_EQ(-1, CrossingSign(a0, Origin(),
                                          loop.vertex(0), loop.vertex(1)));
-  EXPECT_EQ(1, S2::CrossingSign(a0, S2::Origin(),
+  EXPECT_EQ(1, CrossingSign(a0, Origin(),
                                         loop.vertex(1), loop.vertex(2)));
-  EXPECT_EQ(-1, S2::CrossingSign(a0, S2::Origin(),
+  EXPECT_EQ(-1, CrossingSign(a0, Origin(),
                                          loop.vertex(2), loop.vertex(3)));
-  EXPECT_EQ(-1, S2::CrossingSign(a0, S2::Origin(),
+  EXPECT_EQ(-1, CrossingSign(a0, Origin(),
                                          loop.vertex(3), loop.vertex(4)));
 
   // Contains should return false for the origin, and true for a0.
-  EXPECT_FALSE(loop.Contains(S2::Origin()));
+  EXPECT_FALSE(loop.Contains(Origin()));
   EXPECT_TRUE(loop.Contains(a0));
 
   // Since a0 is inside the loop, it should be inside the bound.
@@ -875,37 +872,6 @@ static unique_ptr<S2Loop> MakeCellLoop(S2CellId begin, S2CellId end) {
   return make_unique<S2Loop>(vertices);
 }
 
-TEST(S2Loop, LoopRelations2) {
-  // Construct polygons consisting of a sequence of adjacent cell ids
-  // at some fixed level.  Comparing two polygons at the same level
-  // ensures that there are no T-vertices.
-  for (int iter = 0; iter < 1000; ++iter) {
-    S2Testing::Random& rnd = S2Testing::rnd;
-    S2CellId begin = S2CellId(rnd.Rand64() | 1);
-    if (!begin.is_valid()) continue;
-    begin = begin.parent(rnd.Uniform(S2CellId::kMaxLevel));
-    S2CellId a_begin = begin.advance(rnd.Skewed(6));
-    S2CellId a_end = a_begin.advance(rnd.Skewed(6) + 1);
-    S2CellId b_begin = begin.advance(rnd.Skewed(6));
-    S2CellId b_end = b_begin.advance(rnd.Skewed(6) + 1);
-    if (!a_end.is_valid() || !b_end.is_valid()) continue;
-
-    unique_ptr<S2Loop> a(MakeCellLoop(a_begin, a_end));
-    unique_ptr<S2Loop> b(MakeCellLoop(b_begin, b_end));
-    if (a.get() && b.get()) {
-      bool contained = (a_begin <= b_begin && b_end <= a_end);
-      bool intersects = (a_begin < b_end && b_begin < a_end);
-      S2_VLOG(1) << "Checking " << a->num_vertices() << " vs. "
-              << b->num_vertices() << ", contained = " << contained
-              << ", intersects = " << intersects;
-      EXPECT_EQ(a->Contains(b.get()), contained);
-      EXPECT_EQ(a->Intersects(b.get()), intersects);
-    } else {
-      S2_VLOG(1) << "MakeCellLoop failed to create a loop.";
-    }
-  }
-}
-
 TEST(S2Loop, BoundsForLoopContainment) {
   // To reliably test whether one loop contains another, the bounds of the
   // outer loop are expanded slightly.  This test constructs examples where
@@ -918,8 +884,8 @@ TEST(S2Loop, BoundsForLoopContainment) {
     // below B (i.e., ABC is CCW).
     S2Point b = (S2Testing::RandomPoint() + S2Point(0, 0, 1)).Normalize();
     S2Point v = b.CrossProd(S2Point(0, 0, 1)).Normalize();
-    S2Point a = S2::Interpolate(rnd->RandDouble(), -v, b);
-    S2Point c = S2::Interpolate(rnd->RandDouble(), b, v);
+    S2Point a = Interpolate(rnd->RandDouble(), -v, b);
+    S2Point c = Interpolate(rnd->RandDouble(), b, v);
     if (s2pred::Sign(a, b, c) < 0) {
       --iter; continue;
     }
@@ -940,10 +906,59 @@ TEST(S2Loop, BoundsForLoopContainment) {
   }
 }
 
+void DebugDumpCrossings(const S2Loop& loop) {
+  // This function is useful for debugging.
+
+  S2_LOG(INFO) << "Ortho(v1): " << Ortho(loop.vertex(1));
+  printf("Contains(kOrigin): %d\n", loop.Contains(Origin()));
+  for (int i = 1; i <= loop.num_vertices(); ++i) {
+    S2Point a = Ortho(loop.vertex(i));
+    S2Point b = loop.vertex(i-1);
+    S2Point c = loop.vertex(i+1);
+    S2Point o = loop.vertex(i);
+    printf("Vertex %d: [%.17g, %.17g, %.17g], "
+           "%d%dR=%d, %d%d%d=%d, R%d%d=%d, inside: %d\n",
+           i, loop.vertex(i).x(), loop.vertex(i).y(), loop.vertex(i).z(),
+           i - 1, i, s2pred::Sign(b, o, a),
+           i + 1, i, i - 1, s2pred::Sign(c, o, b),
+           i, i + 1, s2pred::Sign(a, o, c),
+           s2pred::OrderedCCW(a, b, c, o));
+  }
+  for (int i = 0; i < loop.num_vertices() + 2; ++i) {
+    S2Point orig = Origin();
+    S2Point dest;
+    if (i < loop.num_vertices()) {
+      dest = loop.vertex(i);
+      printf("Origin->%d crosses:", i);
+    } else {
+      dest = S2Point(0, 0, 1);
+      if (i == loop.num_vertices() + 1) orig = loop.vertex(1);
+      printf("Case %d:", i);
+    }
+    for (int j = 0; j < loop.num_vertices(); ++j) {
+      printf(" %d", EdgeOrVertexCrossing(
+                 orig, dest, loop.vertex(j), loop.vertex(j+1)));
+    }
+    printf("\n");
+  }
+  for (int i = 0; i <= 2; i += 2) {
+    printf("Origin->v1 crossing v%d->v1: ", i);
+    S2Point a = Ortho(loop.vertex(1));
+    S2Point b = loop.vertex(i);
+    S2Point c = Origin();
+    S2Point o = loop.vertex(1);
+    printf("%d1R=%d, M1%d=%d, R1M=%d, crosses: %d\n",
+           i, s2pred::Sign(b, o, a),
+           i, s2pred::Sign(c, o, b),
+           s2pred::Sign(a, o, c),
+           EdgeOrVertexCrossing(c, o, b, a));
+  }
+}
+
 static void TestNear(const char* a_str, const char* b_str,
                      S1Angle max_error, bool expected) {
-  unique_ptr<S2Loop> a(MakeLoopOrDie(a_str));
-  unique_ptr<S2Loop> b(MakeLoopOrDie(b_str));
+  unique_ptr<S2Loop> a(s2textformat::MakeLoop(a_str));
+  unique_ptr<S2Loop> b(s2textformat::MakeLoop(b_str));
   EXPECT_EQ(a->BoundaryNear(*b, max_error), expected);
   EXPECT_EQ(b->BoundaryNear(*a, max_error), expected);
 }
@@ -983,7 +998,7 @@ static void CheckIdentical(const S2Loop& loop, const S2Loop& loop2) {
   EXPECT_EQ(loop.is_full(), loop2.is_full());
   EXPECT_EQ(loop.depth(), loop2.depth());
   EXPECT_EQ(loop.IsNormalized(), loop2.IsNormalized());
-  EXPECT_EQ(loop.Contains(S2::Origin()), loop2.Contains(S2::Origin()));
+  EXPECT_EQ(loop.Contains(Origin()), loop2.Contains(Origin()));
   EXPECT_EQ(loop.GetRectBound(), loop2.GetRectBound());
 }
 
@@ -998,7 +1013,7 @@ static void TestEncodeDecode(const S2Loop& loop) {
 }
 
 TEST(S2Loop, EncodeDecode) {
-  unique_ptr<S2Loop> l(MakeLoopOrDie("30:20, 40:20, 39:43, 33:35"));
+  unique_ptr<S2Loop> l(s2textformat::MakeLoop("30:20, 40:20, 39:43, 33:35"));
   l->set_depth(3);
   TestEncodeDecode(*l);
 
@@ -1049,7 +1064,7 @@ TEST(S2Loop, EmptyFullLossyConversions) {
 }
 
 TEST(S2Loop, EncodeDecodeWithinScope) {
-  unique_ptr<S2Loop> l(MakeLoopOrDie("30:20, 40:20, 39:43, 33:35"));
+  unique_ptr<S2Loop> l(s2textformat::MakeLoop("30:20, 40:20, 39:43, 33:35"));
   l->set_depth(3);
   Encoder encoder;
   l->Encode(&encoder);
@@ -1077,7 +1092,7 @@ TEST(S2Loop, EncodeDecodeWithinScope) {
 
   // Initialize loop2 using Decode with a decoder on different data.
   // Check that the original memory is not deallocated or overwritten.
-  unique_ptr<S2Loop> l2(MakeLoopOrDie("30:40, 40:75, 39:43, 80:35"));
+  unique_ptr<S2Loop> l2(s2textformat::MakeLoop("30:40, 40:75, 39:43, 80:35"));
   l2->set_depth(2);
   Encoder encoder2;
   l2->Encode(&encoder2);
@@ -1138,21 +1153,21 @@ TEST(S2Loop, S2CellConstructorAndContains) {
   EXPECT_FALSE(loop_copy.GetRectBound().Contains(cell.GetRectBound()));
 }
 
-// Construct a loop using MakeLoopOrDie(str) and check that it
+// Construct a loop using s2textformat::MakeLoop(str) and check that it
 // produces a validation error that includes "snippet".
-static void CheckLoopIsInvalid(const string& str, const string& snippet) {
-  unique_ptr<S2Loop> loop(MakeLoopOrDie(str, S2Debug::DISABLE));
+static void CheckLoopIsInvalid(const std::string& str, const std::string& snippet) {
+  unique_ptr<S2Loop> loop(s2textformat::MakeLoop(str, S2Debug::DISABLE));
   S2Error error;
   EXPECT_TRUE(loop->FindValidationError(&error));
-  EXPECT_NE(string::npos, error.text().find(snippet));
+  EXPECT_NE(std::string::npos, error.text().find(snippet));
 }
 
 static void CheckLoopIsInvalid(const vector<S2Point>& points,
-                               const string& snippet) {
+                               const std::string& snippet) {
   S2Loop l(points, S2Debug::DISABLE);
   S2Error error;
   EXPECT_TRUE(l.FindValidationError(&error));
-  EXPECT_NE(string::npos, error.text().find(snippet));
+  EXPECT_NE(std::string::npos, error.text().find(snippet));
 }
 
 TEST(S2Loop, IsValidDetectsInvalidLoops) {
@@ -1220,7 +1235,7 @@ TEST_F(S2LoopTestBase, DistanceMethods) {
   // latitude are curved on the sphere, it is not straightforward to project
   // points onto any edge except along the equator.  (The equator is the only
   // line of latitude that is also a geodesic.)
-  unique_ptr<S2Loop> square(MakeLoopOrDie("-1:-1, -1:1, 1:1, 1:-1"));
+  unique_ptr<S2Loop> square(s2textformat::MakeLoop("-1:-1, -1:1, 1:1, 1:-1"));
   EXPECT_TRUE(square->IsNormalized());
 
   // A vertex.
@@ -1283,7 +1298,7 @@ TEST_F(S2LoopTestBase, MakeRegularLoop) {
 }
 
 TEST(S2LoopShape, Basic) {
-  unique_ptr<S2Loop> loop = MakeLoopOrDie("0:0, 0:1, 1:0");
+  unique_ptr<S2Loop> loop = s2textformat::MakeLoop("0:0, 0:1, 1:0");
   S2Loop::Shape shape(loop.get());
   EXPECT_EQ(loop.get(), shape.loop());
   EXPECT_EQ(3, shape.num_edges());
@@ -1325,3 +1340,4 @@ TEST(S2LoopOwningShape, Ownership) {
   S2Loop::OwningShape shape(std::move(loop));
 }
 
+}  // namespace s2

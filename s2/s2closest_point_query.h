@@ -22,12 +22,14 @@
 
 #include <vector>
 
-#include "s2/base/logging.h"
-#include "s2/s1angle.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s2closest_point_query_base.h"
-#include "s2/s2min_distance_targets.h"
-#include "s2/s2point_index.h"
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s2closest_point_query_base.h"
+#include "third_party/s2/s2min_distance_targets.h"
+#include "third_party/s2/s2point_index.h"
+
+namespace s2 {
 
 // Options that control the set of points returned.  Note that by default
 // *all* points are returned, so you will always want to set either the
@@ -461,5 +463,7 @@ bool S2ClosestPointQuery<Data>::IsConservativeDistanceLessOrEqual(
   tmp_options.set_max_error(S1ChordAngle::Straight());
   return !base_.FindClosestPoint(target, tmp_options).is_empty();
 }
+
+}  // namespace s2
 
 #endif  // S2_S2CLOSEST_POINT_QUERY_H_

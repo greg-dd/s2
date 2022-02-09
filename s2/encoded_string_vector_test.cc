@@ -15,19 +15,19 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/encoded_string_vector.h"
+#include "third_party/s2/encoded_string_vector.h"
 
 #include <vector>
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include "absl/strings/string_view.h"
 
 using absl::string_view;
-using std::string;
 using std::vector;
 
+namespace s2 {
 namespace s2coding {
 
-void TestEncodedStringVector(const vector<string>& input,
+void TestEncodedStringVector(const vector<std::string>& input,
                              size_t expected_bytes) {
   Encoder encoder;
   StringVectorEncoder::Encode(input, &encoder);
@@ -63,8 +63,9 @@ TEST(EncodedStringVectorTest, TwoStrings) {
 }
 
 TEST(EncodedStringVectorTest, TwoBigStrings) {
-  TestEncodedStringVector({string(10000, 'x'), string(100000, 'y')},
+  TestEncodedStringVector({std::string(10000, 'x'), std::string(100000, 'y')},
                           110007);
 }
 
 }  // namespace s2coding
+}  // namespace s2

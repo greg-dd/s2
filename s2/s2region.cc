@@ -15,12 +15,16 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2region.h"
+#include "third_party/s2/s2region.h"
 
 #include <vector>
 
-#include "s2/s2cap.h"
+#include "third_party/s2/s2cap.h"
+
+namespace s2 {
 
 void S2Region::GetCellUnionBound(std::vector<S2CellId> *cell_ids) const {
   return GetCapBound().GetCellUnionBound(cell_ids);
 }
+
+}  // namespace s2

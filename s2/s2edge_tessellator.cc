@@ -15,19 +15,22 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2edge_tessellator.h"
+#include "third_party/s2/s2edge_tessellator.h"
 
 #include <cmath>
-#include "s2/s2edge_distances.h"
-#include "s2/s2latlng.h"
-#include "s2/s2pointutil.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2pointutil.h"
 
 using std::vector;
+
+namespace s2 {
+
 // Tessellation is implemented by subdividing the edge until the estimated
 // maximum error is below the given tolerance.  Estimating error is a hard
 // problem, especially when the only methods available are point evaluation of
 // the projection and its inverse.  (These are the only methods that
-// S2::Projection provides, which makes it easier and less error-prone to
+// s2::Projection provides, which makes it easier and less error-prone to
 // implement new projections.)
 //
 // One technique that significantly increases robustness is to treat the
@@ -179,7 +182,7 @@ S1Angle S2EdgeTessellator::kMinTolerance() {
   return S1Angle::Radians(1e-13);
 }
 
-S2EdgeTessellator::S2EdgeTessellator(const S2::Projection* projection,
+S2EdgeTessellator::S2EdgeTessellator(const s2::Projection* projection,
                                      S1Angle tolerance)
     : proj_(*projection) {
   if (tolerance < kMinTolerance()) S2_LOG(DFATAL) << "Tolerance too small";
@@ -201,8 +204,8 @@ S1ChordAngle S2EdgeTessellator::EstimateMaxError(
 
   constexpr double t1 = kInterpolationFraction;
   constexpr double t2 = 1 - kInterpolationFraction;
-  S2Point mid1 = S2::Interpolate(a, b, t1);
-  S2Point mid2 = S2::Interpolate(a, b, t2);
+  S2Point mid1 = s2::Interpolate(t1, a, b);
+  S2Point mid2 = s2::Interpolate(t2, a, b);
   S2Point pmid1 = proj_.Unproject(proj_.Interpolate(t1, pa, pb));
   S2Point pmid2 = proj_.Unproject(proj_.Interpolate(t2, pa, pb));
   return std::max(S1ChordAngle(mid1, pmid1), S1ChordAngle(mid2, pmid2));
@@ -252,7 +255,7 @@ void S2EdgeTessellator::AppendUnprojected(
     // transformed into "0:-175, 0:-181" while the second is transformed into
     // "0:179, 0:183".  The two coordinate pairs for the middle vertex
     // ("0:-181" and "0:179") may not yield exactly the same S2Point.
-    S2_DCHECK(S2::ApproxEquals(vertices->back(), a))
+    S2_DCHECK(s2::ApproxEquals(vertices->back(), a))
         << "Appended edges must form a chain";
   }
   AppendUnprojected(pa, a, pb, b, vertices);
@@ -274,3 +277,5 @@ void S2EdgeTessellator::AppendUnprojected(
     AppendUnprojected(pmid, mid, pb, b, vertices);
   }
 }
+
+}  // namespace s2

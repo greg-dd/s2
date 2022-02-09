@@ -15,13 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2shapeutil_count_edges.h"
+#include "third_party/s2/s2shapeutil_count_edges.h"
 
-#include <gtest/gtest.h>
-#include "s2/mutable_s2shape_index.h"
-#include "s2/s2text_format.h"
+#include "gtest/gtest.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/s2text_format.h"
 
-namespace {
+namespace s2 {
 
 TEST(CountEdgesUpTo, StopsEarly) {
   auto index = s2textformat::MakeIndex(
@@ -40,4 +40,4 @@ TEST(CountEdgesUpTo, StopsEarly) {
   EXPECT_EQ(s2shapeutil::CountEdgesUpTo(*index, 8), 9);
 }
 
-}  // namespace
+}  // namespace s2

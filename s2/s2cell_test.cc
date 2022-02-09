@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2cell.h"
+#include "third_party/s2/s2cell.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -25,43 +25,42 @@
 #include <utility>
 #include <vector>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
+#include "third_party/s2/base/logging.h"
+#include "third_party/s2/mutable_s2shape_index.h"
+#include "third_party/s2/r2.h"
+#include "third_party/s2/r2rect.h"
+#include "third_party/s2/s1angle.h"
+#include "third_party/s2/s1chord_angle.h"
+#include "third_party/s2/s1interval.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2crossing_edge_query.h"
+#include "third_party/s2/s2edge_crossings.h"
+#include "third_party/s2/s2edge_distances.h"
+#include "third_party/s2/s2latlng.h"
+#include "third_party/s2/s2latlng_rect.h"
+#include "third_party/s2/s2latlng_rect_bounder.h"
+#include "third_party/s2/s2loop.h"
+#include "third_party/s2/s2metrics.h"
+#include "third_party/s2/s2pointutil.h"
+#include "third_party/s2/s2testing.h"
+#include "third_party/s2/s2text_format.h"
 #include "absl/base/macros.h"
-#include "absl/flags/flag.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 
-#include "s2/base/logging.h"
-#include "s2/base/log_severity.h"
-#include "s2/mutable_s2shape_index.h"
-#include "s2/r2.h"
-#include "s2/r2rect.h"
-#include "s2/s1angle.h"
-#include "s2/s1chord_angle.h"
-#include "s2/s1interval.h"
-#include "s2/s2cap.h"
-#include "s2/s2crossing_edge_query.h"
-#include "s2/s2edge_crossings.h"
-#include "s2/s2edge_distances.h"
-#include "s2/s2latlng.h"
-#include "s2/s2latlng_rect.h"
-#include "s2/s2latlng_rect_bounder.h"
-#include "s2/s2loop.h"
-#include "s2/s2metrics.h"
-#include "s2/s2pointutil.h"
-#include "s2/s2testing.h"
-#include "s2/s2text_format.h"
-
 using absl::StrCat;
-using S2::internal::kSwapMask;
-using s2textformat::MakePointOrDie;
+using s2::internal::kSwapMask;
+using s2::s2textformat::MakePointOrDie;
 using std::fabs;
 using std::map;
 using std::max;
 using std::min;
 using std::pow;
 using std::vector;
+
+namespace s2 {
 
 TEST(S2Cell, TestFaces) {
   map<S2Point, int> edge_counts;
@@ -179,7 +178,7 @@ static void TestSubdivide(const S2Cell& cell) {
 
     // Check that the child geometry is consistent with its cell ID.
     EXPECT_EQ(child_id, children[i].id());
-    EXPECT_TRUE(S2::ApproxEquals(children[i].GetCenter(), child_id.ToPoint()));
+    EXPECT_TRUE(ApproxEquals(children[i].GetCenter(), child_id.ToPoint()));
     S2Cell direct(child_id);
     EXPECT_EQ(direct.face(), children[i].face());
     EXPECT_EQ(direct.level(), children[i].level());
@@ -288,9 +287,9 @@ template <int dim>
 static void CheckMinMaxAvg(
     const char* label, int level, double count, double abs_error,
     double min_value, double max_value, double avg_value,
-    const S2::Metric<dim>& min_metric,
-    const S2::Metric<dim>& max_metric,
-    const S2::Metric<dim>& avg_metric) {
+    const Metric<dim>& min_metric,
+    const Metric<dim>& max_metric,
+    const Metric<dim>& avg_metric) {
 
   // All metrics are minimums, maximums, or averages of differential
   // quantities, and therefore will not be exact for cells at any finite
@@ -325,81 +324,6 @@ static void CheckMinMaxAvg(
   EXPECT_LE(max_metric.GetValue(level), max_value + tolerance);
   EXPECT_GE(max_metric.GetValue(level), max_value - abs_error);
   EXPECT_NEAR(avg_metric.GetValue(level), avg_value, 10 * tolerance);
-}
-
-TEST(S2Cell, TestSubdivide) {
-  // Only test a sample of faces to reduce the runtime.
-  TestSubdivide(S2Cell::FromFace(0));
-  TestSubdivide(S2Cell::FromFace(3));
-  TestSubdivide(S2Cell::FromFace(5));
-
-  // This table is useful in evaluating the quality of the various S2
-  // projections.
-  //
-  // The maximum edge *ratio* is the ratio of the longest edge of any cell to
-  // the shortest edge of any cell at the same level (and similarly for the
-  // maximum diagonal ratio).
-  //
-  // The maximum edge *aspect* is the maximum ratio of the longest edge of a
-  // cell to the shortest edge of that same cell (and similarly for the
-  // maximum diagonal aspect).
-  printf(
-      "Ratio:  (Max value for any cell) / (Min value for any cell)\n"
-      "Aspect: (Max value / min value) for any cell\n"
-      "                   Edge          Diag       Approx Area/    Avg Area/\n"
-      "         Area     Length        Length       Exact Area    Exact Area\n"
-      "Level   Ratio  Ratio Aspect  Ratio Aspect    Min    Max    Min    Max\n"
-      "--------------------------------------------------------------------\n");
-  for (int i = 0; i <= S2CellId::kMaxLevel; ++i) {
-    LevelStats* s = &level_stats[i];
-    if (s->count > 0) {
-      s->avg_area /= s->count;
-      s->avg_width /= s->count;
-      s->avg_edge /= s->count;
-      s->avg_diag /= s->count;
-      s->avg_angle_span /= s->count;
-    }
-    printf("%5d  %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n",
-           i, s->max_area / s->min_area,
-           s->max_edge / s->min_edge, s->max_edge_aspect,
-           s->max_diag / s->min_diag, s->max_diag_aspect,
-           s->min_approx_ratio, s->max_approx_ratio,
-           S2Cell::AverageArea(i) / s->max_area,
-           S2Cell::AverageArea(i) / s->min_area);
-  }
-
-  // Now check the validity of the S2 length and area metrics.
-  for (int i = 0; i <= S2CellId::kMaxLevel; ++i) {
-    const LevelStats* s = &level_stats[i];
-    if (s->count == 0) continue;
-
-    printf("Level %2d - metric value (error/actual : error/tolerance)\n", i);
-
-    // The various length calculations are only accurate to 1e-15 or so,
-    // so we need to allow for this amount of discrepancy with the theoretical
-    // minimums and maximums.  The area calculation is accurate to about 1e-15
-    // times the cell width.
-    CheckMinMaxAvg("area", i, s->count, 1e-15 * s->min_width,
-                   s->min_area, s->max_area, s->avg_area,
-                   S2::kMinArea, S2::kMaxArea, S2::kAvgArea);
-    CheckMinMaxAvg("width", i, s->count, 1e-15,
-                   s->min_width, s->max_width, s->avg_width,
-                   S2::kMinWidth, S2::kMaxWidth, S2::kAvgWidth);
-    CheckMinMaxAvg("edge", i, s->count, 1e-15,
-                   s->min_edge, s->max_edge, s->avg_edge,
-                   S2::kMinEdge, S2::kMaxEdge, S2::kAvgEdge);
-    CheckMinMaxAvg("diagonal", i, s->count, 1e-15,
-                   s->min_diag, s->max_diag, s->avg_diag,
-                   S2::kMinDiag, S2::kMaxDiag, S2::kAvgDiag);
-    CheckMinMaxAvg("angle span", i, s->count, 1e-15,
-                   s->min_angle_span, s->max_angle_span, s->avg_angle_span,
-                   S2::kMinAngleSpan, S2::kMaxAngleSpan, S2::kAvgAngleSpan);
-
-    // The aspect ratio calculations are ratios of lengths and are therefore
-    // less accurate at higher subdivision levels.
-    EXPECT_LE(s->max_edge_aspect, S2::kMaxEdgeAspect + 1e-15 * (1 << i));
-    EXPECT_LE(s->max_diag_aspect, S2::kMaxDiagAspect + 1e-15 * (1 << i));
-  }
 }
 
 TEST(S2Cell, CellVsLoopRectBound) {
@@ -440,7 +364,7 @@ TEST(S2Cell, RectBoundIsLargeEnough) {
     S2Point v1 = cell.GetVertex(i);
     S2Point v2 = S2Testing::SamplePoint(
         S2Cap(cell.GetVertex(i + 1), S1Angle::Radians(1e-15)));
-    S2Point p = S2::Interpolate(S2Testing::rnd.RandDouble(), v1, v2);
+    S2Point p = Interpolate(S2Testing::rnd.RandDouble(), v1, v2);
     if (S2Loop(cell).Contains(p)) {
       EXPECT_TRUE(cell.GetRectBound().Contains(S2LatLng(p)));
       ++iter;
@@ -458,7 +382,7 @@ TEST(S2Cell, ConsistentWithS2CellIdFromPoint) {
     S2Point v1 = cell.GetVertex(i);
     S2Point v2 = S2Testing::SamplePoint(
         S2Cap(cell.GetVertex(i + 1), S1Angle::Radians(1e-15)));
-    S2Point p = S2::Interpolate(S2Testing::rnd.RandDouble(), v1, v2);
+    S2Point p = Interpolate(S2Testing::rnd.RandDouble(), v1, v2);
     EXPECT_TRUE(S2Cell(S2CellId(p)).Contains(p));
   }
 }
@@ -486,7 +410,7 @@ static S1ChordAngle GetDistanceToPointBruteForce(const S2Cell& cell,
                                                  const S2Point& target) {
   S1ChordAngle min_distance = S1ChordAngle::Infinity();
   for (int i = 0; i < 4; ++i) {
-    S2::UpdateMinDistance(target, cell.GetVertex(i),
+    UpdateMinDistance(target, cell.GetVertex(i),
                                   cell.GetVertex(i + 1), &min_distance);
   }
   return min_distance;
@@ -499,14 +423,14 @@ static S1ChordAngle GetMaxDistanceToPointBruteForce(const S2Cell& cell,
   }
   S1ChordAngle max_distance = S1ChordAngle::Negative();
   for (int i = 0; i < 4; ++i) {
-    S2::UpdateMaxDistance(target, cell.GetVertex(i),
+    UpdateMaxDistance(target, cell.GetVertex(i),
                                   cell.GetVertex(i + 1), &max_distance);
   }
   return max_distance;
 }
 
 TEST(S2Cell, GetDistanceToPoint) {
-  S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed));
+  S2Testing::rnd.Reset(kS2RandomSeed);
   for (int iter = 0; iter < 1000; ++iter) {
     SCOPED_TRACE(StrCat("Iteration ", iter));
     S2Cell cell(S2Testing::GetRandomCellId());
@@ -573,12 +497,12 @@ static S1ChordAngle GetDistanceToEdgeBruteForce(
     S2Point v0 = cell.GetVertex(i);
     S2Point v1 = cell.GetVertex(i + 1);
     // If the edge crosses through the cell, max distance is 0.
-    if (S2::CrossingSign(a, b, v0, v1) >= 0) {
+    if (CrossingSign(a, b, v0, v1) >= 0) {
       return S1ChordAngle::Zero();
     }
-    S2::UpdateMinDistance(a, v0, v1, &min_dist);
-    S2::UpdateMinDistance(b, v0, v1, &min_dist);
-    S2::UpdateMinDistance(v0, a, b, &min_dist);
+    UpdateMinDistance(a, v0, v1, &min_dist);
+    UpdateMinDistance(b, v0, v1, &min_dist);
+    UpdateMinDistance(v0, a, b, &min_dist);
   }
   return min_dist;
 }
@@ -595,18 +519,18 @@ static S1ChordAngle GetMaxDistanceToEdgeBruteForce(
     S2Point v0 = cell.GetVertex(i);
     S2Point v1 = cell.GetVertex(i + 1);
     // If the antipodal edge crosses through the cell, max distance is Pi.
-    if (S2::CrossingSign(-a, -b, v0, v1) >= 0) {
+    if (CrossingSign(-a, -b, v0, v1) >= 0) {
       return S1ChordAngle::Straight();
     }
-    S2::UpdateMaxDistance(a, v0, v1, &max_dist);
-    S2::UpdateMaxDistance(b, v0, v1, &max_dist);
-    S2::UpdateMaxDistance(v0, a, b, &max_dist);
+    UpdateMaxDistance(a, v0, v1, &max_dist);
+    UpdateMaxDistance(b, v0, v1, &max_dist);
+    UpdateMaxDistance(v0, a, b, &max_dist);
   }
   return max_dist;
 }
 
 TEST(S2Cell, GetDistanceToEdge) {
-  S2Testing::rnd.Reset(absl::GetFlag(FLAGS_s2_random_seed));
+  S2Testing::rnd.Reset(kS2RandomSeed);
   for (int iter = 0; iter < 1000; ++iter) {
     SCOPED_TRACE(StrCat("Iteration ", iter));
     S2Cell cell(S2Testing::GetRandomCellId());
@@ -639,8 +563,8 @@ TEST(S2Cell, GetMaxDistanceToEdge) {
   // Test an edge for which its antipode crosses the cell. Validates both the
   // standard and brute force implementations for this case.
   S2Cell cell = S2Cell::FromFacePosLevel(0, 0, 20);
-  S2Point a = -S2::Interpolate(2.0, cell.GetCenter(), cell.GetVertex(0));
-  S2Point b = -S2::Interpolate(2.0, cell.GetCenter(), cell.GetVertex(2));
+  S2Point a = -Interpolate(2.0, cell.GetCenter(), cell.GetVertex(0));
+  S2Point b = -Interpolate(2.0, cell.GetCenter(), cell.GetVertex(2));
 
   S1ChordAngle actual = cell.GetMaxDistance(a, b);
   S1ChordAngle expected = GetMaxDistanceToEdgeBruteForce(cell, a, b);
@@ -688,3 +612,4 @@ TEST(S2Cell, EncodeDecode) {
   EXPECT_EQ(orig_cell.GetBoundUV(), decoded_cell.GetBoundUV());
 }
 
+}  // namespace s2

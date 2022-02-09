@@ -18,9 +18,11 @@
 #ifndef S2_S2DISTANCE_TARGET_H_
 #define S2_S2DISTANCE_TARGET_H_
 
-#include "s2/s2cap.h"
-#include "s2/s2cell.h"
-#include "s2/s2shape_index.h"
+#include "third_party/s2/s2cap.h"
+#include "third_party/s2/s2cell.h"
+#include "third_party/s2/s2shape_index.h"
+
+namespace s2 {
 
 // S2DistanceTarget represents a geometric object to which distances are
 // measured.  For example, there are subtypes for measuring distances to a
@@ -132,8 +134,6 @@ class S2DistanceTarget {
   // NOTE(ericv): This method exists only for the purpose of implementing
   // S2ClosestEdgeQuery::Options::include_interiors() efficiently.  Its API is
   // unlikely to be useful for other purposes.
-  //
-  // CAVEAT: Containing shapes may be visited more than once.
   using ShapeVisitor = std::function<bool (S2Shape* containing_shape,
                                            const S2Point& target_point)>;
   virtual bool VisitContainingShapes(const S2ShapeIndex& query_index,
@@ -163,5 +163,7 @@ class S2DistanceTarget {
   // By default this method returns -1, indicating that it is not implemented.
   virtual int max_brute_force_index_size() const { return -1; }
 };
+
+}  // namespace s2
 
 #endif  // S2_S2DISTANCE_TARGET_H_

@@ -15,17 +15,17 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/encoded_s2shape_index.h"
+#include "third_party/s2/encoded_s2shape_index.h"
 
 #include <memory>
-
 #include "absl/memory/memory.h"
-#include "s2/util/bits/bits.h"
-#include "s2/mutable_s2shape_index.h"
+#include "third_party/s2/mutable_s2shape_index.h"
 
 using absl::make_unique;
 using std::unique_ptr;
 using std::vector;
+
+namespace s2 {
 
 bool EncodedS2ShapeIndex::Iterator::Locate(const S2Point& target) {
   return LocateImpl(target, this);
@@ -51,51 +51,33 @@ S2Shape* EncodedS2ShapeIndex::GetShape(int id) const {
   if (shape) shape->id_ = id;
   S2Shape* expected = kUndecodedShape();
   if (shapes_[id].compare_exchange_strong(expected, shape.get(),
-                                          std::memory_order_acq_rel)) {
+                                          std::memory_order_relaxed)) {
     return shape.release();  // Ownership has been transferred to shapes_.
   }
-  return expected;  // Another thread updated shapes_[id] first.
+  return shapes_[id].load(std::memory_order_relaxed);
 }
 
 inline const S2ShapeIndexCell* EncodedS2ShapeIndex::GetCell(int i) const {
-  // memory_order_release ensures that no reads or writes in the current
-  // thread can be reordered after this store, and all writes in the current
-  // thread are visible to other threads that acquire the same atomic
-  // variable.
-  //
-  // memory_order_acquire ensures that no reads or writes in the current
-  // thread can be reordered before this load, and all writes in other threads
-  // that release the same atomic variable are visible in this thread.
-  //
-  // We use this to implement lock-free synchronization on the read path as
-  // follows:
-  //
-  //  1. cells_decoded(i) is updated using acquire/release semantics
-  //  2. cells_[i] is written before cells_decoded(i)
-  //  3. cells_[i] is read after cells_decoded(i)
-  //
-  // Note that we do still use a lock for the write path to ensure that
-  // cells_[i] and cell_decoded(i) are updated together atomically.
-  if (cell_decoded(i)) return cells_[i];
-
-  // Decode the cell before acquiring the spinlock in order to minimize the
+  if (cell_decoded(i)) {
+    auto cell = cells_[i].load(std::memory_order_acquire);
+    if (cell != nullptr) return cell;
+  }
+  // We decode the cell before acquiring the spinlock in order to minimize the
   // time that the lock is held.
   auto cell = make_unique<S2ShapeIndexCell>();
   Decoder decoder = encoded_cells_.GetDecoder(i);
   if (!cell->Decode(num_shape_ids(), &decoder)) {
     return nullptr;
   }
-  // Recheck cell_decoded(i) once we hold the lock in case another thread
-  // has decoded this cell in the meantime.
   SpinLockHolder l(&cells_lock_);
-  if (cell_decoded(i)) return cells_[i];
-
-  // Update the cell, setting cells_[i] before cell_decoded(i).
-  cells_[i] = cell.get();
-  set_cell_decoded(i);
+  if (test_and_set_cell_decoded(i)) {
+    // This cell has already been decoded.
+    return cells_[i].load(std::memory_order_relaxed);
+  }
   if (cell_cache_.size() < max_cell_cache_size()) {
     cell_cache_.push_back(i);
   }
+  cells_[i].store(cell.get(), std::memory_order_relaxed);
   return cell.release();  // Ownership has been transferred to cells_.
 }
 
@@ -138,18 +120,17 @@ bool EncodedS2ShapeIndex::Init(Decoder* decoder,
   // need to initialize one bit per cell to zero.
   //
   // For very large S2ShapeIndexes the internal memset() call to initialize
-  // cells_decoded_ still takes about 1.3 microseconds per million cells
-  // (assuming an optimized implementation that writes 32 bytes per cycle),
-  // but this seems reasonable relative to other likely costs (I/O, etc).
+  // cells_decoded_ still takes about 4 microseconds per million cells, but
+  // this seems reasonable relative to other likely costs (I/O, etc).
   //
   // NOTE(ericv): DO NOT use make_unique<> here!  make_unique<> allocates memory
   // using "new T[n]()", which initializes all elements of the array.  This
   // slows down some benchmarks by over 100x.
   //
-  // cells_ = make_unique<S2ShapeIndexCell*>[](cell_ids_.size());
+  // cells_ = make_unique<std::atomic<S2ShapeIndexCell*>[]>(cell_ids_.size());
   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //                                NO NO NO
-  cells_.reset(new S2ShapeIndexCell*[cell_ids_.size()]);
+  cells_.reset(new std::atomic<S2ShapeIndexCell*>[cell_ids_.size()]);
   cells_decoded_ = vector<std::atomic<uint64>>((cell_ids_.size() + 63) >> 6);
 
   return encoded_cells_.Init(decoder);
@@ -172,16 +153,16 @@ void EncodedS2ShapeIndex::Minimize() {
     // but for a huge polygon with 1 million cells that's still 16000 cycles.)
     for (int pos : cell_cache_) {
       cells_decoded_[pos >> 6].store(0, std::memory_order_relaxed);
-      delete cells_[pos];
+      delete cells_[pos].load(std::memory_order_relaxed);
     }
   } else {
     // Scan the cells_decoded_ vector looking for cells that must be deleted.
-    for (int i = cells_decoded_.size(); --i >= 0;) {
+    for (int i = cells_decoded_.size(), base = 0; --i >= 0; base += 64) {
       uint64 bits = cells_decoded_[i].load(std::memory_order_relaxed);
       if (bits == 0) continue;
       do {
         int offset = Bits::FindLSBSetNonZero64(bits);
-        delete cells_[(i << 6) + offset];
+        delete cells_[(i << 6) + offset].load(std::memory_order_relaxed);
         bits &= bits - 1;
       } while (bits != 0);
       cells_decoded_[i].store(0, std::memory_order_relaxed);
@@ -191,7 +172,7 @@ void EncodedS2ShapeIndex::Minimize() {
 }
 
 size_t EncodedS2ShapeIndex::SpaceUsed() const {
-  // TODO(ericv): Add SpaceUsed() method to S2Shape base class,and include
+  // TODO(ericv): Add SpaceUsed() method to S2Shape base class,and Include
   // memory owned by the allocated S2Shapes (here and in S2ShapeIndex).
   size_t size = sizeof(*this);
   size += shapes_.capacity() * sizeof(std::atomic<S2Shape*>);
@@ -200,3 +181,5 @@ size_t EncodedS2ShapeIndex::SpaceUsed() const {
   size += cell_cache_.capacity() * sizeof(int);
   return size;
 }
+
+}  // namespace s2
